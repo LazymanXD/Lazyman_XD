@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Web Desktop</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <title>Lazyman_XD</title>
+  <link rel="icon" type="image/jpeg" href="./profile website.jpg">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Caveat:wght@700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -85,19 +86,7 @@
     }
     
     .bg-layer-frontest { 
-      background-image: url("./FRONTEST.png"); 
-      z-index: 0.76; 
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      pointer-events: none;
-      will-change: transform;
-      transform: translateZ(0);
+      display: none;
     }
 
     .loading-screen {
@@ -194,6 +183,49 @@
     .win-btn:hover { background: rgba(255 255 255 / 0.3); }
     .win-btn.close:hover { background: #ea4335; color: white; font-weight: bold; }
 
+    /* Desktop/PC - Make buttons bigger */
+    @media (min-width: 1024px) {
+      .win-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+        line-height: 24px;
+      }
+      .music-btn {
+        width: 55px;
+        height: 55px;
+        font-size: 24px;
+      }
+      .chapter-nav-btn {
+        padding: 15px 30px;
+        font-size: 16px;
+      }
+      .manga-nav-btn {
+        padding: 15px 30px;
+        font-size: 16px;
+      }
+      .chapter-btn {
+        padding: 8px 15px;
+        font-size: 14px;
+      }
+      .add-chapter-btn {
+        padding: 15px;
+        font-size: 16px;
+      }
+      .manga-action-btn {
+        padding: 20px 35px;
+        font-size: 16px;
+      }
+      .manga-selection-btn {
+        padding: 12px;
+        font-size: 14px;
+      }
+      .manga-modal-btn {
+        padding: 15px 30px;
+        font-size: 16px;
+      }
+    }
+
     .middle-tab-content { flex: 1; padding: 40px; text-align: center; overflow-y: auto; color: #222; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     .middle-tab-content.wiki-active { text-align: initial; }
 
@@ -201,6 +233,11 @@
     @keyframes amberGlowPulse { 0%,100% { color: #333; text-shadow: 0 0 5px #ff980088, 0 0 10px #ff980044; transform: scale(1); } 50% { color: #ff9800; text-shadow: 0 0 20px #ff9800bb, 0 0 40px #ff9800aa; transform: scale(1.05); } }
 
     .middle-tab-subtitle { font-size: 12px; margin-bottom: 40px; color: #444; font-family: 'Press Start 2P', cursive; }
+
+    /* Keep title/subtitle in fixed position regardless of screen size */
+    #homeContentOutside {
+      transform: translate(-50%, -105%) !important;
+    }
 
     /* Responsive adjustments for title and subtitle */
     @media (max-width: 768px) {
@@ -213,23 +250,32 @@
       .middle-tab-subtitle { font-size: 8px; margin-bottom: 20px; }
     }
 
-    .nav-buttons { display: flex; gap: 30px; justify-content: center; flex-wrap: nowrap; font-family: sans-serif; }
+    .nav-buttons { display: flex; gap: 30px; justify-content: center; flex-wrap: nowrap; font-family: sans-serif; position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); z-index: 100; }
     .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: transform 0.2s ease; user-select: none; font-size: 14px; color: #222; }
+    
+    /* Desktop - Make buttons closer (~1cm apart) */
+    @media (min-width: 1024px) {
+      .nav-buttons {
+        gap: 38px;
+      }
+    }
     
     /* Responsive adjustments for buttons */
     @media (max-width: 768px) {
       .nav-buttons {
-        gap: 25px;
-        padding: 0 10px;
-        flex-wrap: nowrap;
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        gap: 4px;
       }
       .nav-btn {
-        font-size: 16px;
-        gap: 10px;
+        font-size: 10px;
+        gap: 2px;
       }
       .nav-btn-icon {
-        width: 110px;
-        height: 110px;
+        width: 45px;
+        height: 45px;
       }
       .nav-btn-icon img {
         width: 100%;
@@ -239,25 +285,60 @@
     
     @media (max-width: 480px) {
       .nav-buttons {
-        gap: 5px;
+        position: fixed;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        gap: 2px;
         flex-direction: row;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         justify-content: center;
-        max-width: 100%;
+        max-width: 95%;
+        padding: 0 3px;
       }
       .nav-btn {
-        font-size: 12px;
-        gap: 5px;
-        min-width: 60px;
+        font-size: 9px;
+        gap: 1px;
+        min-width: auto;
         flex-shrink: 0;
       }
       .nav-btn-icon {
-        width: 55px;
-        height: 55px;
+        width: 35px;
+        height: 35px;
       }
       .nav-btn-icon img {
         width: 100%;
         height: 100%;
+      }
+    }
+    
+    @media (max-width: 380px) {
+      .nav-buttons {
+        gap: 1px;
+        bottom: 6px;
+      }
+      .nav-btn {
+        font-size: 8px;
+        gap: 0px;
+      }
+      .nav-btn-icon {
+        width: 30px;
+        height: 30px;
+      }
+    }
+    
+    @media (max-width: 320px) {
+      .nav-buttons {
+        gap: 0px;
+        bottom: 5px;
+      }
+      .nav-btn {
+        font-size: 7px;
+        gap: 0px;
+      }
+      .nav-btn-icon {
+        width: 28px;
+        height: 28px;
       }
     }
     
@@ -295,17 +376,20 @@
     
     .thought-bubble {
       position: relative;
-      background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
       border-radius: 20px;
       padding: 20px 25px;
-      width: 460px;
-      height: 360px;
+      width: 90vw;
+      max-width: 460px;
+      height: auto;
+      min-height: 360px;
+      max-height: 70vh;
       box-shadow: 
         0 10px 40px rgba(0,0,0,0.15),
         0 2px 8px rgba(0,0,0,0.1),
         inset 0 1px 0 rgba(255,255,255,0.8);
       animation: bubblePop 0.5s ease-out;
-      overflow: hidden;
+      overflow-y: auto;
     }
     
     @keyframes bubblePop {
@@ -533,6 +617,36 @@
       transition: all 0.3s ease;
       border: 2px solid rgba(255, 255, 255, 0.2);
     }
+    
+    /* Move music player to top on small screens */
+    @media (max-width: 768px) {
+      .music-player {
+        top: 20px;
+        bottom: auto;
+        left: 20px;
+        width: 45px;
+        height: 45px;
+      }
+      .music-controls {
+        top: 70px;
+        bottom: auto;
+        left: 20px;
+        padding: 6px;
+        gap: 6px;
+        border-radius: 8px;
+        flex-direction: row;
+        height: 44px;
+        align-items: center;
+      }
+      .music-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+      }
+      .volume-slider {
+        width: 60px;
+      }
+    }
     .window-maximized .music-player {
       display: none;
     }
@@ -542,12 +656,19 @@
       border-color: rgba(255, 255, 255, 0.4);
     }
     .music-player.playing {
-      animation: musicGlow 2s infinite;
+      animation: musicGlow 2s infinite, musicBeat 0.5s infinite;
     }
     @keyframes musicGlow {
       0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
       50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.9); }
     }
+    @keyframes musicBeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+    .music-player.beating {
+      animation: musicGlow 2s infinite, musicBeat 0.4s infinite ease-in-out;
+}
     .music-controls {
       position: fixed;
       bottom: 90px;
@@ -728,6 +849,34 @@
       background: rgba(255, 215, 0, 0.9);
       color: white;
       transform: scale(1.1);
+    }
+    .artwork-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 215, 0, 0.8);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      color: #333;
+      cursor: pointer;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    .artwork-nav:hover {
+      background: rgba(255, 215, 0, 1);
+      transform: translateY(-50%) scale(1.1);
+    }
+    .artwork-nav-prev {
+      left: 20px;
+    }
+    .artwork-nav-next {
+      right: 20px;
     }
 
     /* Responsive adjustments */
@@ -3436,6 +3585,50 @@
     .wiki-content.show {
       opacity: 1;
     }
+    /* Mobile - Make diary bigger on phone */
+    @media (max-width: 768px) {
+      .diary-page {
+        padding: 30px 20px;
+        font-size: 16px;
+        line-height: 1.8;
+      }
+      .diary-title {
+        font-size: 32px !important;
+        margin-bottom: 20px !important;
+      }
+      .diary-entry {
+        margin-bottom: 25px;
+        padding: 15px;
+      }
+      .diary-entry-title {
+        font-size: 20px !important;
+      }
+      .diary-entry-content {
+        font-size: 15px !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .diary-page {
+        padding: 20px 15px;
+        font-size: 18px;
+        line-height: 2;
+      }
+      .diary-title {
+        font-size: 28px !important;
+        margin-bottom: 25px !important;
+      }
+      .diary-entry {
+        margin-bottom: 30px;
+        padding: 18px;
+      }
+      .diary-entry-title {
+        font-size: 22px !important;
+      }
+      .diary-entry-content {
+        font-size: 16px !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -3473,11 +3666,13 @@
   <!-- Music Player -->
   <div class="music-player" id="musicPlayer" onclick="toggleMusicControls()" onmouseover="showMusicControls()" onmouseout="hideMusicControls()">
     🎵
+    <canvas id="musicVisualizer" width="120" height="120" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: -1;"></canvas>
   </div>
   <div class="music-controls" id="musicControls" onmouseover="showMusicControls()" onmouseout="hideMusicControls()">
+    <button class="music-btn" id="playPauseBtn" onclick="togglePlayPause()">▶️</button>
     <button class="music-btn" id="nextBtn" onclick="nextTrack()">⏭️</button>
     <button class="music-btn" id="stopBtn" onclick="stopMusic()">⏹️</button>
-    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="20" oninput="changeVolume(this.value)">
+    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="5" oninput="changeVolume(this.value)">
   </div>
 
 <!-- Artwork Overlay -->
@@ -3492,11 +3687,295 @@ const desktop = document.getElementById('desktop');
 const middleTab = document.getElementById('middleTab');
 const tabContent = document.getElementById('tabContent');
 
-// 🎵 MUSIC PLAYER - Jazz tracks
+// 🎵 MUSIC PLAYER - All loop tracks from music dolder with gapless looping
+let audioContext = null;
+let currentSource = null;
+let currentGainNode = null;
+let audioBuffers = [];
+let isAudioContextInitialized = false;
+let analyser = null;
+let animationId = null;
+
+// 🎵 MUSIC TRACKS - All loopable tracks from music dolder
 const musicTracks = [
-  'sonican-jazzy-motion-elegant-loop-207005.mp3',
-  'diamond_tunes-slide-jazz-334068.mp3'
+  'dragon-studio-relaxing-guitar-loop-4-427403.mp3',
+  'freesound_community-i-am-dreaming-or-final-fantasy-menu-kinda-thing-29173.mp3',
+  'freesound_community-smooth-vibe-music-loop-alternate-95804.mp3',
+  'idoberg-relaxing-guitar-loop-v11-268692.mp3',
+  'idoberg-soul-guitar-loop-389438.mp3',
+  'jtwayne-jtwayne-keys-loops-17-188083.mp3',
+  'milbela-looping-guitar-361766.mp3',
+  'sergequadrado-happy-relaxing-loop-275487.mp3',
+  'xtremefreddy-game-music-loop-1-143979.mp3',
+  'yo-tu-calm-at-the-end-of-the-world-looping-tune-232184.mp3',
+  'yo-tu-i-wish-looping-tune-225553.mp3'
 ];
+
+// Initialize Web Audio API for gapless looping
+function initAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
+}
+
+// Preload all audio tracks into buffers for seamless looping
+async function preloadAudioTracks() {
+  if (!audioContext) initAudioContext();
+  
+  audioBuffers = [];
+  for (let track of musicTracks) {
+    try {
+      const response = await fetch(track);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      audioBuffers.push(audioBuffer);
+    } catch (err) {
+      console.warn('Failed to preload track:', track, err);
+      audioBuffers.push(null);
+    }
+  }
+}
+
+// Play a track with seamless looping using Web Audio API
+function playSeamlessLoop(trackIndex) {
+  if (!audioContext) initAudioContext();
+  
+  // Check if audio context is suspended (browser autoplay policy)
+  if (audioContext.state === 'suspended') {
+    audioContext.resume().then(() => {
+      console.log('Audio context resumed');
+      actuallyPlayTrack(trackIndex);
+    }).catch(err => {
+      console.log('Audio context resume failed:', err);
+      // Don't show playing state if audio can't play
+      isPlaying = false;
+      document.getElementById('musicPlayer').classList.remove('playing');
+      document.getElementById('playPauseBtn').textContent = '▶️';
+    });
+    return;
+  }
+  
+  actuallyPlayTrack(trackIndex);
+}
+
+// Actually play the track after audio context is ready
+function actuallyPlayTrack(trackIndex) {
+  // Stop current playback
+  if (currentSource) {
+    try {
+      currentSource.stop();
+      currentSource.disconnect();
+    } catch (e) {}
+    currentSource = null;
+  }
+  
+  if (currentGainNode) {
+    currentGainNode.disconnect();
+    currentGainNode = null;
+  }
+  
+  // If buffer not loaded yet, fall back to HTML5 audio
+  if (!audioBuffers[trackIndex]) {
+    playMusicFallback(trackIndex);
+    return;
+  }
+  
+  // Create gain node for volume control
+  currentGainNode = audioContext.createGain();
+  currentGainNode.connect(audioContext.destination);
+  currentGainNode.gain.value = document.getElementById('volumeSlider').value / 100;
+  
+  // Create analyser for beat detection
+  analyser = audioContext.createAnalyser();
+  analyser.fftSize = 256;
+  currentGainNode.connect(analyser);
+  
+  // Create buffer source and loop it
+  currentSource = audioContext.createBufferSource();
+  currentSource.buffer = audioBuffers[trackIndex];
+  currentSource.loop = true;
+  currentSource.connect(currentGainNode);
+  currentSource.start(0);
+  
+  // Start beat detection animation
+  startBeatAnimation();
+  
+  isPlaying = true;
+  document.getElementById('musicPlayer').classList.add('playing');
+  document.getElementById('playPauseBtn').textContent = '⏸️';
+}
+
+// Start beat animation based on audio levels - Circular Visualizer with real beat detection
+function startBeatAnimation() {
+  const canvas = document.getElementById('musicVisualizer');
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  const dataArray = new Uint8Array(analyser.frequencyBinCount);
+  const barCount = 32;
+  
+  // Beat detection variables
+  let lastBeatTime = 0;
+  let beatThreshold = 0;
+  let bassHistory = [];
+  const historySize = 10;
+  
+  function drawVisualizer() {
+    if (!isPlaying || !analyser) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+    
+    analyser.getByteFrequencyData(dataArray);
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 35;
+    const maxBarLength = 30;
+    
+    // Calculate bass energy (low frequencies = beat/kick drum)
+    // Focus on first 1/8th of frequency spectrum for bass
+    let bassSum = 0;
+    const bassRange = Math.floor(dataArray.length / 8);
+    for (let i = 0; i < bassRange; i++) {
+      bassSum += dataArray[i];
+    }
+    const bassAverage = bassSum / bassRange;
+    
+    // Add to history for beat detection
+    bassHistory.push(bassAverage);
+    if (bassHistory.length > historySize) bassHistory.shift();
+    
+    // Calculate dynamic threshold based on recent history
+    const averageHistory = bassHistory.reduce((a, b) => a + b, 0) / bassHistory.length;
+    beatThreshold = averageHistory * 1.2; // Beat when bass exceeds 120% of average
+    
+    // Detect beat
+    const isBeat = bassAverage > beatThreshold && bassAverage > 80;
+    const beatIntensity = isBeat ? (bassAverage / 255) : 0;
+    
+    // Draw circular frequency bars
+    for (let i = 0; i < barCount; i++) {
+      // Map bar index to frequency range
+      // Lower bars (0-8) = bass, middle = mids, high = treble
+      let freqStart, freqEnd;
+      if (i < 8) {
+        // Bass frequencies for beat bars
+        freqStart = 0;
+        freqEnd = Math.floor(dataArray.length / 8);
+      } else if (i < 16) {
+        // Mid-low
+        freqStart = Math.floor(dataArray.length / 8);
+        freqEnd = Math.floor(dataArray.length / 4);
+      } else if (i < 24) {
+        // Mid-high
+        freqStart = Math.floor(dataArray.length / 4);
+        freqEnd = Math.floor(dataArray.length / 2);
+      } else {
+        // Treble
+        freqStart = Math.floor(dataArray.length / 2);
+        freqEnd = dataArray.length;
+      }
+      
+      // Get average for this frequency range
+      let sum = 0;
+      const range = freqEnd - freqStart;
+      const index = freqStart + Math.floor((i % 8) / 8 * range);
+      const dataIndex = Math.min(index, dataArray.length - 1);
+      const value = dataArray[dataIndex];
+      
+      // Enhance bass bars during beat
+      let percent = value / 255;
+      if (i < 8 && isBeat) {
+        percent = Math.min(1, percent + beatIntensity * 0.5);
+      }
+      
+      const barLength = percent * maxBarLength;
+      
+      // Calculate angle
+      const angle = (i / barCount) * Math.PI * 2 - Math.PI / 2;
+      
+      // Calculate points
+      const startX = centerX + Math.cos(angle) * radius;
+      const startY = centerY + Math.sin(angle) * radius;
+      const endX = centerX + Math.cos(angle) * (radius + barLength);
+      const endY = centerY + Math.sin(angle) * (radius + barLength);
+      
+      // Draw bar with color based on frequency
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.lineWidth = isBeat && i < 8 ? 5 : 3;
+      ctx.lineCap = 'round';
+      
+      // Color based on frequency range
+      let r, g, b;
+      if (i < 8) {
+        // Bass = golden/yellow
+        r = 255; g = 215; b = 0;
+      } else if (i < 16) {
+        // Mid-low = orange
+        r = 255; g = 165; b = 0;
+      } else if (i < 24) {
+        // Mid-high = light orange
+        r = 255; g = 200; b = 100;
+      } else {
+        // Treble = white/yellow
+        r = 255; g = 250; b = 200;
+      }
+      
+      const opacity = 0.5 + (percent * 0.5);
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+      ctx.stroke();
+      
+      // Glow effect on beat for bass bars
+      if (isBeat && i < 8 && percent > 0.6) {
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = `rgba(255, 215, 0, ${0.4 * percent})`;
+        ctx.stroke();
+      }
+    }
+    
+    animationId = requestAnimationFrame(drawVisualizer);
+  }
+  
+  drawVisualizer();
+}
+
+// Fallback function for HTML5 audio when Web Audio API buffers aren't ready
+function playMusicFallback(trackIndex) {
+  console.log('Using HTML5 audio fallback for track:', trackIndex);
+  
+  // Stop any existing audio
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+  
+  // Create new HTML5 audio element
+  currentAudio = new Audio(musicTracks[trackIndex]);
+  currentAudio.loop = true;
+  currentAudio.volume = document.getElementById('volumeSlider').value / 100;
+  
+  currentAudio.play().then(() => {
+    isPlaying = true;
+    document.getElementById('musicPlayer').classList.add('playing');
+    document.getElementById('playPauseBtn').textContent = '⏸️';
+    console.log('HTML5 audio playing successfully');
+  }).catch(err => {
+    console.warn('HTML5 audio play failed:', err.message);
+    alert('Click anywhere on the page first, then try playing music');
+  });
+}
 let currentTrackIndex = 0;
 let currentAudio = null;
 let isPlaying = false;
@@ -3506,26 +3985,69 @@ function initializeAudioState() {
   // Try to restore previous audio state
   const savedVolume = localStorage.getItem('musicVolume');
   const savedTrack = localStorage.getItem('musicTrack');
-  const wasPlaying = localStorage.getItem('musicPlaying') === 'true';
   
   if (savedVolume !== null) {
     document.getElementById('volumeSlider').value = savedVolume;
+  } else {
+    // Set default volume to 2%
+    document.getElementById('volumeSlider').value = 2;
   }
   
   if (savedTrack !== null) {
     currentTrackIndex = parseInt(savedTrack);
   }
   
-  // Set initial state based on saved state
-  isPlaying = wasPlaying;
+  // Always set playing state to true for auto-play
+  isPlaying = true;
+  localStorage.setItem('musicPlaying', 'true');
   
-  // Auto-start music after 3 seconds if it was playing before refresh
-  if (wasPlaying) {
-    setTimeout(() => {
-      playMusic();
-    }, 3000); // Start after 3 seconds
-  }
-  // If it was paused, stay paused (no auto-start)
+  // Auto-start music after 3 seconds
+  setTimeout(() => {
+    attemptAutoPlay();
+  }, 3000);
+}
+
+// Attempt to auto-play, retry if blocked
+function attemptAutoPlay() {
+  console.log('Attempting seamless auto-play...');
+  
+  // Preload tracks first, then play
+  preloadAudioTracks().then(() => {
+    console.log('Tracks preloaded, starting seamless playback...');
+    playSeamlessLoop(currentTrackIndex);
+    
+    // Start 5-minute timer
+    clearTimeout(trackSwitchTimer);
+    trackSwitchTimer = setTimeout(() => {
+      if (isPlaying) nextTrack();
+    }, 300000);
+  }).catch(err => {
+    console.log('Preload failed, falling back to HTML5 audio:', err);
+    // Fallback to HTML5 audio
+    if (!currentAudio) {
+      currentAudio = new Audio(musicTracks[currentTrackIndex]);
+      currentAudio.loop = true;
+      currentAudio.volume = 0.05;
+    }
+    
+    const playPromise = currentAudio.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        document.getElementById('musicPlayer').classList.add('playing');
+        clearTimeout(trackSwitchTimer);
+        trackSwitchTimer = setTimeout(() => {
+          if (isPlaying) nextTrack();
+        }, 300000);
+      }).catch(error => {
+        console.log('Auto-play blocked:', error.message);
+        document.addEventListener('click', function initAudioOnClick() {
+          console.log('User clicked, starting music...');
+          playMusic();
+          document.removeEventListener('click', initAudioOnClick);
+        }, { once: true });
+      });
+    }
+  });
 }
 
 // Save audio state
@@ -3535,13 +4057,16 @@ function saveAudioState() {
   localStorage.setItem('musicPlaying', isPlaying.toString());
 }
 
-// � DRAGON STUDIO SOUNDS - Using your MP3 files ✨
+// 🎵 DRAGON STUDIO SOUNDS - Using your MP3 files ✨
 const sounds = {
-  // 🌈 OPEN - Using your notification sound
-  open: new Audio('dragon-studio-new-notification-3-398649.mp3'),
+  // 🌈 OPEN/ENTER - Using universfield sound for entering
+  open: new Audio('universfield-new-notification-09-352705.mp3'),
+  enter: new Audio('universfield-new-notification-09-352705.mp3'),
   
-  // 🎉 CLOSE - Using your notification sound
+  // 🎉 CLOSE/EXIT/BACK - Using dragon-studio sound for exiting
   close: new Audio('dragon-studio-new-notification-3-398649.mp3'),
+  exit: new Audio('dragon-studio-new-notification-3-398649.mp3'),
+  back: new Audio('dragon-studio-new-notification-3-398649.mp3'),
   
   // ⬇️ MINIMIZE - Using your notification sound
   minimize: new Audio('dragon-studio-new-notification-3-398649.mp3'),
@@ -3555,22 +4080,65 @@ const sounds = {
   // ♾️ INFINITE - Special sound for infinite icon only
   infinite: new Audio('universfield-new-notification-09-352705.mp3'),
   
-  // 📋 TAB BUTTONS - Special sound for buttons inside window tab
-  tabClick: new Audio('denielcz-immersivecontrol-button-click-sound-463065.mp3')
+  // 📋 TAB BUTTONS - Using universfield sound for button clicks
+  tabClick: new Audio('universfield-new-notification-09-352705.mp3'),
+  
+  // 🎵 Q&A PAGE SOUNDS - Only used on Q&A page
+  qaClick1: new Audio('floraphonic-newspaper-foley-15-196732.mp3'),
+  qaClick2: new Audio('koiroylers-click-bubble-351951.mp3'),
+  qaClick3: new Audio('linhmitto-bubblepop-254773.mp3'),
+  qaClick4: new Audio('virtual_vibes-pop-tap-click-fx-383733.mp3')
 };
 
 // 🎪 SMOOTH AUDIO ENGINE - Perfect timing + layering
+let audioUnlocked = false;
+
+// Q&A specific sound index for cycling through sounds
+let qaSoundIndex = 0;
+const qaSoundKeys = ['qaClick1', 'qaClick2', 'qaClick3', 'qaClick4'];
+
+// Check if we're currently on the Q&A page
+function isQAPage() {
+  const currentContent = tabContent.innerHTML;
+  return currentContent.includes('qa-container') || currentContent.includes('qa-top-nav');
+}
+
+function unlockAudio() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  
+  // Play a silent sound to unlock audio context
+  Object.values(sounds).forEach(sound => {
+    sound.play().catch(() => {});
+    sound.pause();
+    sound.currentTime = 0;
+  });
+}
+
 function playSound(soundKey, delay = 0) {
+  // Use Q&A specific sounds if on Q&A page and no specific sound key provided
+  if (!soundKey && isQAPage()) {
+    soundKey = qaSoundKeys[qaSoundIndex];
+    qaSoundIndex = (qaSoundIndex + 1) % qaSoundKeys.length;
+  }
+  
   const sound = sounds[soundKey];
   if (!sound) return;
   
-  sound.volume = 0.7;
+  // Set all button sounds to 30% volume
+  sound.volume = 0.3;
   sound.currentTime = 0;
   
   setTimeout(() => {
-    sound.play().catch(() => {}); // Silent fail
+    sound.play().catch(err => {
+      console.warn('Sound play failed:', err.message);
+    });
   }, delay);
 }
+
+// Unlock audio on first user interaction
+document.addEventListener('click', unlockAudio, { once: true });
+document.addEventListener('touchstart', unlockAudio, { once: true });
 
 // --- Slow Reveal Loading ---
 window.addEventListener('load', () => {
@@ -3602,7 +4170,7 @@ window.addEventListener('load', () => {
       if (loadingScreen) loadingScreen.classList.add('hidden');
       if (desktop) desktop.classList.add('loaded');
       showPage('home'); // Always start with home page
-      playSound('open', 200); // Welcome sound
+      // Note: Welcome sound will play on first user interaction
       clearTimeout(safetyTimeout); // Cancel safety timeout since we succeeded
     }, 100); // Start reveal after 0.1 seconds
   } catch (error) {
@@ -3616,6 +4184,15 @@ window.addEventListener('load', () => {
     clearTimeout(safetyTimeout);
   }
 });
+
+// Update artwork galleries after loading saved data
+function updateArtworkSelect() {
+  // Update the front artwork display if it exists
+  const frontArtworkDisplay = document.getElementById('front-artwork-display');
+  if (frontArtworkDisplay && window.frontSelectedArtwork) {
+    frontArtworkDisplay.innerHTML = `<img src="${window.frontSelectedArtwork}" alt="Selected Front Artwork" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">`;
+  }
+}
 
 // --- ESC Key Handler for Easy Exit ---
 document.addEventListener('keydown', (e) => {
@@ -4052,63 +4629,858 @@ const pages = {
     ]
   },
   about: {
-    content: "<h2>About Me</h2><p>I am a manga artist and illustrator focused on stylized storytelling.</p>"
+    content: `<style>.about-content { font-size: clamp(8px, 2vw, 11px); line-height: 1.5; width: 100%; max-width: 100%; margin: 0 auto; padding: 15px; box-sizing: border-box; overflow-wrap: break-word; word-wrap: break-word; } .about-content h2 { font-size: clamp(10px, 3vw, 14px); margin-bottom: 10px; } .about-content p { margin-top: 10px; }</style><div class="about-content"><h2>About Me</h2><p><strong>Lazyman</strong> is a passionate manga artist and illustrator dedicated to creating captivating visual stories. With a unique artistic style that blends traditional manga aesthetics with modern digital techniques, Lazyman brings characters and worlds to life.</p><p>I specialize in creating manga, character illustrations, and concept art. My work spans various genres from fantasy and adventure to slice-of-life and emotional dramas. Each piece is crafted with attention to detail and a deep love for storytelling.</p><p>Over the years, I've created numerous manga series and illustrations. Some of my notable works include fantasy epics, character-driven dramas, and experimental art pieces. Every project is a new adventure in creativity.</p><p>I'm always open to collaborations, commissions, and connecting with fellow artists. Feel free to explore my work and reach out if you'd like to work together!</p></div>`
   },
   wiki: {
-    content: getWikiContent()
+    content: `
+      <style>
+        .wiki-wrapper {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          padding-top: 5vh;
+          z-index: 1;
+        }
+        .wiki-images {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          position: relative;
+          width: 100%;
+          max-width: 800px;
+          height: 50vh;
+        }
+        .wiki-ca-img {
+          width: 700px;
+          max-width: 90%;
+          height: auto;
+          object-fit: contain;
+          position: absolute;
+          z-index: 1;
+          transition: all 0.3s ease;
+        }
+        .wiki-girl-img {
+          width: 650px;
+          max-width: 85%;
+          height: auto;
+          object-fit: contain;
+          position: absolute;
+          z-index: 2;
+          margin-left: 5%;
+          transition: all 0.3s ease;
+        }
+        @keyframes wiggle {
+          0%, 100% { transform: rotate(-3deg); }
+          50% { transform: rotate(3deg); }
+        }
+        .wiki-girl-wiggle {
+          animation: wiggle 0.5s ease-in-out infinite;
+        }
+        .wiki-text {
+          color: #FFD700;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 28px;
+          text-shadow: 3px 3px 6px rgba(0,0,0,0.9);
+          text-align: center;
+          z-index: 10;
+          margin-top: 2vh;
+          margin-bottom: 2vh;
+        }
+        .wiki-back-btn {
+          padding: 12px 30px;
+          background: #fff;
+          border: none;
+          border-radius: 8px;
+          font-family: 'Courier New', monospace;
+          font-size: 16px;
+          cursor: pointer;
+          transition: all 0.2s;
+          z-index: 10;
+        }
+        .wiki-back-btn:hover {
+          background: #f0f0f0;
+        }
+        @media (max-width: 768px) {
+          .wiki-ca-img {
+            width: 500px;
+          }
+          .wiki-girl-img {
+            width: 450px;
+            margin-left: 3%;
+          }
+          .wiki-text {
+            font-size: 22px;
+          }
+        }
+        @media (max-width: 480px) {
+          .wiki-images {
+            height: 40vh;
+          }
+          .wiki-ca-img {
+            width: 320px;
+            transform: translateX(-15%);
+          }
+          .wiki-girl-img {
+            width: 300px;
+            transform: translateX(-15%);
+            margin-left: 2%;
+          }
+          .wiki-text {
+            font-size: 16px;
+          }
+          .wiki-back-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+          }
+        }
+      </style>
+      <div class="wiki-wrapper">
+        <div class="wiki-images">
+          <img src="./CA.png" class="wiki-ca-img" alt="CA">
+          <img src="./girl 1.png" class="wiki-girl-img wiki-girl-wiggle" alt="Girl">
+        </div>
+        <div class="wiki-text">WIKI COMING SOON</div>
+        <button class="wiki-back-btn" onclick="showPage('home')">← Back</button>
+      </div>
+    `
   },
   manga: {
     content: "<div id='manga-container'></div>"
   },
   faq: {
-    content: "<h2>Q&A</h2><p>Frequently asked questions will appear here.</p>"
+    content: `
+      <style>
+        .qa-container {
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+          display: flex;
+          flex-direction: column;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          overflow: hidden;
+          position: relative;
+          max-width: 100vw;
+        }
+        .qa-exit-btn {
+          position: absolute;
+          right: 20px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255,255,255,0.2);
+          cursor: pointer;
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .qa-exit-btn:hover {
+          background: rgba(255,255,255,0.2);
+          transform: scale(1.1);
+          box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .qa-exit-btn::before,
+        .qa-exit-btn::after {
+          content: '';
+          position: absolute;
+          width: 15px;
+          height: 2px;
+          background: #fff;
+        }
+        .qa-exit-btn::before {
+          transform: rotate(45deg);
+        }
+        .qa-exit-btn::after {
+          transform: rotate(-45deg);
+        }
+        .qa-top-nav {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 12px;
+          padding: 20px 15px;
+          background: rgba(0,0,0,0.2);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+          flex-wrap: wrap;
+          position: relative;
+        }
+        .qa-nav-btn {
+          padding: 12px 24px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 25px;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-size: 12px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.8);
+          letter-spacing: 0.5px;
+        }
+        .qa-nav-btn:hover {
+          background: rgba(255,255,255,0.2);
+          color: #fff;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .qa-nav-btn.active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: #fff;
+          border-color: transparent;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .qa-content-area {
+          flex: 1;
+          overflow-y: hidden;
+          padding: 20px;
+        }
+        .qa-section {
+          display: none;
+        }
+        .qa-section.active {
+          display: block;
+        }
+        /* Character Sheets Layout - PC */
+        .character-sheets-container {
+          display: grid;
+          grid-template-columns: minmax(200px, 300px) 1fr minmax(200px, 350px);
+          gap: 10px;
+          max-width: 95vw;
+          margin: 0 auto;
+          height: calc(100vh - 100px);
+          align-items: start;
+          padding: 20px;
+        }
+        .character-display {
+          grid-column: 2;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          min-width: 0;
+          width: 100%;
+          height: 100%;
+          padding-top: 20px;
+        }
+        .pricing-panel {
+          grid-column: 1;
+          width: 100%;
+          max-width: 300px;
+          min-width: 0;
+          background: rgba(255,255,255,0.05);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 20px;
+          padding: 25px;
+          flex-shrink: 0;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+          overflow: hidden;
+        }
+        .pricing-title {
+          font-size: 24px;
+          font-weight: 700;
+          text-align: center;
+          margin-bottom: 25px;
+          color: #fff;
+          letter-spacing: 1px;
+        }
+        .pricing-category {
+          margin-bottom: 20px;
+          padding: 15px;
+          background: rgba(255,255,255,0.05);
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,0.1);
+        }
+        .pricing-category h4 {
+          font-size: 13px;
+          margin: 0 0 12px 0;
+          color: #a78bfa;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .pricing-item {
+          font-size: 14px;
+          margin: 8px 0;
+          display: flex;
+          justify-content: space-between;
+          color: rgba(255,255,255,0.8);
+        }
+        .pricing-item span:last-child {
+          color: #fff;
+          font-weight: 600;
+        }
+        .character-image {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
+        }
+        .character-title {
+          font-size: 28px;
+          font-weight: 700;
+          margin-bottom: 25px;
+          margin-top: -40px;
+          text-align: center;
+          color: #fff;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+        }
+        .character-image-container {
+          position: relative;
+          width: 100%;
+          max-width: 600px;
+          height: calc(100vh - 200px);
+          background: rgba(255,255,255,0.05);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .style-switcher {
+          position: absolute;
+          right: 15px;
+          top: 50%;
+          transform: translateY(-50%);
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+          z-index: 10;
+        }
+        .style-switcher-mobile {
+          display: none;
+        }
+        .left-side-panel {
+          display: none;
+        }
+        .right-side-panel {
+          display: none;
+        }
+        .style-switcher-desktop {
+          display: none;
+        }
+        .pricing-tab-btn {
+          display: none;
+        }
+        .style-circle {
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+          border: 2px solid rgba(255,255,255,0.3);
+          cursor: pointer;
+          transition: all 0.3s ease;
+          background: rgba(255,255,255,0.1);
+          box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .style-circle:hover,
+        .style-circle.active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-color: transparent;
+          transform: scale(1.15);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        .character-buttons {
+          grid-column: 3;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          justify-content: center;
+          padding-top: 0;
+          width: 100%;
+          height: 100%;
+          align-items: stretch;
+        }
+        .char-btn {
+          width: 100%;
+          padding: 25px 40px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 12px;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-size: 18px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-align: center;
+          color: rgba(255,255,255,0.8);
+          box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          box-sizing: border-box;
+        }
+        .char-btn:hover,
+        .char-btn.active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: #fff;
+          border-color: transparent;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        /* Other sections */
+        .qa-text-content {
+          max-width: 800px;
+          margin: 0 auto;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-size: 16px;
+          line-height: 1.8;
+          color: rgba(255,255,255,0.9);
+        }
+        .qa-text-content h3 {
+          font-size: 28px;
+          font-weight: 700;
+          color: #fff;
+          margin-bottom: 25px;
+          letter-spacing: 1px;
+        }
+        .qa-text-content p {
+          margin-bottom: 20px;
+          color: rgba(255,255,255,0.8);
+        }
+        .social-links {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+          max-width: 400px;
+          margin: 0 auto;
+        }
+        .social-link {
+          padding: 18px 25px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 12px;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-align: center;
+          text-decoration: none;
+          color: rgba(255,255,255,0.9);
+          display: block;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .social-link:hover {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: #fff;
+          border-color: transparent;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        /* Phone Responsive */
+        @media (max-width: 1100px) {
+          .character-sheets-container {
+            grid-template-columns: 55px 1fr 120px;
+            gap: 15px;
+          }
+          .pricing-panel {
+            display: none;
+          }
+          .left-side-panel {
+            grid-column: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 55px;
+          }
+          .pricing-tab-btn {
+            display: block;
+            padding: 20px 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            letter-spacing: 2px;
+            min-height: 120px;
+            color: rgba(255,255,255,0.9);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+          }
+          .pricing-tab-btn:hover,
+          .pricing-tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-color: transparent;
+          }
+          .char-btn {
+            width: 100%;
+            padding: 20px 15px;
+            font-size: 14px;
+          }
+          .character-buttons {
+            margin-left: 0;
+            width: 100%;
+          }
+        }
+        @media (max-width: 768px) {
+          .qa-top-nav {
+            padding: 12px 50px 12px 8px;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            overflow-x: hidden;
+          }
+          .qa-exit-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 35px;
+            height: 35px;
+            min-width: 35px;
+          }
+          .qa-exit-btn:hover {
+            transform: translateY(-50%);
+          }
+          .qa-nav-btn {
+            padding: 8px 10px;
+            font-size: 9px;
+            flex: 1;
+            min-width: 0;
+            white-space: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+          }
+          .character-sheets-container {
+            display: grid;
+            grid-template-columns: 55px 1fr 50px;
+            align-items: start;
+            height: calc(100vh - 80px);
+            padding: 10px;
+            gap: 10px;
+          }
+          .pricing-panel {
+            display: none;
+          }
+          .pricing-panel.mobile-visible {
+            display: block;
+            position: fixed;
+            top: 60px;
+            left: 70px;
+            right: 70px;
+            width: auto;
+            height: calc(100vh - 100px);
+            z-index: 200;
+            background: rgba(26,26,46,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 20px;
+            overflow-y: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+          }
+          .pricing-close-btn {
+            display: block;
+            position: absolute;
+            top: 80px;
+            left: -50px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 201;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+            backdrop-filter: blur(10px);
+          }
+          .pricing-close-btn::before,
+          .pricing-close-btn::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 2px;
+            background: #fff;
+          }
+          .pricing-close-btn::before {
+            transform: rotate(45deg);
+          }
+          .pricing-close-btn::after {
+            transform: rotate(-45deg);
+          }
+          .left-side-panel {
+            grid-column: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 55px;
+          }
+          .pricing-tab-btn {
+            display: block;
+            padding: 20px 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            letter-spacing: 2px;
+            min-height: 120px;
+            color: rgba(255,255,255,0.9);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+          }
+          .pricing-tab-btn:hover,
+          .pricing-tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-color: transparent;
+          }
+          .pricing-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+          }
+          .pricing-category {
+            margin-bottom: 20px;
+            padding: 12px;
+          }
+          .pricing-category h4 {
+            font-size: 12px;
+            margin: 0 0 8px 0;
+          }
+          .pricing-item {
+            font-size: 13px;
+            margin: 6px 0;
+          }
+          .character-display {
+            grid-column: 2;
+            grid-row: 1 / span 2;
+            max-width: none;
+            width: 100%;
+            height: 100%;
+          }
+          .character-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            margin-top: -30px;
+          }
+          .character-image-container {
+            width: 100%;
+            max-width: none;
+            height: calc(100vh - 140px);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+          }
+          .character-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            position: relative;
+            z-index: 1;
+          }
+          .character-buttons {
+            grid-column: 3;
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: flex-start;
+            z-index: 10;
+            position: relative;
+            width: 100%;
+            padding-top: 10px;
+            margin-left: 0;
+          }
+          .char-btn {
+            padding: 10px 4px;
+            font-size: 12px;
+            border-radius: 8px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            min-height: 50px;
+            letter-spacing: 1px;
+            width: 100%;
+          }
+          .style-switcher {
+            display: none;
+          }
+          .style-switcher-mobile {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 15px;
+          }
+          .right-side-panel {
+            grid-column: 3;
+            grid-row: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 50px;
+            z-index: 10;
+            justify-content: flex-start;
+          }
+          .style-circle {
+            width: 28px;
+            height: 28px;
+          }
+          .qa-text-content {
+            font-size: 14px;
+            padding: 15px;
+          }
+          .qa-text-content h3 {
+            font-size: 22px;
+          }
+          .social-link {
+            padding: 16px;
+            font-size: 13px;
+          }
+        }
+      </style>
+      <div class="qa-container">
+        <div class="qa-top-nav">
+          <div class="qa-exit-btn" onclick="closeQATab()" title="Close"></div>
+          <button class="qa-nav-btn active" onclick="showQASection('why')">WHY MAKE THIS?</button>
+          <button class="qa-nav-btn" onclick="showQASection('contact')">WHERE TO CONTACT YOU?</button>
+          <button class="qa-nav-btn" onclick="showQASection('social')">YOUR SOCIAL?</button>
+          <button class="qa-nav-btn" onclick="showQASection('commissions')">YOU DO ART COMMISSIONS?</button>
+        </div>
+        <div class="qa-content-area">
+          <!-- WHY MAKE THIS -->
+          <div id="qa-why" class="qa-section active">
+            <div class="qa-text-content">
+              <h3>WHY MAKE THIS?</h3>
+              <p>This website was created to showcase my artwork, manga, and creative projects in a unique, interactive way. I wanted to create something different from standard portfolio sites - something that reflects my personality and love for retro gaming aesthetics.</p>
+              <p>The pixel art style and interactive elements are inspired by classic video games and visual novels that influenced my artistic journey.</p>
+            </div>
+          </div>
+          <!-- WHERE TO CONTACT -->
+          <div id="qa-contact" class="qa-section">
+            <div class="qa-text-content">
+              <h3>WHERE TO CONTACT YOU?</h3>
+              <p>You can reach me through the following channels:</p>
+              <p>Discord: <a href="https://discord.com/users/781458513603198986" target="_blank" class="social-link">lazyman_XD</a></p>
+              <p>For business inquiries and commissions, please include details about your project including timeline, budget, and specific requirements.</p>
+              <h4 style="margin-top: 25px; margin-bottom: 15px; color: #fff; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; text-align: center;">supportme/ payme</h4>
+              <div class="payment-buttons" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+                <a href="https://paypal.me/LazymanXDPay" target="_blank" class="payment-btn paypal-btn" style="padding: 20px 40px; background: linear-gradient(135deg, #0070ba 0%, #005ea6 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 25px; color: #fff; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,112,186,0.3);">PayPal</a>
+                <a href="https://ko-fi.com/lazyman_xd" target="_blank" class="payment-btn kofi-btn" style="padding: 20px 40px; background: linear-gradient(135deg, #ff5e5b 0%, #ff4500 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 25px; color: #fff; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255,94,91,0.3);">Ko-fi</a>
+              </div>
+            </div>
+          </div>
+          <!-- SOCIAL -->
+          <div id="qa-social" class="qa-section">
+            <div class="qa-text-content">
+              <h3>YOUR SOCIAL?</h3>
+              <div class="social-links">
+                <a href="#" class="social-link" target="_blank" style="background: linear-gradient(135deg, #1da1f2 0%, #0d8ecf 100%); color: #fff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(29,161,242,0.3);">TWITTER / X</a>
+                <a href="#" class="social-link" target="_blank" style="background: linear-gradient(135deg, #e1306c 0%, #c13584 50%, #833ab4 100%); color: #fff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(225,48,108,0.3);">INSTAGRAM</a>
+                <a href="https://www.deviantart.com/lazyman2020" class="social-link" target="_blank" style="background: linear-gradient(135deg, #05cc47 0%, #04a238 100%); color: #fff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(5,204,71,0.3);">DEVIANTART</a>
+                <a href="https://www.reddit.com/user/Top-Pizza-8795/submitted/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button" class="social-link" target="_blank" style="background: linear-gradient(135deg, #ff4500 0%, #ff5722 100%); color: #fff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255,69,0,0.3);">REDDIT</a>
+              </div>
+            </div>
+          </div>
+          <!-- COMMISSIONS / CHARACTER SHEETS -->
+          <div id="qa-commissions" class="qa-section">
+            <div class="character-sheets-container">
+              <!-- Pricing Panel -->
+              <div class="pricing-panel">
+                <div class="pricing-close-btn" onclick="togglePricingPanel()"></div>
+                <div class="pricing-title">PRICING</div>
+                <div class="pricing-category">
+                  <h4>BUST (HEAD TO CHEST)</h4>
+                  <div class="pricing-item"><span>SKETCH</span><span>$15</span></div>
+                  <div class="pricing-item"><span>FLAT COLOR</span><span>$25</span></div>
+                  <div class="pricing-item"><span>FULLY RENDERED</span><span>$40</span></div>
+                </div>
+                <div class="pricing-category">
+                  <h4>HALF BODY (WAIST UP)</h4>
+                  <div class="pricing-item"><span>SKETCH</span><span>$30</span></div>
+                  <div class="pricing-item"><span>FLAT COLOR</span><span>$50</span></div>
+                  <div class="pricing-item"><span>FULLY RENDERED</span><span>$80</span></div>
+                </div>
+                <div class="pricing-category">
+                  <h4>THIGH UP (3/4 BODY)</h4>
+                  <div class="pricing-item"><span>SKETCH</span><span>$40</span></div>
+                  <div class="pricing-item"><span>FLAT COLOR</span><span>$65</span></div>
+                  <div class="pricing-item"><span>FULLY RENDERED</span><span>$105</span></div>
+                </div>
+                <div class="pricing-category">
+                  <h4>FULL BODY</h4>
+                  <div class="pricing-item"><span>SKETCH</span><span>$45</span></div>
+                  <div class="pricing-item"><span>FLAT COLOR</span><span>$80</span></div>
+                  <div class="pricing-item"><span>FULLY RENDERED</span><span>$150</span></div>
+                </div>
+              </div>
+              <!-- Left Side Panel with Pricing Button -->
+              <div class="left-side-panel">
+                <button class="pricing-tab-btn" onclick="togglePricingPanel()">PRICING</button>
+              </div>
+              <!-- Character Display -->
+              <div class="character-display">
+                <div class="character-title">CHARACTER SHEETS</div>
+                <div class="character-image-container">
+                  <img id="character-image" src="./character1_sketch.png" alt="Character" class="character-image" onerror="this.src='./girl 1.png'">
+                  <div class="style-switcher">
+                    <div class="style-circle active" onclick="switchCharacterStyle('sketch')" title="Sketch"></div>
+                    <div class="style-circle" onclick="switchCharacterStyle('flat')" title="Flat Color"></div>
+                    <div class="style-circle" onclick="switchCharacterStyle('rendered')" title="Fully Rendered"></div>
+                  </div>
+                </div>
+              </div>
+              <!-- Right Side Panel -->
+              <div class="right-side-panel">
+                <div class="style-switcher-mobile">
+                  <div class="style-circle active" onclick="switchCharacterStyle('sketch')" title="Sketch"></div>
+                  <div class="style-circle" onclick="switchCharacterStyle('flat')" title="Flat Color"></div>
+                  <div class="style-circle" onclick="switchCharacterStyle('rendered')" title="Fully Rendered"></div>
+                </div>
+              </div>
+              <div class="character-buttons">
+                <button class="char-btn active" onclick="switchCharacter(1)">C1</button>
+                <button class="char-btn" onclick="switchCharacter(2)">C2</button>
+                <button class="char-btn" onclick="switchCharacter(3)">C3</button>
+                <button class="char-btn" onclick="switchCharacter(4)">C4</button>
+                <button class="char-btn" onclick="switchCharacter(5)">C5</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
   },
   contact: {
     content: "<h2>Contact</h2><p>Contact me at: your@email.com</p>"
   }
 };
-
-function getWikiContent() {
-  return '<div class="wiki-under-construction" style="' +
-    'position: fixed;' +
-    'top: 0;' +
-    'left: 0;' +
-    'width: 100vw;' +
-    'height: 100vh;' +
-    'background: rgba(0, 0, 0, 0.3);' +
-    'backdrop-filter: blur(10px);' +
-    'display: flex;' +
-    'flex-direction: column;' +
-    'align-items: center;' +
-    'justify-content: center;' +
-    'z-index: 10000;' +
-    '">' +
-    '<h2 style="' +
-    'color: #fff;' +
-    'font-family: \'Courier New\', monospace;' +
-    'font-size: 24px;' +
-    'margin-top: 20px;' +
-    'text-shadow: 2px 2px 4px rgba(0,0,0,0.5);' +
-    '">WIKI UNDER CONSTRUCTION</h2>' +
-    '<p style="' +
-    'color: #ccc;' +
-    'font-family: \'Courier New\', monospace;' +
-    'font-size: 14px;' +
-    'margin-top: 10px;' +
-    '">This page is still in development. Check back soon!</p>' +
-    '<button onclick="showPage(\'home\')" style="' +
-    'margin-top: 30px;' +
-    'padding: 12px 30px;' +
-    'background: #fff;' +
-    'border: none;' +
-    'border-radius: 8px;' +
-    'font-family: \'Courier New\', monospace;' +
-    'font-size: 16px;' +
-    'cursor: pointer;' +
-    'transition: all 0.2s;' +
-    '" onmouseover="this.style.background=\'#f0f0f0\'" onmouseout="this.style.background=\'#fff\'">Home</button>' +
-    '</div>';
-}
 
 function showPage(pageKey) {
   const page = pages[pageKey];
@@ -4130,7 +5502,7 @@ function showPage(pageKey) {
     // Hide the entire tab window
     middleTab.style.display = 'none';
     
-    // Create title and buttons outside of tab
+    // Create title at center
     const homeContent = document.createElement('div');
     homeContent.id = 'homeContentOutside';
     homeContent.style.cssText = `
@@ -4144,7 +5516,6 @@ function showPage(pageKey) {
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 20px;
       max-width: 95vw;
       max-height: 95vh;
       overflow: hidden;
@@ -4154,25 +5525,36 @@ function showPage(pageKey) {
     
     let html = `<h1 class="middle-tab-title" style="margin-bottom: 1px;">${page.title}</h1>`;
     html += `<p class="middle-tab-subtitle" style="margin-bottom: 40px; color: white !important;">${page.subtitle}</p>`;
-    html += `<div class="nav-buttons">`;
-    page.buttons.forEach(btn => {
-      const btnClass = btn.class ? ` ${btn.class}` : '';
-      html += `<div class="nav-btn${btnClass}" data-page="${btn.page}"><div class="nav-btn-icon">${btn.icon}</div>${btn.label}</div>`;
-    });
-    html += `</div>`;
     
     homeContent.innerHTML = html;
     document.body.appendChild(homeContent);
+    
+    // Create buttons container at bottom for desktop
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'navButtonsContainer';
+    buttonsContainer.className = 'nav-buttons';
+    
+    let buttonsHtml = '';
+    page.buttons.forEach(btn => {
+      const btnClass = btn.class ? ` ${btn.class}` : '';
+      buttonsHtml += `<div class="nav-btn${btnClass}" data-page="${btn.page}"><div class="nav-btn-icon">${btn.icon}</div>${btn.label}</div>`;
+    });
+    buttonsContainer.innerHTML = buttonsHtml;
+    document.body.appendChild(buttonsContainer);
     
     // Re-attach event listeners to new buttons
     attachNavListeners();
     
     tabContent.classList.remove('popup-enter');
   } else {
-    // Remove the outside home content when switching to other pages
+    // Remove the outside home content and buttons when switching to other pages
     const outsideHomeContent = document.getElementById('homeContentOutside');
     if (outsideHomeContent) {
       outsideHomeContent.remove();
+    }
+    const navButtonsContainer = document.getElementById('navButtonsContainer');
+    if (navButtonsContainer) {
+      navButtonsContainer.remove();
     }
     
     // Show the tab window again for other pages
@@ -4193,32 +5575,24 @@ function showPage(pageKey) {
       return;
     }
     
-    // For Q&A page, make it emerge like a thought bubble from the button
+    // For Q&A page, make it fullscreen like wiki
     if(pageKey === "faq") {
-      const btn = document.querySelector('.nav-btn[data-page="faq"]');
-      const btnRect = btn ? btn.getBoundingClientRect() : null;
-      
-      // Start from button position and scale up
-      if (btnRect) {
-        middleTab.style.left = (btnRect.left + btnRect.width/2 - 25) + 'px';
-        middleTab.style.top = (btnRect.top - 100) + 'px';
-      }
-      middleTab.style.width = '500px';
-      middleTab.style.height = '400px';
-      middleTab.style.background = 'transparent';
-      middleTab.style.boxShadow = 'none';
-      middleTab.style.transform = 'scale(0)';
+      middleTab.style.width = '100vw';
+      middleTab.style.height = '100vh';
+      middleTab.style.left = '0';
+      middleTab.style.top = '0';
+      middleTab.style.transform = 'scale(0.9)';
       middleTab.style.opacity = '0';
+      middleTab.style.background = '#f0f0f0';
+      middleTab.style.boxShadow = 'none';
       tabContent.style.padding = '0';
       tabContent.style.overflow = 'hidden';
       
-      // Animate thought bubble emerging
+      // Animate in
       requestAnimationFrame(() => {
-        middleTab.style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+        middleTab.style.transition = 'all 0.4s ease-out';
         middleTab.style.transform = 'scale(1)';
         middleTab.style.opacity = '1';
-        middleTab.style.left = 'calc(50% - 250px)';
-        middleTab.style.top = 'calc(50% - 200px)';
       });
     } else if(pageKey === "wiki") {
       // For wiki page - fade in with blur backdrop
@@ -4695,11 +6069,13 @@ style.textContent = `
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-family: 'Press Start 2P', cursive;
-    font-size: 18px;
+    font-family: 'Caveat', cursive;
+    font-size: 48px;
+    font-weight: 700;
     color: #ffd700;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
     text-align: center;
+    line-height: 1.2;
   }
   
   /* Spine */
@@ -4916,9 +6292,9 @@ style.textContent = `
     bottom: -35px;
     right: 0;
     font-family: 'Press Start 2P', cursive;
-    font-size: 10px;
-    color: #ffd700;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    font-size: 6px;
+    color: #000;
+    text-shadow: none;
     opacity: 0;
   }
   
@@ -5009,6 +6385,50 @@ style.textContent = `
   .diary-content-page::-webkit-scrollbar-thumb {
     background: #8B4513;
     border-radius: 3px;
+  }
+  
+  /* Responsive diary sizing for mobile */
+  @media (max-width: 768px) {
+    .diary-book-3d {
+      width: 350px;
+      height: 500px;
+    }
+    .diary-cover-title {
+      font-size: 36px;
+    }
+    .diary-spine-text-3d {
+      font-size: 8px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .diary-book-3d {
+      width: 280px;
+      height: 400px;
+    }
+    .diary-cover-title {
+      font-size: 28px;
+    }
+    .diary-spine-text-3d {
+      font-size: 7px;
+    }
+    .diary-content-page {
+      padding: 15px;
+      font-size: 12px;
+    }
+    .diary-content-3d h1 {
+      font-size: 14px;
+    }
+    .diary-content-3d h2 {
+      font-size: 12px;
+    }
+    .diary-close-btn-3d {
+      top: -30px;
+      right: -30px;
+      width: 35px;
+      height: 35px;
+      font-size: 16px;
+    }
   }
   
   /* Black Fog Effect */
@@ -5300,87 +6720,6 @@ function showWorkCards(button) {
   workCardsShowing = true;
 }
 
-// Keep artwork centered when window resizes
-window.addEventListener('resize', function() {
-  // Reposition artwork cards if showing
-  if (workCardsShowing && workCardElements.length > 0) {
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const button = document.querySelector('.nav-btn[data-page="work"]');
-    if (!button) return;
-    
-    const buttonRect = button.getBoundingClientRect();
-    const buttonCenterX = buttonRect.left + buttonRect.width / 2;
-    const buttonTopY = buttonRect.top;
-    
-    // Recalculate responsive values
-    let cardSize, spacingX, spacingY, cardsPerRow;
-    const totalCards = artworkData.length;
-    
-    if (viewportWidth <= 480) {
-      cardSize = 80;
-      spacingX = 90;
-      spacingY = 100;
-      cardsPerRow = 3;
-    } else if (viewportWidth <= 768) {
-      cardSize = 100;
-      spacingX = 115;
-      spacingY = 125;
-      cardsPerRow = 4;
-    } else {
-      cardSize = 120;
-      spacingX = 150;
-      spacingY = 160;
-      cardsPerRow = 5;
-    }
-    
-    // Calculate grid dimensions
-    const totalRows = Math.ceil(totalCards / cardsPerRow);
-    const gridWidth = Math.min(cardsPerRow, totalCards) * spacingX;
-    const gridHeight = totalRows * spacingY;
-    
-    // Center on screen
-    const centerX = viewportWidth / 2;
-    const centerY = viewportHeight / 2;
-    
-    // Adjust if it would cover button
-    const buttonBuffer = 100;
-    let gridTopY = centerY - (gridHeight / 2);
-    let gridLeftX = centerX - (gridWidth / 2);
-    
-    if (gridTopY + gridHeight > buttonTopY - buttonBuffer && 
-        gridLeftX < buttonCenterX + buttonBuffer && 
-        gridLeftX + gridWidth > buttonCenterX - buttonBuffer) {
-      gridTopY = buttonTopY - gridHeight - buttonBuffer;
-    }
-    
-    // Keep within viewport
-    gridTopY = Math.max(20, Math.min(gridTopY, viewportHeight - gridHeight - 20));
-    gridLeftX = Math.max(20, Math.min(gridLeftX, viewportWidth - gridWidth - 20));
-    
-    // Update each card position
-    workCardElements.forEach((card, index) => {
-      card.style.width = `${cardSize}px`;
-      card.style.height = `${cardSize}px`;
-      
-      const row = Math.floor(index / cardsPerRow);
-      const col = index % cardsPerRow;
-      
-      const cardsInThisRow = Math.min(cardsPerRow, totalCards - (row * cardsPerRow));
-      const rowWidth = cardsInThisRow * spacingX;
-      const rowStartX = gridLeftX + (gridWidth - rowWidth) / 2 + (spacingX / 2);
-      
-      const cardX = rowStartX + (col * spacingX);
-      const cardY = gridTopY + (row * spacingY) + (spacingY / 2);
-      const rotate = (index % 2 === 0 ? -3 : 3);
-      
-      card.style.left = `${cardX}px`;
-      card.style.top = `${cardY}px`;
-      card.style.transform = `translate(-50%, -50%) scale(1) rotate(${rotate}deg)`;
-    });
-  }
-});
-
 function hideWorkCards(button) {
   if (workCardElements.length === 0) return;
   
@@ -5528,16 +6867,16 @@ let diaryData = {
   pages: [
     {
       id: 1,
-      title: "Lazyman",
+      title: "Lazyman_XD",
       content: `
-        <h2>Who is Lazyman?</h2>
-        <p>Lazyman is a passionate manga artist and illustrator dedicated to creating captivating visual stories. With a unique artistic style that blends traditional manga aesthetics with modern digital techniques, Lazyman brings characters and worlds to life.</p>
+        <h2>Who is Lazyman_XD?</h2>
+        <p>Lazyman_XD is a passionate manga artist and illustrator dedicated to creating captivating visual stories. With a unique artistic style that blends traditional manga aesthetics with modern digital techniques, Lazyman brings characters and worlds to life.</p>
         
         <h2>What I Do</h2>
         <p>I specialize in creating manga, character illustrations, and concept art. My work spans various genres from fantasy and adventure to slice-of-life and emotional dramas. Each piece is crafted with attention to detail and a deep love for storytelling.</p>
         
         <h2>My Work</h2>
-        <p>Over the years, I've created numerous manga series and illustrations. Some of my notable works include fantasy epics, character-driven dramas, and experimental art pieces. Every project is a new adventure in creativity.</p>
+        <p>Over the years, I've created illustrations, manga on progress. Some of my notable works, character-driven dramas, and experimental art pieces. Every project is a new adventure in creativity.</p>
         
         <h2>Get In Touch</h2>
         <p>I'm always open to collaborations, commissions, and connecting with fellow artists. Feel free to explore my work and reach out if you'd like to work together!</p>
@@ -5593,12 +6932,12 @@ function createDiaryOverlay() {
       
       <!-- Spine -->
       <div class="diary-spine-3d">
-        <div class="diary-spine-text-3d">LAZYMAN</div>
+        <div class="diary-spine-text-3d">Lazyman_XD</div>
       </div>
       
       <!-- Front Cover -->
       <div class="diary-front-cover">
-        <div class="diary-cover-title">LAZYMAN<br>DIARY</div>
+        <div class="diary-cover-title">LAZYMAN_XD<br>DIARY</div>
       </div>
       
       <!-- Content Page (visible when open) -->
@@ -5610,7 +6949,7 @@ function createDiaryOverlay() {
       <button class="diary-close-btn-3d" onclick="closeDiary()">✕</button>
       
       <!-- Page Indicator -->
-      <div class="diary-page-indicator-3d" id="pageIndicator">Page 1 of ${diaryData.pages.length}</div>
+      <div class="diary-page-indicator-3d" id="pageIndicator">1 / ${diaryData.pages.length}</div>
       
       <!-- Navigation -->
       <div class="diary-navigation-3d" id="diaryNav">
@@ -5671,7 +7010,7 @@ function loadDiaryPage(pageIndex) {
   if (pageIndex >= 0 && pageIndex < diaryData.pages.length) {
     const page = diaryData.pages[pageIndex];
     contentDiv.innerHTML = `<h1 class="diary-title">${page.title}</h1>${page.content}`;
-    pageIndicator.textContent = `Page ${pageIndex + 1} of ${diaryData.pages.length}`;
+    pageIndicator.textContent = `${pageIndex + 1} / ${diaryData.pages.length}`;
     
     // Update button states
     prevBtn.disabled = pageIndex === 0;
@@ -5968,6 +7307,7 @@ function openDiaryEditor() {
 
 // 🎵 MUSIC PLAYER FUNCTIONS
 let musicControlsTimeout;
+let trackSwitchTimer; // 5-minute auto-switch timer
 
 function showMusicControls() {
   clearTimeout(musicControlsTimeout);
@@ -5996,66 +7336,176 @@ function toggleMusicControls() {
 function togglePlayPause() {
   if (isPlaying) {
     pauseMusic();
+    document.getElementById('playPauseBtn').textContent = '▶️';
   } else {
     playMusic();
+    document.getElementById('playPauseBtn').textContent = '⏸️';
   }
 }
 
 function playMusic() {
-  // Create new audio if it doesn't exist or if it exists but is paused
+  // Initialize audio context on first user interaction
+  if (!audioContext) {
+    initAudioContext();
+  }
+  
+  // Try to use seamless Web Audio API first if buffers are loaded
+  if (audioBuffers[currentTrackIndex]) {
+    console.log('Using seamless Web Audio API');
+    playSeamlessLoop(currentTrackIndex);
+    
+    // Start 5-minute timer
+    clearTimeout(trackSwitchTimer);
+    trackSwitchTimer = setTimeout(() => {
+      if (isPlaying) nextTrack();
+    }, 300000);
+    return;
+  }
+  
+  // Fallback to HTML5 audio if buffers not loaded
+  console.log('Falling back to HTML5 audio');
   if (!currentAudio) {
     currentAudio = new Audio(musicTracks[currentTrackIndex]);
     currentAudio.loop = true;
     currentAudio.volume = document.getElementById('volumeSlider').value / 100;
   }
   
-  currentAudio.play();
-  isPlaying = true;
-  document.getElementById('musicPlayer').classList.add('playing');
-  saveAudioState(); // Save state to localStorage
+  // Resume audio context if suspended (browser autoplay policy)
+  if (audioContext && audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
+  
+  currentAudio.play().then(() => {
+    isPlaying = true;
+    document.getElementById('musicPlayer').classList.add('playing');
+    document.getElementById('playPauseBtn').textContent = '⏸️';
+    saveAudioState();
+    
+    // Start 5-minute timer
+    clearTimeout(trackSwitchTimer);
+    trackSwitchTimer = setTimeout(() => {
+      if (isPlaying) nextTrack();
+    }, 300000);
+  }).catch(err => {
+    console.warn('Music play failed:', err.message);
+    alert('Click anywhere on the page first, then try playing music');
+  });
 }
 
 function pauseMusic() {
+  // Stop Web Audio API playback
+  if (currentSource) {
+    try {
+      currentSource.stop();
+    } catch (e) {}
+  }
+  
+  // Pause HTML5 audio
   if (currentAudio) {
     currentAudio.pause();
-    isPlaying = false;
-    document.getElementById('musicPlayer').classList.remove('playing');
-    saveAudioState(); // Save state to localStorage
   }
+  
+  isPlaying = false;
+  document.getElementById('musicPlayer').classList.remove('playing');
+  document.getElementById('playPauseBtn').textContent = '▶️';
+  saveAudioState();
+  clearTimeout(trackSwitchTimer);
 }
 
 function stopMusic() {
+  // Stop Web Audio API playback
+  if (currentSource) {
+    try {
+      currentSource.stop();
+      currentSource.disconnect();
+    } catch (e) {}
+    currentSource = null;
+  }
+  
+  if (currentGainNode) {
+    currentGainNode.disconnect();
+    currentGainNode = null;
+  }
+  
+  // Stop HTML5 audio
   if (currentAudio) {
     currentAudio.pause();
     currentAudio.currentTime = 0;
-    isPlaying = false;
-    document.getElementById('musicPlayer').classList.remove('playing');
-    saveAudioState(); // Save state to localStorage
   }
+  
+  isPlaying = false;
+  document.getElementById('musicPlayer').classList.remove('playing');
+  document.getElementById('playPauseBtn').textContent = '▶️';
+  saveAudioState();
+  clearTimeout(trackSwitchTimer);
 }
 
 function nextTrack() {
+  // Stop current playback
+  if (currentSource) {
+    try {
+      currentSource.stop();
+      currentSource.disconnect();
+    } catch (e) {}
+    currentSource = null;
+  }
+  
+  if (currentGainNode) {
+    currentGainNode.disconnect();
+    currentGainNode = null;
+  }
+  
   if (currentAudio) {
     currentAudio.pause();
+    currentAudio.currentTime = 0;
   }
   
+  // Clear any existing timer
+  clearTimeout(trackSwitchTimer);
+  
+  // Move to next track
   currentTrackIndex = (currentTrackIndex + 1) % musicTracks.length;
-  currentAudio = new Audio(musicTracks[currentTrackIndex]);
-  currentAudio.loop = true;
-  currentAudio.volume = document.getElementById('volumeSlider').value / 100;
   
-  if (isPlaying) {
-    currentAudio.play();
+  // Preload next track if not already loaded
+  if (!audioBuffers[currentTrackIndex]) {
+    preloadAudioTracks().then(() => {
+      // Always play the track when next is clicked
+      playSeamlessLoop(currentTrackIndex);
+      isPlaying = true;
+      document.getElementById('musicPlayer').classList.add('playing');
+      document.getElementById('playPauseBtn').textContent = '⏸️';
+      // Reset 5-minute timer for new track
+      trackSwitchTimer = setTimeout(() => {
+        if (isPlaying) nextTrack();
+      }, 300000);
+    });
+  } else {
+    // Buffer already loaded, play immediately
+    playSeamlessLoop(currentTrackIndex);
+    isPlaying = true;
+    document.getElementById('musicPlayer').classList.add('playing');
+    document.getElementById('playPauseBtn').textContent = '⏸️';
+    // Reset 5-minute timer for new track
+    trackSwitchTimer = setTimeout(() => {
+      if (isPlaying) nextTrack();
+    }, 300000);
   }
   
-  saveAudioState(); // Save state to localStorage
+  // Save the new track position
+  saveAudioState();
 }
 
 function changeVolume(value) {
   if (currentAudio) {
     currentAudio.volume = value / 100;
   }
+  if (currentGainNode) {
+    currentGainNode.gain.value = value / 100;
+  }
 }
+
+// Global variable to track current artwork index
+let currentArtworkIndex = 0;
 
 // Update the overlay onclick to handle artwork only
 function closeAllExpanded() {
@@ -6071,6 +7521,10 @@ function openArtwork(imageSrc, title) {
     return;
   }
   
+  // Find current index based on imageSrc
+  currentArtworkIndex = artworkData.findIndex(artwork => artwork.src === imageSrc);
+  if (currentArtworkIndex === -1) currentArtworkIndex = 0;
+  
   // Remove any existing viewer
   const existingViewer = document.getElementById('artworkViewer');
   if (existingViewer) {
@@ -6084,7 +7538,9 @@ function openArtwork(imageSrc, title) {
   viewer.innerHTML = `
     <div class="artwork-viewer-content">
       <button class="artwork-viewer-close">✕</button>
+      <button class="artwork-nav artwork-nav-prev">‹</button>
       <img src="${imageSrc}" alt="${title}" onload="console.log('Image loaded successfully')" onerror="console.error('Image failed to load')">
+      <button class="artwork-nav artwork-nav-next">›</button>
     </div>
   `;
   
@@ -6105,6 +7561,20 @@ function openArtwork(imageSrc, title) {
     playSound('tabClick', 0);
   });
   
+  // Add navigation functionality
+  const prevBtn = viewer.querySelector('.artwork-nav-prev');
+  const nextBtn = viewer.querySelector('.artwork-nav-next');
+  
+  prevBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    navigateArtwork(-1);
+  });
+  
+  nextBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    navigateArtwork(1);
+  });
+  
   // Close on background click
   viewer.addEventListener('click', function(e) {
     if (e.target === viewer) {
@@ -6122,10 +7592,39 @@ function openArtwork(imageSrc, title) {
       document.removeEventListener('keydown', escapeHandler);
       playSound('tabClick', 0);
     }
+    // Arrow key navigation
+    if (e.key === 'ArrowLeft') {
+      navigateArtwork(-1);
+    }
+    if (e.key === 'ArrowRight') {
+      navigateArtwork(1);
+    }
   };
   document.addEventListener('keydown', escapeHandler);
   
   playSound('tabClick', 0);
+}
+
+function navigateArtwork(direction) {
+  if (!artworkData || artworkData.length === 0) return;
+  
+  currentArtworkIndex += direction;
+  
+  // Cycle through artworks
+  if (currentArtworkIndex < 0) {
+    currentArtworkIndex = artworkData.length - 1;
+  } else if (currentArtworkIndex >= artworkData.length) {
+    currentArtworkIndex = 0;
+  }
+  
+  const artwork = artworkData[currentArtworkIndex];
+  if (artwork) {
+    const img = document.querySelector('#artworkViewer img');
+    if (img) {
+      img.src = artwork.src;
+      img.alt = artwork.title || '';
+    }
+  }
 }
 
 function closeArtworkViewer() {
@@ -6644,7 +8143,7 @@ function showMangaCover() {
   
   // Create standalone manga cover
   const coverHTML = `
-    <div id="mangaCoverOverlay" onclick="closeMangaCover()" style="
+    <div id="mangaCoverOverlay" style="
       position: fixed;
       top: 0;
       left: 0;
@@ -6652,11 +8151,25 @@ function showMangaCover() {
       height: 100%;
       z-index: 9999;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
       background: rgba(0,0,0,0.8);
     ">
+      <button onclick="exitMangaCover()" style="
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 10px 20px;
+        background: rgba(255,0,0,0.8);
+        border: 2px solid #ff0000;
+        border-radius: 8px;
+        color: white;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 12px;
+        cursor: pointer;
+        z-index: 10000;
+      ">✕ Exit</button>
       <img src="${mangaCoverImage}" alt="Manga Cover" style="
         max-width: 400px;
         max-height: 80vh;
@@ -6664,12 +8177,12 @@ function showMangaCover() {
         box-shadow: 0 20px 60px rgba(0,0,0,0.9);
         border: 3px solid rgba(255,215,0,0.5);
         animation: mangaCoverFadeIn 0.3s ease-out;
-      " onclick="event.stopPropagation(); openMangaDetail()">
+      " onclick="openMangaDetail()">
     </div>
   `;
   
   document.body.insertAdjacentHTML('beforeend', coverHTML);
-  playSound('tabClick', 0);
+  // Removed duplicate sound - only play when opening, not when closing
 }
 
 function closeMangaCover() {
@@ -6679,12 +8192,23 @@ function closeMangaCover() {
   }
 }
 
+function exitMangaCover() {
+  playSound('exit', 0);
+  const overlay = document.getElementById('mangaCoverOverlay');
+  if (overlay) {
+    overlay.remove();
+  }
+  const modal = document.getElementById('mangaDetailModal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
 function openMangaDetail() {
   // Close the cover overlay first
   closeMangaCover();
-  
   const modalHTML = `
-    <div id="mangaDetailModal" onclick="closeMangaDetail()" style="
+    <div id="mangaDetailModal" style="
       position: fixed;
       top: 0;
       left: 0;
@@ -6694,10 +8218,37 @@ function openMangaDetail() {
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
       background: rgba(0,0,0,0.95);
     ">
-      <div onclick="event.stopPropagation()" style="
+      <button onclick="exitMangaDetail()" style="
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 10px 20px;
+        background: rgba(255,0,0,0.8);
+        border: 2px solid #ff0000;
+        border-radius: 8px;
+        color: white;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 12px;
+        cursor: pointer;
+        z-index: 10001;
+      ">✕ Exit</button>
+      <button onclick="backToMangaCover()" style="
+        position: absolute;
+        top: 20px;
+        left: 140px;
+        padding: 10px 20px;
+        background: rgba(255,215,0,0.8);
+        border: 2px solid #ffd700;
+        border-radius: 8px;
+        color: #222;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 12px;
+        cursor: pointer;
+        z-index: 10001;
+      ">← Back</button>
+      <div style="
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -6735,28 +8286,32 @@ function openMangaDetail() {
             ">${mangaInfo.synopsis}</p>
           </div>
         </div>
-        
-        <button onclick="closeMangaDetail()" style="
-          margin-top: 40px;
-          padding: 15px 30px;
-          background: transparent;
-          border: 2px solid #ffd700;
-          color: #ffd700;
-          font-family: 'Press Start 2P', cursive;
-          font-size: 14px;
-          cursor: pointer;
-          border-radius: 8px;
-          transition: all 0.3s;
-        " onmouseover="this.style.background='#ffd700'; this.style.color='#222';" onmouseout="this.style.background='transparent'; this.style.color='#ffd700';">Close</button>
       </div>
     </div>
   `;
   
   document.body.insertAdjacentHTML('beforeend', modalHTML);
-  playSound('tabClick', 0);
+  // Removed duplicate sound - only play when opening the cover, not when opening detail
 }
 
 function closeMangaDetail() {
+  const modal = document.getElementById('mangaDetailModal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+function backToMangaCover() {
+  playSound('back', 0);
+  const modal = document.getElementById('mangaDetailModal');
+  if (modal) {
+    modal.remove();
+  }
+  showMangaCover();
+}
+
+function exitMangaDetail() {
+  playSound('exit', 0);
   const modal = document.getElementById('mangaDetailModal');
   if (modal) {
     modal.remove();
@@ -6767,204 +8322,116 @@ function openMangaTab(mangaId) {
   showMangaCover();
 }
 
-function updateArtworkSelect() {
-  // Update the artwork dropdown in admin panel
-  const select = document.getElementById('artworkSelect');
-  if (!select) return;
-  
-  // Clear existing options
-  select.innerHTML = '<option value="">Select artwork to remove</option>';
-  
-  // Add artwork options
-  artworkData.forEach((artwork, index) => {
-    const option = document.createElement('option');
-    option.value = index;
-    option.textContent = artwork.title || `Artwork ${index + 1}`;
-    select.appendChild(option);
+// --- Q&A Page Functions ---
+let qaCurrentCharacter = 1;
+let qaCurrentStyle = 'sketch';
+
+const qaCharacterImages = {
+  1: { sketch: './character1_sketch.png', flat: './character1_flat.png', rendered: './character1_rendered.png' },
+  2: { sketch: './character2_sketch.png', flat: './character2_flat.png', rendered: './character2_rendered.png' },
+  3: { sketch: './character3_sketch.png', flat: './character3_flat.png', rendered: './character3_rendered.png' },
+  4: { sketch: './character4_sketch.png', flat: './character4_flat.png', rendered: './character4_rendered.png' },
+  5: { sketch: './character5_sketch.png', flat: './character5_flat.png', rendered: './character5_rendered.png' }
+};
+
+function getQACharacterImage(char, style) {
+  const img = qaCharacterImages[char] && qaCharacterImages[char][style] ? qaCharacterImages[char][style] : './girl 1.png';
+  return img;
+}
+
+function showQASection(section) {
+  document.querySelectorAll('.qa-nav-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.qa-section').forEach(sec => sec.classList.remove('active'));
+  document.getElementById('qa-' + section).classList.add('active');
+  if (typeof playSound === 'function') {
+    playSound('qaClick1', 0); // Newspaper foley sound for top nav tabs
+  }
+}
+
+function switchCharacter(charNum) {
+  qaCurrentCharacter = charNum;
+  document.querySelectorAll('.char-btn').forEach((btn, index) => {
+    btn.classList.toggle('active', index + 1 === charNum);
   });
-}
-
-function handleArtworkDropPending(e) {
-  e.preventDefault();
-  const dropIndex = parseInt(this.dataset.index);
-  
-  if (draggedArtworkIndex !== null && draggedArtworkIndex !== dropIndex) {
-    // Swap items in the pending array
-    const temp = artworkDataPending[draggedArtworkIndex];
-    artworkDataPending[draggedArtworkIndex] = artworkDataPending[dropIndex];
-    artworkDataPending[dropIndex] = temp;
-    
-    // Re-render the grid
-    renderArtworkManagerItems(document.getElementById('artworkManagerGrid'));
+  const img = document.getElementById('character-image');
+  if (img) img.src = getQACharacterImage(charNum, qaCurrentStyle);
+  if (typeof playSound === 'function') {
+    playSound('qaClick2', 0); // Click bubble sound for C1-C5 buttons
   }
 }
 
-function handleArtworkDragEnd() {
-  this.classList.remove('dragging');
-  draggedArtworkIndex = null;
-}
-
-function saveArtworkChanges() {
-  // Save the pending data to the actual artwork data
-  artworkData = JSON.parse(JSON.stringify(artworkDataPending));
-  
-  // Save to localStorage
-  localStorage.setItem('artworkData', JSON.stringify(artworkData));
-  
-  // Close the manager
-  const overlay = document.getElementById('artworkManagerOverlay');
-  if (overlay) overlay.remove();
-  
-  // Update the gallery display
-  updateArtworkGallery();
-  
-  playSound('tabClick', 0);
-  alert('Artwork changes saved successfully!');
-}
-
-function discardArtworkChanges() {
-  // Close the manager without saving
-  const overlay = document.getElementById('artworkManagerOverlay');
-  if (overlay) overlay.remove();
-  
-  playSound('tabClick', 0);
-}
-
-function handleNewArtworkUploadPending(input) {
-  const file = input.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const newArtwork = {
-        src: e.target.result,
-        title: file.name.replace(/\.[^/.]+$/, '')
-      };
-      artworkDataPending.push(newArtwork);
-      renderArtworkManagerItems(document.getElementById('artworkManagerGrid'));
-    };
-    reader.readAsDataURL(file);
+function switchCharacterStyle(style) {
+  qaCurrentStyle = style;
+  document.querySelectorAll('.style-circle').forEach((circle, index) => {
+    const styles = ['sketch', 'flat', 'rendered'];
+    circle.classList.toggle('active', styles[index] === style);
+  });
+  const img = document.getElementById('character-image');
+  if (img) img.src = getQACharacterImage(qaCurrentCharacter, style);
+  if (typeof playSound === 'function') {
+    playSound('qaClick3', 0); // Bubble pop sound for style circles
   }
 }
 
-function deleteArtworkItemPending(index) {
-  if (confirm('Delete this artwork?')) {
-    artworkDataPending.splice(index, 1);
-    renderArtworkManagerItems(document.getElementById('artworkManagerGrid'));
+function closeQATab() {
+  if (typeof playSound === 'function') {
+    playSound('close', 0);
+  }
+  if (typeof showPage === 'function') {
+    showPage('home');
   }
 }
 
-function handleArtworkDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-}
-
-function handleArtworkDropPending(e) {
-  e.preventDefault();
-  const dropIndex = parseInt(this.dataset.index);
-  
-  if (draggedArtworkIndex !== null && draggedArtworkIndex !== dropIndex) {
-    // Swap items in the pending array
-    const temp = artworkDataPending[draggedArtworkIndex];
-    artworkDataPending[draggedArtworkIndex] = artworkDataPending[dropIndex];
-    artworkDataPending[dropIndex] = temp;
-    
-    // Re-render the grid
-    renderArtworkManagerItems(document.getElementById('artworkManagerGrid'));
-  }
-}
-
-function handleArtworkDragEnd() {
-  this.classList.remove('dragging');
-  draggedArtworkIndex = null;
-}
-
-function saveArtworkChanges() {
-  // Save the pending data to the actual artwork data
-  artworkData = JSON.parse(JSON.stringify(artworkDataPending));
-  
-  // Save to localStorage
-  localStorage.setItem('artworkData', JSON.stringify(artworkData));
-  
-  // Close the manager
-  const overlay = document.getElementById('artworkManagerOverlay');
-  if (overlay) overlay.remove();
-  
-  // Update the gallery display
-  updateArtworkGallery();
-  
-  playSound('tabClick', 0);
-  alert('Artwork changes saved successfully!');
-}
-
-function discardArtworkChanges() {
-  // Close the manager without saving
-  const overlay = document.getElementById('artworkManagerOverlay');
-  if (overlay) overlay.remove();
-  
-  playSound('tabClick', 0);
-}
-
-function handleNewArtworkUploadPending(input) {
-  const file = input.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const newArtwork = {
-        src: e.target.result,
-        title: file.name.replace(/\.[^/.]+$/, '')
-      };
-      artworkDataPending.push(newArtwork);
-      renderArtworkManagerItems(document.getElementById('artworkManagerGrid'));
-    };
-    reader.readAsDataURL(file);
-  }
-}
-
-function deleteArtworkItemPending(index) {
-  if (confirm('Delete this artwork?')) {
-    artworkDataPending.splice(index, 1);
-    renderArtworkManagerItems(document.getElementById('artworkManagerGrid'));
-  }
-}
-
-function saveArtworkChanges() {
-  // Apply pending changes to actual data
-  artworkData = JSON.parse(JSON.stringify(artworkDataPending));
-  
-  // Save to localStorage
-  localStorage.setItem('artworkData', JSON.stringify(artworkData));
-  
-  // If artwork cards are currently showing, refresh them
-  if (workCardsShowing) {
-    hideWorkCards();
-    const workButton = document.querySelector('.nav-btn[data-page="work"]');
-    if (workButton) {
-      showWorkCards(workButton);
+function togglePricingPanel() {
+  const panel = document.querySelector('.pricing-panel');
+  const btn = document.querySelector('.pricing-tab-btn');
+  if (panel) {
+    panel.classList.toggle('mobile-visible');
+    if (btn) {
+      btn.classList.toggle('active', panel.classList.contains('mobile-visible'));
+    }
+    if (typeof playSound === 'function') {
+      playSound('qaClick4', 0); // Pop tap sound for pricing toggle
     }
   }
-  
-  alert('Artwork changes saved successfully!');
-  closeArtworkManager();
 }
 
-function discardArtworkChanges() {
-  artworkDataPending = [];
-  closeArtworkManager();
+// 🎯 Create circular favicon from JPG
+function createCircularFavicon() {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = function() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const size = 64;
+    canvas.width = size;
+    canvas.height = size;
+    
+    // Create circular clip
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    
+    // Draw image
+    ctx.drawImage(img, 0, 0, size, size);
+    
+    // Set as favicon
+    const link = document.querySelector('link[rel="icon"]') || document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/png';
+    link.href = canvas.toDataURL('image/png');
+    if (!document.querySelector('link[rel="icon"]')) {
+      document.head.appendChild(link);
+    }
+  };
+  img.src = './profile website.jpg';
 }
 
-function closeArtworkManager() {
-  const overlay = document.getElementById('artworkManagerOverlay');
-  if (overlay) {
-    overlay.remove();
-  }
-  playSound('tabClick', 0);
-}
+// Run when page loads
+createCircularFavicon();
 
 </script>
-
-
 </body>
 </html>
-
-</html>
-
