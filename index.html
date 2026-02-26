@@ -7441,6 +7441,14 @@ function stopMusic() {
 }
 
 function nextTrack() {
+  // Initialize and resume audio context on user gesture
+  if (!audioContext) {
+    initAudioContext();
+  }
+  if (audioContext && audioContext.state === 'suspended') {
+    audioContext.resume().catch(e => console.log('Audio resume failed:', e));
+  }
+  
   // Stop current playback
   if (currentSource) {
     try {
@@ -7466,22 +7474,14 @@ function nextTrack() {
   // Move to next track
   currentTrackIndex = (currentTrackIndex + 1) % musicTracks.length;
   
-  // Preload next track if not already loaded
-  if (!audioBuffers[currentTrackIndex]) {
-    preloadAudioTracks().then(() => {
-      // Always play the track when next is clicked
+  // Helper function to start playback
+  function startPlayback() {
+    // Use fallback if buffers aren't ready
+    if (!audioBuffers[currentTrackIndex]) {
+      playMusicFallback(currentTrackIndex);
+    } else {
       playSeamlessLoop(currentTrackIndex);
-      isPlaying = true;
-      document.getElementById('musicPlayer').classList.add('playing');
-      document.getElementById('playPauseBtn').textContent = '⏸️';
-      // Reset 5-minute timer for new track
-      trackSwitchTimer = setTimeout(() => {
-        if (isPlaying) nextTrack();
-      }, 300000);
-    });
-  } else {
-    // Buffer already loaded, play immediately
-    playSeamlessLoop(currentTrackIndex);
+    }
     isPlaying = true;
     document.getElementById('musicPlayer').classList.add('playing');
     document.getElementById('playPauseBtn').textContent = '⏸️';
@@ -7489,10 +7489,21 @@ function nextTrack() {
     trackSwitchTimer = setTimeout(() => {
       if (isPlaying) nextTrack();
     }, 300000);
+    saveAudioState();
   }
   
-  // Save the new track position
-  saveAudioState();
+  // Preload next track if not already loaded
+  if (!audioBuffers[currentTrackIndex]) {
+    preloadAudioTracks().then(() => {
+      startPlayback();
+    }).catch(() => {
+      // If preload fails, try fallback
+      startPlayback();
+    });
+  } else {
+    // Buffer already loaded, play immediately
+    startPlayback();
+  }
 }
 
 function changeVolume(value) {
