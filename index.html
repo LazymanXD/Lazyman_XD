@@ -4007,14 +4007,42 @@ function initializeAudioState() {
   }, 3000);
 }
 
-// Attempt to auto-play, retry if blocked
+// Attempt to auto-play with muted start (browsers allow muted autoplay)
 function attemptAutoPlay() {
   console.log('Attempting seamless auto-play...');
   
   // Preload tracks first, then play
   preloadAudioTracks().then(() => {
     console.log('Tracks preloaded, starting seamless playback...');
+    
+    // Start with 0 volume (muted) - browsers allow this
+    const targetVolume = document.getElementById('volumeSlider').value / 100;
+    
+    // Play muted first
+    if (currentGainNode) {
+      currentGainNode.gain.value = 0;
+    }
+    
     playSeamlessLoop(currentTrackIndex);
+    
+    // Fade in volume after a short delay
+    setTimeout(() => {
+      if (currentGainNode) {
+        // Smooth fade in
+        const fadeInterval = setInterval(() => {
+          if (!currentGainNode) {
+            clearInterval(fadeInterval);
+            return;
+          }
+          const currentVol = currentGainNode.gain.value;
+          if (currentVol < targetVolume) {
+            currentGainNode.gain.value = Math.min(targetVolume, currentVol + 0.01);
+          } else {
+            clearInterval(fadeInterval);
+          }
+        }, 50);
+      }
+    }, 500);
     
     // Start 5-minute timer
     clearTimeout(trackSwitchTimer);
@@ -4027,24 +4055,34 @@ function attemptAutoPlay() {
     if (!currentAudio) {
       currentAudio = new Audio(musicTracks[currentTrackIndex]);
       currentAudio.loop = true;
-      currentAudio.volume = 0.05;
+      currentAudio.volume = 0; // Start muted
     }
     
     const playPromise = currentAudio.play();
     if (playPromise !== undefined) {
       playPromise.then(() => {
         document.getElementById('musicPlayer').classList.add('playing');
+        
+        // Fade in volume
+        const targetVolume = document.getElementById('volumeSlider').value / 100;
+        const fadeInterval = setInterval(() => {
+          if (!currentAudio) {
+            clearInterval(fadeInterval);
+            return;
+          }
+          if (currentAudio.volume < targetVolume) {
+            currentAudio.volume = Math.min(targetVolume, currentAudio.volume + 0.01);
+          } else {
+            clearInterval(fadeInterval);
+          }
+        }, 50);
+        
         clearTimeout(trackSwitchTimer);
         trackSwitchTimer = setTimeout(() => {
           if (isPlaying) nextTrack();
         }, 300000);
       }).catch(error => {
         console.log('Auto-play blocked:', error.message);
-        document.addEventListener('click', function initAudioOnClick() {
-          console.log('User clicked, starting music...');
-          playMusic();
-          document.removeEventListener('click', initAudioOnClick);
-        }, { once: true });
       });
     }
   });
@@ -7349,6 +7387,21 @@ function playMusic() {
     initAudioContext();
   }
   
+  // Resume audio context if suspended, then play
+  if (audioContext && audioContext.state === 'suspended') {
+    audioContext.resume().then(() => {
+      console.log('Audio context resumed, starting playback...');
+      actuallyPlayMusic();
+    }).catch(err => {
+      console.log('Audio context resume failed:', err);
+    });
+    return;
+  }
+  
+  actuallyPlayMusic();
+}
+
+function actuallyPlayMusic() {
   // Try to use seamless Web Audio API first if buffers are loaded
   if (audioBuffers[currentTrackIndex]) {
     console.log('Using seamless Web Audio API');
@@ -7370,11 +7423,6 @@ function playMusic() {
     currentAudio.volume = document.getElementById('volumeSlider').value / 100;
   }
   
-  // Resume audio context if suspended (browser autoplay policy)
-  if (audioContext && audioContext.state === 'suspended') {
-    audioContext.resume();
-  }
-  
   currentAudio.play().then(() => {
     isPlaying = true;
     document.getElementById('musicPlayer').classList.add('playing');
@@ -7388,7 +7436,6 @@ function playMusic() {
     }, 300000);
   }).catch(err => {
     console.warn('Music play failed:', err.message);
-    alert('Click anywhere on the page first, then try playing music');
   });
 }
 
