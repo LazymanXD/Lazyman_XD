@@ -4008,38 +4008,50 @@
       text-rendering: optimizeLegibility !important;
     }
 
-    /* Book reader: phones / small viewports — avoid clipping, respect safe areas */
+    /* Book reader: phones / small viewports — full screen */
     @media (max-width: 768px) {
       #bookReaderOverlay {
-        align-items: flex-start !important;
-        justify-content: stretch !important;
-        padding: max(6px, env(safe-area-inset-top, 0px)) max(8px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)) !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        overflow: hidden !important;
       }
       #bookReaderFrame {
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 100dvh !important;
         min-height: 0 !important;
-        max-height: min(720px, calc(100dvh - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom)))) !important;
-        margin: 0 auto !important;
-        align-self: stretch !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        border: none !important;
+        align-self: center !important;
         box-sizing: border-box !important;
+        transform: none !important;
       }
       #bookReaderBody {
-        padding: 6px !important;
+        padding: 0 !important;
+        align-items: center !important;
+        justify-content: center !important;
       }
       #bookReaderSinglePage {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+        padding: 8px !important;
+        margin: 0 !important;
+      }
+      .book-reader-page-block {
+        margin: 0 0 16px 0 !important;
+        padding: 16px !important;
         width: 100% !important;
         max-width: 100% !important;
+        border-radius: 8px !important;
       }
-    }
 
     @supports not (height: 100dvh) {
       @media (max-width: 768px) {
         #bookReaderFrame {
-          max-height: min(720px, calc(100vh - max(24px, env(safe-area-inset-top)) - max(24px, env(safe-area-inset-bottom)))) !important;
+          height: min(92vh, calc(100vh - max(24px, env(safe-area-inset-top)) - max(24px, env(safe-area-inset-bottom)))) !important;
         }
       }
     }
@@ -4212,6 +4224,11 @@ if (roadmapToggleBtn) {
 
 // --- Slow Reveal Loading ---
 window.addEventListener('load', () => {
+  // Clear any stale book cards from previous session
+  document.querySelectorAll('.book-card').forEach(card => card.remove());
+  booksCardElements = [];
+  booksCardsShowing = false;
+
   // Safety fallback - always hide loading screen after max 3 seconds
   const safetyTimeout = setTimeout(() => {
     const loadingScreen = document.getElementById('loadingScreen');
@@ -4240,6 +4257,9 @@ window.addEventListener('load', () => {
       // Note: Welcome sound will play on first user interaction
       clearTimeout(safetyTimeout); // Cancel safety timeout since we succeeded
     }, 100); // Start reveal after 0.1 seconds
+
+    setupImageLoadingOptimizations();
+    scheduleWarmBookAssets();
   } catch (error) {
     console.error('Error during initialization:', error);
     // Even if there's an error, hide the loading screen and show the page
@@ -5566,8 +5586,9 @@ function showPage(pageKey) {
     if (mangaCardsShowing) hideMangaCards();
     if (booksCardsShowing) {
       hideBooksCards(booksBtn || undefined);
-    } else if (booksBtn) {
-      showBooksCards(booksBtn);
+    } else {
+      closeBookReader();
+      if (booksBtn) showBooksCards(booksBtn);
     }
     return;
   }
@@ -5740,6 +5761,7 @@ let booksCardsShowing = false;
 let booksCardElements = [];
 let bookReaderPages = [];
 const bookPagesCache = new Map();
+const bookFileBufferCache = new Map();
 let docxPreviewAssetsPromise = null;
 
 function showWorkCards(button) {
@@ -6747,6 +6769,58 @@ const booksData = [
   }
 ];
 
+function optimizeImageElement(img) {
+  if (!img || img.dataset.optimized === '1') return;
+  img.dataset.optimized = '1';
+  if (!img.loading) img.loading = 'lazy';
+  img.decoding = 'async';
+  if (!img.fetchPriority || img.fetchPriority === 'auto') {
+    img.fetchPriority = 'low';
+  }
+}
+
+function optimizeAllImagesIn(root) {
+  if (!root || !root.querySelectorAll) return;
+  root.querySelectorAll('img').forEach(optimizeImageElement);
+}
+
+function setupImageLoadingOptimizations() {
+  optimizeAllImagesIn(document);
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (!(node instanceof HTMLElement)) return;
+        if (node.tagName === 'IMG') optimizeImageElement(node);
+        optimizeAllImagesIn(node);
+      });
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
+function warmBookAssets() {
+  ensureDocxPreviewAssets().catch(() => {});
+  booksData.forEach((book) => {
+    if (!book || !book.sourceFile || book.sourceType !== 'docx') return;
+    const key = book.sourceFile;
+    if (bookFileBufferCache.has(key)) return;
+    fetch(new URL(key, window.location.href))
+      .then((res) => (res.ok ? res.arrayBuffer() : null))
+      .then((buf) => {
+        if (buf) bookFileBufferCache.set(key, buf);
+      })
+      .catch(() => {});
+  });
+}
+
+function scheduleWarmBookAssets() {
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(() => warmBookAssets(), { timeout: 3000 });
+  } else {
+    setTimeout(warmBookAssets, 1200);
+  }
+}
+
 function showWorkCards(button) {
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
@@ -7278,6 +7352,7 @@ function hideBooksCards(button) {
 
   booksCardElements = [];
   booksCardsShowing = false;
+  closeBookReader();
 }
 
 function startBookSequence(book, sourceButton) {
@@ -7460,12 +7535,17 @@ async function loadBookPages(book) {
 
   await ensureDocxPreviewAssets();
 
-  const response = await fetch(new URL(book.sourceFile, window.location.href));
-  if (!response.ok) {
-    throw new Error('Could not load book file.');
+  let arrayBuffer = null;
+  if (bookFileBufferCache.has(book.sourceFile)) {
+    arrayBuffer = bookFileBufferCache.get(book.sourceFile).slice(0);
+  } else {
+    const response = await fetch(new URL(book.sourceFile, window.location.href));
+    if (!response.ok) {
+      throw new Error('Could not load book file.');
+    }
+    arrayBuffer = await response.arrayBuffer();
+    bookFileBufferCache.set(book.sourceFile, arrayBuffer.slice(0));
   }
-
-  const arrayBuffer = await response.arrayBuffer();
   const hiddenMount = document.createElement('div');
   hiddenMount.style.cssText = 'position:fixed;left:-99999px;top:-99999px;width:900px;opacity:0;pointer-events:none;z-index:-1;';
   document.body.appendChild(hiddenMount);
@@ -7495,7 +7575,7 @@ function renderBookReaderPages() {
   const blocks = bookReaderPages.map((html, i) => {
     const pageContent = html || '<p style="opacity:.6">No content</p>';
     const n = i + 1;
-    return `<section class="book-reader-page-block" aria-label="Page ${n}"><div class="book-reader-page-label">Page ${n}</div><div class="book-page-fit">${pageContent}</div></section>`;
+    return `<section class="book-reader-page-block" aria-label="Page ${n}"><div class="book-page-fit">${pageContent}</div></section>`;
   });
   singlePage.innerHTML = blocks.join('');
   fitBookPageContent(singlePage);
@@ -7518,6 +7598,7 @@ function fitBookPageContent(pageContainer) {
 function closeBookReader() {
   const overlay = document.getElementById('bookReaderOverlay');
   if (overlay) overlay.remove();
+  if (roadmapToggleBtn) roadmapToggleBtn.style.display = '';
 }
 
 async function openBookReader(book) {
@@ -7565,6 +7646,7 @@ async function openBookReader(book) {
   `;
 
   document.body.appendChild(overlay);
+  if (roadmapToggleBtn) roadmapToggleBtn.style.display = 'none';
   const frame = document.getElementById('bookReaderFrame');
   const closeBtn = document.getElementById('bookReaderClose');
   const loading = document.getElementById('bookReaderLoading');
@@ -9180,6 +9262,79 @@ let aiCompanionActive = false;
 let aiTypingTimeout = null;
 let aiBubbleHideTimeout = null;
 let aiTypingSoundTimeout = null;
+let aiIdleSmallTalkTimeout = null;
+let aiIdleSpeakAbortToken = 0;
+
+/** Five-line idle monologues when the user hasn’t pressed a topic button (~5s quiet) */
+const AI_IDLE_SMALL_TALK_SCRIPTS = [
+  ['Alright… what was I saying again…', 'No, wait, that doesn’t sound right.', 'It made more sense a second ago.', 'Whatever. I’ll just go with it.', 'It’s not like anyone’s correcting me.'],
+  ['I keep losing my train of thought lately.', 'It’s like it’s there, then it just… gone.', 'Maybe I’m overthinking it.', 'Yeah, I do that a lot.', 'Still, not the worst habit to have.'],
+  ['I should probably say something more interesting.', 'That would help.', 'But then again, forcing it usually makes it worse.', 'So… this is fine.', 'I think this is fine.'],
+  ['I’m kind of just talking to fill the space now.', 'Not sure if that’s a good thing.', 'Feels better than stopping, though.', 'Stopping makes it feel… empty.', 'Yeah. I’ll keep going.'],
+  ['Wow, that was not as smooth as I thought it’d be.', 'I really thought I had something there.', 'Nope.', 'Completely fell apart.', 'Impressive, honestly.'],
+  ['It’s weird how quiet things get.', 'Like… suddenly there’s too much room to think.', 'And then everything just kind of echoes.', 'I don’t always like that part.', 'But I stay anyway.'],
+  ['I keep hearing myself talk.', 'Even when I stop, it feels like it didn’t end.', 'Like something’s still continuing.', 'Maybe it’s just me.', 'Yeah… probably just me.'],
+  ['Okay, okay… just keep it simple.', 'No need to overdo it.', 'Just say what comes to mind.', 'That usually works.', 'Well… most of the time.'],
+  ['It’s been a pretty slow day.', 'Nothing really stood out, just the usual stuff.', 'I kinda like days like that, though.', 'Everything feels lighter when nothing big happens.', 'You can just exist for a bit.'],
+  ['I was walking earlier and didn’t really have anywhere to be.', 'Ended up taking the long way without thinking about it.', 'Didn’t even check the time.', 'It felt nice, not rushing for once.', 'I don’t do that enough.'],
+  ['I’ve been thinking about changing things up a little.', 'Not anything big, just small stuff.', 'Like routines, I guess.', 'Doing the same things every day gets kind of dull.', 'A small change might help.'],
+  ['You don’t really have to say anything.', 'I’m okay just talking like this.', 'It’s kinda peaceful.', 'Feels like the kind of quiet that isn’t awkward.', 'Just… there.'],
+  ['It’s weird how some moments stick more than others.', 'Even small ones.', 'Like nothing special was happening, but it still felt important.', 'I can’t really explain why.', 'It just did.'],
+  ['I tried to be productive earlier.', 'Didn’t go as planned.', 'Got distracted halfway through.', 'Honestly, not even surprised anymore.', 'That’s just how it goes sometimes.'],
+  ['I don’t mind this kind of quiet.', 'It feels different when someone’s still here.', 'Even if nothing’s being said back.', 'It’s not empty.', 'Just calm.'],
+  ['I’ll keep talking for a bit.', 'No real reason to stop.', 'This moment hasn’t ended yet.', 'So I’ll stay in it.', 'At least a little longer.']
+];
+
+function clearAiIdleSmallTalkTimer() {
+  if (aiIdleSmallTalkTimeout) {
+    clearTimeout(aiIdleSmallTalkTimeout);
+    aiIdleSmallTalkTimeout = null;
+  }
+}
+
+function abortAiIdleMonologue() {
+  aiIdleSpeakAbortToken += 1;
+}
+
+/** Stop pending idle timer and cancel any in-progress idle line chain (user acted or AI closed). */
+function clearAiIdleSmallTalk() {
+  clearAiIdleSmallTalkTimer();
+  abortAiIdleMonologue();
+}
+
+function scheduleAiIdleSmallTalk(delayMs) {
+  clearAiIdleSmallTalkTimer();
+  if (!aiCompanionActive) return;
+  aiIdleSmallTalkTimeout = setTimeout(() => {
+    aiIdleSmallTalkTimeout = null;
+    runAiIdleSmallTalk();
+  }, delayMs);
+}
+
+function speakIdleScriptLines(lines, index) {
+  if (!aiCompanionActive) return;
+  if (index >= lines.length) {
+    scheduleAiIdleSmallTalk(5000);
+    return;
+  }
+  const myToken = aiIdleSpeakAbortToken;
+  aiSpeak(lines[index], () => {
+    setTimeout(() => {
+      if (myToken !== aiIdleSpeakAbortToken || !aiCompanionActive) return;
+      speakIdleScriptLines(lines, index + 1);
+    }, 400);
+  });
+}
+
+function runAiIdleSmallTalk() {
+  if (!aiCompanionActive) return;
+  if (aiTypingTimeout) {
+    scheduleAiIdleSmallTalk(1200);
+    return;
+  }
+  const script = AI_IDLE_SMALL_TALK_SCRIPTS[Math.floor(Math.random() * AI_IDLE_SMALL_TALK_SCRIPTS.length)];
+  speakIdleScriptLines(script, 0);
+}
 
 function startAITypingSound() {
   stopAITypingSound();
@@ -9199,6 +9354,7 @@ function stopAITypingSound() {
 }
 
 function openAICompanion() {
+  clearAiIdleSmallTalk();
   const companion = document.getElementById('aiCompanion');
   const orb = document.getElementById('aiOrb');
   const optionsContainer = document.getElementById('aiOptions');
@@ -9220,7 +9376,9 @@ function openAICompanion() {
 
   // After greeting, move to top-left
   setTimeout(() => {
-    aiSpeak("Hi! Lazyman_XD here. What can I do for you?");
+    aiSpeak("Hi! Lazyman_XD here. What can I do for you?", () => {
+      scheduleAiIdleSmallTalk(5000);
+    });
   }, 500);
 
   // Move to top-left after speaking and show options
@@ -9232,6 +9390,7 @@ function openAICompanion() {
 }
 
 function closeAICompanion() {
+  clearAiIdleSmallTalk();
   const companion = document.getElementById('aiCompanion');
   const speechBubble = document.getElementById('aiSpeechBubble');
   const optionsContainer = document.getElementById('aiOptions');
@@ -9298,6 +9457,8 @@ function aiSpeak(text, callback) {
       // Execute callback if provided
       if (callback && typeof callback === 'function') {
         setTimeout(callback, 500);
+      } else if (aiCompanionActive) {
+        scheduleAiIdleSmallTalk(5000);
       }
     }
   }
@@ -9363,10 +9524,14 @@ function closeCommissionPricing() {
   // Show AI options again
   const optionsContainer = document.getElementById('aiOptions');
   if (optionsContainer) optionsContainer.classList.add('show');
+  if (aiCompanionActive) {
+    scheduleAiIdleSmallTalk(5000);
+  }
 }
 
 function askAI(topic) {
   playSound('click', 0);
+  clearAiIdleSmallTalk();
 
   if (topic === 'roadmap') {
     aiSpeak(
@@ -9375,6 +9540,7 @@ function askAI(topic) {
         if (roadmapOverlay && !roadmapOverlay.classList.contains('show')) {
           toggleRoadmapOverlay();
         }
+        scheduleAiIdleSmallTalk(5000);
       }
     );
     return;
@@ -9391,13 +9557,14 @@ function askAI(topic) {
   };
 
   const response = responses[topic] || "Hmm, let me think about that...";
-  
+
   // Define callbacks for specific topics
   let callback = null;
   if (topic === 'commissions') {
     callback = function() {
       aiSpeak("Here's my pricing info:", function() {
         showCommissionPricing();
+        scheduleAiIdleSmallTalk(5000);
       });
     };
   } else if (topic === 'artworks') {
@@ -9408,8 +9575,13 @@ function askAI(topic) {
         showPage('work');
       }, 300);
     };
+  } else {
+    // For all other topics, schedule idle small talk after responding
+    callback = function() {
+      scheduleAiIdleSmallTalk(5000);
+    };
   }
-  
+
   aiSpeak(response, callback);
 }
 
