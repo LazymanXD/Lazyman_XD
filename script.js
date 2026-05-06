@@ -445,6 +445,8 @@ function closeMiddleTab(e) {
   playSound('close', 0);       // Instant pop
   playSound('hover', 100);     // Layered tail
   setTimeout(() => middleTab.classList.add('minimized'), 150);
+  // Show roadmap button when returning to home
+  if (roadmapToggleBtn) roadmapToggleBtn.style.display = '';
 }
 
 function minimizeMiddleTab(e) {
@@ -675,7 +677,7 @@ const pages = {
           <img src="./girl 1.png" class="wiki-girl-img wiki-girl-wiggle" alt="Girl">
         </div>
         <div class="wiki-text">WIKI COMING SOON</div>
-        <button class="wiki-back-btn" onclick="showPage('home')">â† Back</button>
+        <button class="wiki-back-btn" onclick="showPage('home')">← Back</button>
       </div>
     `
   },
@@ -2600,6 +2602,23 @@ const mangaGalleryData = [
   {src: "./manga-card-3.jpg", title: "Last IIIsins"}
 ];
 
+// Preload images for instant display when cards open
+function preloadImages(imageList) {
+  imageList.forEach(item => {
+    const img = new Image();
+    img.src = item.src;
+  });
+}
+
+// Preload artwork and manga images on page load
+window.addEventListener('load', () => {
+  // Delay preloading to not block initial page render
+  setTimeout(() => {
+    preloadImages(artworkData);
+    preloadImages(mangaGalleryData);
+  }, 2000);
+});
+
 const booksData = [
   {
     id: "empire-age-magic",
@@ -2788,7 +2807,7 @@ function showWorkCards(button) {
     const img = document.createElement('img');
     img.src = artwork.src;
     img.alt = artwork.title;
-    img.loading = 'lazy';
+    img.loading = 'eager';
     img.decoding = 'async';
     img.style.cssText = `
       width: 100%;
@@ -2961,7 +2980,7 @@ function showMangaCards(button) {
     const img = document.createElement('img');
     img.src = manga.src;
     img.alt = manga.title;
-    img.loading = 'lazy';
+    img.loading = 'eager';
     img.decoding = 'async';
     img.style.cssText = `
       width: 100%;
@@ -3568,7 +3587,7 @@ function openWorkCardFullscreen(card, src, title) {
   `;
   
   const closeBtn = document.createElement('button');
-  closeBtn.innerHTML = 'âœ•';
+  closeBtn.innerHTML = '✕';
   closeBtn.style.cssText = `
     position: absolute;
     top: 20px;
@@ -3734,7 +3753,7 @@ function createDiaryOverlay() {
       </div>
       
       <!-- Close Button -->
-      <button class="diary-close-btn-3d" onclick="closeDiary()">âœ•</button>
+      <button class="diary-close-btn-3d" onclick="closeDiary()">✕</button>
       
       <!-- Page Indicator -->
       <div class="diary-page-indicator-3d" id="pageIndicator">1 / ${diaryData.pages.length}</div>
@@ -4144,10 +4163,10 @@ function openArtwork(imageSrc, title) {
   viewer.className = 'artwork-viewer show';
   viewer.innerHTML = `
     <div class="artwork-viewer-content">
-      <button class="artwork-viewer-close">âœ•</button>
-      <button class="artwork-nav artwork-nav-prev">â€¹</button>
+      <button class="artwork-viewer-close">✕</button>
+      <button class="artwork-nav artwork-nav-prev">‹</button>
       <img src="${imageSrc}" alt="${title}">
-      <button class="artwork-nav artwork-nav-next">â€º</button>
+      <button class="artwork-nav artwork-nav-next">›</button>
     </div>
   `;
   
@@ -4763,7 +4782,7 @@ function showMangaCover() {
         font-size: 12px;
         cursor: pointer;
         z-index: 10000;
-      ">âœ• Exit</button>
+      ">✕ Exit</button>
       <img src="${mangaCoverImage}" alt="Manga Cover" style="
         max-width: 400px;
         max-height: 80vh;
@@ -4827,7 +4846,7 @@ function openMangaDetail() {
         font-size: 12px;
         cursor: pointer;
         z-index: 10001;
-      ">âœ• Exit</button>
+      ">✕ Exit</button>
       <button onclick="backToMangaCover()" style="
         position: absolute;
         top: 20px;
@@ -4841,7 +4860,7 @@ function openMangaDetail() {
         font-size: 12px;
         cursor: pointer;
         z-index: 10001;
-      ">â† Back</button>
+      ">← Back</button>
       <div style="
         display: flex;
         flex-direction: column;
@@ -5100,24 +5119,24 @@ let aiIdleSmallTalkTimeout = null;
 let aiIdleSpeakAbortToken = 0;
 let aiUsedIdleScripts = new Set();
 
-/** Five-line idle monologues when the user hasnâ€™t pressed a topic button (~5s quiet) */
+/** Five-line idle monologues when the user hasn't pressed a topic button (~5s quiet) */
 const AI_IDLE_SMALL_TALK_SCRIPTS = [
-  ['Alrightâ€¦ what was I saying againâ€¦', 'No, wait, that doesnâ€™t sound right.', 'It made more sense a second ago.', 'Whatever. Iâ€™ll just go with it.', 'Itâ€™s not like anyoneâ€™s correcting me.'],
-  ['I keep losing my train of thought lately.', 'Itâ€™s like itâ€™s there, then it justâ€¦ gone.', 'Maybe Iâ€™m overthinking it.', 'Yeah, I do that a lot.', 'Still, not the worst habit to have.'],
-  ['I should probably say something more interesting.', 'That would help.', 'But then again, forcing it usually makes it worse.', 'Soâ€¦ this is fine.', 'I think this is fine.'],
-  ['Iâ€™m kind of just talking to fill the space now.', 'Not sure if thatâ€™s a good thing.', 'Feels better than stopping, though.', 'Stopping makes it feelâ€¦ empty.', 'Yeah. Iâ€™ll keep going.'],
-  ['Wow, that was not as smooth as I thought itâ€™d be.', 'I really thought I had something there.', 'Nope.', 'Completely fell apart.', 'Impressive, honestly.'],
-  ['Itâ€™s weird how quiet things get.', 'Likeâ€¦ suddenly thereâ€™s too much room to think.', 'And then everything just kind of echoes.', 'I donâ€™t always like that part.', 'But I stay anyway.'],
-  ['I keep hearing myself talk.', 'Even when I stop, it feels like it didnâ€™t end.', 'Like somethingâ€™s still continuing.', 'Maybe itâ€™s just me.', 'Yeahâ€¦ probably just me.'],
-  ['Okay, okayâ€¦ just keep it simple.', 'No need to overdo it.', 'Just say what comes to mind.', 'That usually works.', 'Wellâ€¦ most of the time.'],
-  ['Itâ€™s been a pretty slow day.', 'Nothing really stood out, just the usual stuff.', 'I kinda like days like that, though.', 'Everything feels lighter when nothing big happens.', 'You can just exist for a bit.'],
-  ['I was walking earlier and didnâ€™t really have anywhere to be.', 'Ended up taking the long way without thinking about it.', 'Didnâ€™t even check the time.', 'It felt nice, not rushing for once.', 'I donâ€™t do that enough.'],
-  ['Iâ€™ve been thinking about changing things up a little.', 'Not anything big, just small stuff.', 'Like routines, I guess.', 'Doing the same things every day gets kind of dull.', 'A small change might help.'],
-  ['You donâ€™t really have to say anything.', 'Iâ€™m okay just talking like this.', 'Itâ€™s kinda peaceful.', 'Feels like the kind of quiet that isnâ€™t awkward.', 'Justâ€¦ there.'],
-  ['Itâ€™s weird how some moments stick more than others.', 'Even small ones.', 'Like nothing special was happening, but it still felt important.', 'I canâ€™t really explain why.', 'It just did.'],
-  ['I tried to be productive earlier.', 'Didnâ€™t go as planned.', 'Got distracted halfway through.', 'Honestly, not even surprised anymore.', 'Thatâ€™s just how it goes sometimes.'],
-  ['I donâ€™t mind this kind of quiet.', 'It feels different when someoneâ€™s still here.', 'Even if nothingâ€™s being said back.', 'Itâ€™s not empty.', 'Just calm.'],
-  ['Iâ€™ll keep talking for a bit.', 'No real reason to stop.', 'This moment hasnâ€™t ended yet.', 'So Iâ€™ll stay in it.', 'At least a little longer.']
+  ['Alright... what was I saying again...', "No, wait, that doesn't sound right.", 'It made more sense a second ago.', "Whatever. I'll just go with it.", "It's not like anyone's correcting me."],
+  ['I keep losing my train of thought lately.', "It's like it's there, then it just... gone.", "Maybe I'm overthinking it.", 'Yeah, I do that a lot.', 'Still, not the worst habit to have.'],
+  ['I should probably say something more interesting.', 'That would help.', 'But then again, forcing it usually makes it worse.', 'So... this is fine.', 'I think this is fine.'],
+  ["I'm kind of just talking to fill the space now.", "Not sure if that's a good thing.", 'Feels better than stopping, though.', 'Stopping makes it feel... empty.', "Yeah. I'll keep going."]
+  ["Wow, that was not as smooth as I thought it'd be.", 'I really thought I had something there.', 'Nope.', 'Completely fell apart.', 'Impressive, honestly.'],
+  ["It's weird how quiet things get.", "Like... suddenly there's too much room to think.", 'And then everything just kind of echoes.', "I don't always like that part.", 'But I stay anyway.'],
+  ['I keep hearing myself talk.', "Even when I stop, it feels like it didn't end.", "Like something's still continuing.", "Maybe it's just me.", 'Yeah... probably just me.'],
+  ['Okay, okay... just keep it simple.', 'No need to overdo it.', 'Just say what comes to mind.', 'That usually works.', 'Well... most of the time.'],
+  ["It's been a pretty slow day.", 'Nothing really stood out, just the usual stuff.', 'I kinda like days like that, though.', 'Everything feels lighter when nothing big happens.', 'You can just exist for a bit.'],
+  ["I was walking earlier and didn't really have anywhere to be.", 'Ended up taking the long way without thinking about it.', "Didn't even check the time.", 'It felt nice, not rushing for once.', "I don't do that enough."]
+  ["I've been thinking about changing things up a little.", 'Not anything big, just small stuff.', 'Like routines, I guess.', 'Doing the same things every day gets kind of dull.', 'A small change might help.'],
+  ["You don't really have to say anything.", "I'm okay just talking like this.", "It's kinda peaceful.", "Feels like the kind of quiet that isn't awkward.", 'Just... there.'],
+  ["It's weird how some moments stick more than others.", 'Even small ones.', 'Like nothing special was happening, but it still felt important.', "I can't really explain why.", 'It just did.'],
+  ['I tried to be productive earlier.', "Didn't go as planned.", 'Got distracted halfway through.', 'Honestly, not even surprised anymore.', "That's just how it goes sometimes."]
+  ["I don't mind this kind of quiet.", "It feels different when someone's still here.", "Even if nothing's being said back.", "It's not empty.", 'Just calm.'],
+  ["I'll keep talking for a bit.", 'No real reason to stop.', "This moment hasn't ended yet.", "So I'll stay in it.", 'At least a little longer.']
 ];
 
 function clearAiIdleSmallTalkTimer() {
