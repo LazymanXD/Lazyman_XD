@@ -4047,6 +4047,7 @@
         max-width: 100% !important;
         border-radius: 8px !important;
       }
+    }
 
     @supports not (height: 100dvh) {
       @media (max-width: 768px) {
@@ -7426,6 +7427,7 @@ function ensureDocxPreviewAssets() {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = cssHref;
+      link.onerror = () => console.warn('docx-preview CSS failed to load, using fallback styles');
       document.head.appendChild(link);
     }
 
@@ -9304,9 +9306,14 @@ function clearAiIdleSmallTalk() {
 
 function scheduleAiIdleSmallTalk(delayMs) {
   clearAiIdleSmallTalkTimer();
-  if (!aiCompanionActive) return;
+  if (!aiCompanionActive) {
+    console.log('scheduleAiIdleSmallTalk: AI not active, skipping');
+    return;
+  }
+  console.log('scheduleAiIdleSmallTalk: scheduling in', delayMs, 'ms');
   aiIdleSmallTalkTimeout = setTimeout(() => {
     aiIdleSmallTalkTimeout = null;
+    console.log('scheduleAiIdleSmallTalk: timeout fired, running idle');
     runAiIdleSmallTalk();
   }, delayMs);
 }
@@ -9327,11 +9334,17 @@ function speakIdleScriptLines(lines, index) {
 }
 
 function runAiIdleSmallTalk() {
-  if (!aiCompanionActive) return;
+  console.log('runAiIdleSmallTalk: called, aiCompanionActive=', aiCompanionActive, 'aiTypingTimeout=', aiTypingTimeout);
+  if (!aiCompanionActive) {
+    console.log('runAiIdleSmallTalk: AI not active, aborting');
+    return;
+  }
   if (aiTypingTimeout) {
+    console.log('runAiIdleSmallTalk: still typing, rescheduling');
     scheduleAiIdleSmallTalk(1200);
     return;
   }
+  console.log('runAiIdleSmallTalk: starting idle script');
   const script = AI_IDLE_SMALL_TALK_SCRIPTS[Math.floor(Math.random() * AI_IDLE_SMALL_TALK_SCRIPTS.length)];
   speakIdleScriptLines(script, 0);
 }
@@ -9447,6 +9460,7 @@ function aiSpeak(text, callback) {
       aiTypingTimeout = setTimeout(typeChar, 50);
     } else {
       // Done typing
+      aiTypingTimeout = null;
       typingCursor.style.display = 'none';
       orb.classList.remove('speaking');
       stopAITypingSound();
@@ -9457,7 +9471,9 @@ function aiSpeak(text, callback) {
       // Execute callback if provided
       if (callback && typeof callback === 'function') {
         setTimeout(callback, 500);
-      } else if (aiCompanionActive) {
+      }
+      // Always schedule idle smalltalk if AI is still active
+      if (aiCompanionActive) {
         scheduleAiIdleSmallTalk(5000);
       }
     }
