@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/jpeg" href="./profile website.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap" rel="stylesheet">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Share+Tech+Mono&family=Roboto+Mono&family=Space+Mono&family=Fira+Mono&family=Inconsolata&family=Source+Code+Pro&family=IBM+Plex+Mono&family=Cutive+Mono&family=JetBrains+Mono&family=Ubuntu+Mono&family=Noto+Sans+Mono&display=swap');
@@ -234,6 +235,67 @@
 
     .middle-tab-content { flex: 1; padding: 40px; text-align: center; overflow-y: auto; color: #222; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     .middle-tab-content.wiki-active { text-align: initial; }
+    #bookReaderSinglePage::-webkit-scrollbar { display: none; }
+
+    #bookReaderFrame > div:first-of-type,
+    #bookReaderLoading {
+      font-weight: 300;
+      letter-spacing: 0.04em;
+    }
+
+    /* Reader track = gutter between physical “sheets” */
+    #bookReaderSinglePage {
+      font-weight: 300;
+      background: #c8bfb0 !important;
+      scroll-snap-type: y proximity;
+    }
+
+    .book-reader-page-block {
+      scroll-snap-align: start;
+      scroll-snap-stop: normal;
+      background: #faf6ee;
+      border: 1px solid rgba(180, 155, 110, 0.85);
+      border-radius: 10px;
+      box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.12),
+        0 0 0 1px rgba(255, 255, 255, 0.35) inset;
+      margin: 0 auto 28px;
+      padding: 18px 20px 24px;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    .book-reader-page-block:last-child {
+      margin-bottom: 12px;
+    }
+    .book-reader-page-label {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(0, 0, 0, 0.45);
+      margin: 0 0 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .books-card-title {
+      font-weight: 300;
+      letter-spacing: 0.04em;
+    }
+
+    @media (min-width: 1024px) {
+      #bookReaderFrame {
+        width: min(1320px, 96vw) !important;
+        height: min(860px, 92vh) !important;
+      }
+      #bookReaderSinglePage {
+        width: min(960px, 100%) !important;
+        font-size: 15px !important;
+        line-height: 1.6 !important;
+        font-weight: 300 !important;
+      }
+    }
 
     .middle-tab-title { font-size: 60px; margin-top: 30px; margin-bottom: 10px; color: #333; font-family: 'Press Start 2P', cursive; animation: amberGlowPulse 3s ease-in-out infinite; }
     @keyframes amberGlowPulse { 0%,100% { color: #333; text-shadow: 0 0 5px #ff980088, 0 0 10px #ff980044; transform: scale(1); } 50% { color: #ff9800; text-shadow: 0 0 20px #ff9800bb, 0 0 40px #ff9800aa; transform: scale(1.05); } }
@@ -3930,6 +3992,57 @@
         font-size: 16px !important;
       }
     }
+
+    /* Book reader only: readable serif page + smooth UI (overrides site-wide pixel font) */
+    #bookReaderOverlay {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+      text-rendering: optimizeLegibility !important;
+    }
+    #bookReaderSinglePage,
+    #bookReaderSinglePage * {
+      font-family: Georgia, 'Times New Roman', serif !important;
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+      text-rendering: optimizeLegibility !important;
+    }
+
+    /* Book reader: phones / small viewports — avoid clipping, respect safe areas */
+    @media (max-width: 768px) {
+      #bookReaderOverlay {
+        align-items: flex-start !important;
+        justify-content: stretch !important;
+        padding: max(6px, env(safe-area-inset-top, 0px)) max(8px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      #bookReaderFrame {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: min(720px, calc(100dvh - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom)))) !important;
+        margin: 0 auto !important;
+        align-self: stretch !important;
+        box-sizing: border-box !important;
+      }
+      #bookReaderBody {
+        padding: 6px !important;
+      }
+      #bookReaderSinglePage {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+    }
+
+    @supports not (height: 100dvh) {
+      @media (max-width: 768px) {
+        #bookReaderFrame {
+          max-height: min(720px, calc(100vh - max(24px, env(safe-area-inset-top)) - max(24px, env(safe-area-inset-bottom)))) !important;
+        }
+      }
+    }
   </style>
 </head>
 <body>
@@ -4575,7 +4688,7 @@ const pages = {
     title: "Lazyman_XD",
     subtitle: "manga artist and illustrator",
     buttons: [
-      {icon: "<img src='./me.png' alt='About' class='about-icon' style='object-fit: contain; background: transparent; border: none; padding: 0; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: -webkit-crisp-edges;'>", label: "about", page: "about"},
+      {icon: "<img src='./me.png' alt='Books' class='about-icon' style='object-fit: contain; background: transparent; border: none; padding: 0; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: -webkit-crisp-edges;'>", label: "books", page: "books"},
       {icon: "<img src='./folder-icon.png' alt='Work' class='work-btn-shake' style='object-fit: contain; background: transparent; border: none; padding: 0;'>", label: "work", page: "work"},
       {icon: "<img src='./manga.png' alt='Manga' class='manga-icon' style='object-fit: contain; background: transparent; border: none; padding: 0; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: -webkit-crisp-edges;'>", label: "manga", page: "manga"},
       {icon: "<img src='./question.png' alt='Q&A' style='object-fit: contain; background: transparent; border: none; padding: 0;'>", label: "Q&A", page: "faq", class: "qa-btn"},
@@ -4716,7 +4829,7 @@ const pages = {
           background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
           display: flex;
           flex-direction: column;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family: 'Press Start 2P', cursive;
           overflow: hidden;
           position: relative;
           max-width: 100vw;
@@ -4776,7 +4889,7 @@ const pages = {
           background: rgba(255,255,255,0.1);
           border: 1px solid rgba(255,255,255,0.2);
           border-radius: 25px;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: 'Press Start 2P', cursive;
           font-size: 12px;
           font-weight: 500;
           cursor: pointer;
@@ -4969,7 +5082,7 @@ const pages = {
           background: rgba(255,255,255,0.1);
           border: 1px solid rgba(255,255,255,0.2);
           border-radius: 12px;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: 'Press Start 2P', cursive;
           font-size: 18px;
           font-weight: 600;
           cursor: pointer;
@@ -4993,7 +5106,7 @@ const pages = {
         .qa-text-content {
           max-width: 800px;
           margin: 0 auto;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: 'Press Start 2P', cursive;
           font-size: 16px;
           line-height: 1.8;
           color: rgba(255,255,255,0.9);
@@ -5021,7 +5134,7 @@ const pages = {
           background: rgba(255,255,255,0.1);
           border: 1px solid rgba(255,255,255,0.2);
           border-radius: 12px;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: 'Press Start 2P', cursive;
           font-size: 14px;
           font-weight: 500;
           cursor: pointer;
@@ -5062,7 +5175,7 @@ const pages = {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 12px;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Press Start 2P', cursive;
             font-size: 11px;
             font-weight: 600;
             cursor: pointer;
@@ -5196,7 +5309,7 @@ const pages = {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 12px;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Press Start 2P', cursive;
             font-size: 11px;
             font-weight: 600;
             cursor: pointer;
@@ -5343,10 +5456,10 @@ const pages = {
               <p>You can reach me through the following channels:</p>
               <p>Discord: <a href="https://discord.com/users/781458513603198986" target="_blank" class="social-link">lazyman_XD</a></p>
               <p>For business inquiries and commissions, please include details about your project including timeline, budget, and specific requirements.</p>
-              <h4 style="margin-top: 25px; margin-bottom: 15px; color: #fff; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; text-align: center;">supportme/ payme</h4>
+              <h4 style="margin-top: 25px; margin-bottom: 15px; color: #fff; font-family: 'Press Start 2P', cursive; font-size: 16px; font-weight: 600; text-align: center;">supportme/ payme</h4>
               <div class="payment-buttons" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
-                <a href="https://paypal.me/LazymanXDPay" target="_blank" class="payment-btn paypal-btn" style="padding: 20px 40px; background: linear-gradient(135deg, #0070ba 0%, #005ea6 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 25px; color: #fff; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,112,186,0.3);">PayPal</a>
-                <a href="https://ko-fi.com/lazyman_xd" target="_blank" class="payment-btn kofi-btn" style="padding: 20px 40px; background: linear-gradient(135deg, #ff5e5b 0%, #ff4500 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 25px; color: #fff; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255,94,91,0.3);">Ko-fi</a>
+                <a href="https://paypal.me/LazymanXDPay" target="_blank" class="payment-btn paypal-btn" style="padding: 20px 40px; background: linear-gradient(135deg, #0070ba 0%, #005ea6 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 25px; color: #fff; text-decoration: none; font-family: 'Press Start 2P', cursive; font-size: 18px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,112,186,0.3);">PayPal</a>
+                <a href="https://ko-fi.com/lazyman_xd" target="_blank" class="payment-btn kofi-btn" style="padding: 20px 40px; background: linear-gradient(135deg, #ff5e5b 0%, #ff4500 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 25px; color: #fff; text-decoration: none; font-family: 'Press Start 2P', cursive; font-size: 18px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255,94,91,0.3);">Ko-fi</a>
               </div>
             </div>
           </div>
@@ -5439,7 +5552,23 @@ const pages = {
 function showPage(pageKey) {
   // For Q&A page, open AI companion instead - don't open tab
   if(pageKey === "faq") {
+    if (workCardsShowing) hideWorkCards();
+    if (mangaCardsShowing) hideMangaCards();
+    if (booksCardsShowing) hideBooksCards();
     openAICompanion();
+    return;
+  }
+
+  // Books button acts as a floating shelf toggle, not a middle-tab page
+  if (pageKey === "books") {
+    const booksBtn = document.querySelector('.nav-btn[data-page="books"]');
+    if (workCardsShowing) hideWorkCards();
+    if (mangaCardsShowing) hideMangaCards();
+    if (booksCardsShowing) {
+      hideBooksCards(booksBtn || undefined);
+    } else if (booksBtn) {
+      showBooksCards(booksBtn);
+    }
     return;
   }
 
@@ -5459,6 +5588,13 @@ function showPage(pageKey) {
 
   const page = pages[pageKey];
   if (!page) return;
+
+  /* Close floating work/manga/books cards when opening a middle-tab page so covers cannot stick on screen */
+  if (pageKey !== "home") {
+    if (workCardsShowing) hideWorkCards();
+    if (mangaCardsShowing) hideMangaCards();
+    if (booksCardsShowing) hideBooksCards();
+  }
   
   // Remove wiki-active class when switching away from wiki
   tabContent.classList.remove('wiki-active');
@@ -5600,6 +5736,11 @@ let workCardsShowing = false;
 let workCardElements = [];
 let mangaCardsShowing = false;
 let mangaCardElements = [];
+let booksCardsShowing = false;
+let booksCardElements = [];
+let bookReaderPages = [];
+const bookPagesCache = new Map();
+let docxPreviewAssetsPromise = null;
 
 function showWorkCards(button) {
   const viewportWidth = window.innerWidth;
@@ -5914,7 +6055,7 @@ style.textContent = `
     opacity: 0;
     transform: scale(0.5);
   }
-  
+
   /* Animation: Appear (fade-in + scale-up) */
   .diary-book-3d.animating {
     animation: diaryAppear 0.6s ease-out forwards;
@@ -5966,6 +6107,8 @@ style.textContent = `
     transform: rotateY(0deg) !important;
     opacity: 1;
     transition: transform 0.6s ease-in-out;
+    overflow: visible;
+    transform-style: flat;
   }
   
   /* Book Parts */
@@ -6142,24 +6285,33 @@ style.textContent = `
     top: 3%;
     background: #faf8e8;
     border-radius: 2px 8px 8px 2px;
-    z-index: 4;
+    z-index: 10;
     padding: 25px;
-    overflow-y: auto;
+    padding-bottom: 40px;
+    padding-right: 15px;
+    overflow-y: scroll;
+    overflow-x: hidden;
     font-family: 'Georgia', serif;
     font-size: 12px;
     line-height: 1.8;
     color: #333;
     box-shadow: inset 5px 0 15px rgba(0,0,0,0.05);
     opacity: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    pointer-events: auto;
+    -webkit-overflow-scrolling: touch;
+    display: block;
   }
   
   .diary-book-3d.phase-reading .diary-content-page {
     animation: contentPageAppear 0.8s ease-out 0.3s forwards;
+    transform: none !important;
   }
-  
+
   @keyframes contentPageAppear {
-    0% { opacity: 0; transform: translateZ(8px) scale(0.95); }
-    100% { opacity: 1; transform: translateZ(8px) scale(1); }
+    0% { opacity: 0; }
+    100% { opacity: 1; }
   }
   
   /* Close Animation Sequence */
@@ -6291,6 +6443,33 @@ style.textContent = `
   }
   
   /* Diary content styles */
+  .diary-content-3d {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 5px;
+    scrollbar-width: thin;
+    scrollbar-color: #8B4513 #e8e8d0;
+  }
+
+  .diary-content-3d::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .diary-content-3d::-webkit-scrollbar-track {
+    background: #e8e8d0;
+    border-radius: 5px;
+  }
+
+  .diary-content-3d::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+    border-radius: 5px;
+  }
+
+  .diary-content-3d::-webkit-scrollbar-thumb:hover {
+    background: #A0522D;
+  }
+
   .diary-content-3d h1, .diary-content-3d h2, .diary-content-3d h3 {
     font-family: 'Press Start 2P', cursive;
     color: #8B4513;
@@ -6321,19 +6500,31 @@ style.textContent = `
   
   /* Content scrollbar */
   .diary-content-page::-webkit-scrollbar {
-    width: 6px;
+    width: 10px;
   }
-  
+
   .diary-content-page::-webkit-scrollbar-track {
     background: #e8e8d0;
-    border-radius: 3px;
+    border-radius: 5px;
+    border: 1px solid #d0d0b0;
   }
-  
+
   .diary-content-page::-webkit-scrollbar-thumb {
-    background: #8B4513;
-    border-radius: 3px;
+    background: linear-gradient(180deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+    border-radius: 5px;
+    border: 1px solid #6B3510;
   }
-  
+
+  .diary-content-page::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #A0522D 0%, #B8630F 50%, #A0522D 100%);
+  }
+
+  /* Firefox scrollbar */
+  .diary-content-page {
+    scrollbar-width: thin;
+    scrollbar-color: #8B4513 #e8e8d0;
+  }
+
   /* Responsive diary sizing for mobile */
   @media (max-width: 768px) {
     .diary-book-3d {
@@ -6449,6 +6640,10 @@ function attachNavListeners() {
           hideWorkCards(this);
           return;
         }
+
+        // Opening work: close manga / books popups so only one shelf is open
+        if (mangaCardsShowing) hideMangaCards();
+        if (booksCardsShowing) hideBooksCards();
         
         // Show cards after animation
         setTimeout(() => {
@@ -6465,21 +6660,20 @@ function attachNavListeners() {
           void mangaIcon.offsetWidth;
           mangaIcon.classList.add('manga-btn-spin');
         }
-        if (workCardsShowing) {
-          hideWorkCards();
-        }
         if (mangaCardsShowing) {
           hideMangaCards(this);
           return;
         }
+        if (workCardsShowing) hideWorkCards();
+        if (booksCardsShowing) hideBooksCards();
         setTimeout(() => {
           showMangaCards(this);
         }, 350);
         return;
       }
       
-      // Handle about button specially
-      if (pageKey === "about") {
+      // Handle books button specially
+      if (pageKey === "books") {
         // Hide work cards if showing
         if (workCardsShowing) {
           hideWorkCards();
@@ -6487,9 +6681,13 @@ function attachNavListeners() {
         if (mangaCardsShowing) {
           hideMangaCards();
         }
-        
-        // Show diary with effects
-        showDiary();
+        if (booksCardsShowing) {
+          hideBooksCards(this);
+          return;
+        }
+        setTimeout(() => {
+          showBooksCards(this);
+        }, 350);
         return;
       }
       
@@ -6499,6 +6697,9 @@ function attachNavListeners() {
       }
       if (mangaCardsShowing) {
         hideMangaCards();
+      }
+      if (booksCardsShowing) {
+        hideBooksCards();
       }
       
       proceedWithPageOpen(pageKey);
@@ -6527,6 +6728,23 @@ const mangaGalleryData = [
   {src: "./manga-card-1.jpg", title: "Shower Thoughts"},
   {src: "./manga-card-2.jpg", title: "Witch's End"},
   {src: "./manga-card-3.jpg", title: "Last IIIsins"}
+];
+
+const booksData = [
+  {
+    id: "empire-age-magic",
+    title: "A History of the Empire and the Age of Magic",
+    cover: "./lastIIIsins.jpg",
+    sourceFile: "./A History of the Empire and the Age of Magic.docx",
+    sourceType: "docx"
+  },
+  {
+    id: "valerian-empire",
+    title: "The Valerian Empire: Order, Control, and Collapse",
+    cover: "./witchs end.jpg",
+    sourceFile: "./THE VALERIAN EMPIRE ORDER, CONTROL, AND COLLAPSE.docx",
+    sourceType: "docx"
+  }
 ];
 
 function showWorkCards(button) {
@@ -6881,6 +7099,507 @@ function hideMangaCards(button) {
   mangaCardsShowing = false;
 }
 
+function showBooksCards(button) {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const buttonRect = button.getBoundingClientRect();
+  const buttonCenterX = buttonRect.left + buttonRect.width / 2;
+  const buttonTopY = buttonRect.top;
+
+  let cardWidth, cardHeight, spacingX, spacingY, cardsPerRow;
+  const totalCards = booksData.length;
+
+  if (viewportWidth <= 480) {
+    cardWidth = 105;
+    cardHeight = 165;
+    spacingX = 130;
+    spacingY = 190;
+    cardsPerRow = 2;
+  } else if (viewportWidth <= 768) {
+    cardWidth = 140;
+    cardHeight = 205;
+    spacingX = 175;
+    spacingY = 235;
+    cardsPerRow = 3;
+  } else {
+    cardWidth = 165;
+    cardHeight = 240;
+    spacingX = 205;
+    spacingY = 275;
+    cardsPerRow = 3;
+  }
+
+  const totalRows = Math.ceil(totalCards / cardsPerRow);
+  const gridWidth = Math.min(cardsPerRow, totalCards) * spacingX;
+  const gridHeight = totalRows * spacingY;
+  const centerX = viewportWidth / 2;
+  const centerY = viewportHeight / 2;
+
+  const buttonBuffer = 110;
+  let gridTopY = centerY - (gridHeight / 2);
+  let gridLeftX = centerX - (gridWidth / 2);
+
+  if (gridTopY + gridHeight > buttonTopY - buttonBuffer &&
+      gridLeftX < buttonCenterX + buttonBuffer &&
+      gridLeftX + gridWidth > buttonCenterX - buttonBuffer) {
+    gridTopY = buttonTopY - gridHeight - buttonBuffer;
+  }
+
+  gridTopY = Math.max(20, Math.min(gridTopY, viewportHeight - gridHeight - 20));
+  gridLeftX = Math.max(20, Math.min(gridLeftX, viewportWidth - gridWidth - 20));
+
+  booksCardElements = [];
+
+  booksData.forEach((book, index) => {
+    const card = document.createElement('div');
+    card.className = 'books-shelf-card';
+    card.dataset.bookId = book.id;
+
+    const row = Math.floor(index / cardsPerRow);
+    const col = index % cardsPerRow;
+    const cardsInThisRow = Math.min(cardsPerRow, totalCards - (row * cardsPerRow));
+    const rowWidth = cardsInThisRow * spacingX;
+    const rowStartX = gridLeftX + (gridWidth - rowWidth) / 2 + (spacingX / 2);
+    const cardX = rowStartX + (col * spacingX);
+    const cardY = gridTopY + (row * spacingY) + (spacingY / 2);
+
+    const startX = buttonRect.left + buttonRect.width / 2;
+    const startY = buttonRect.top + buttonRect.height / 2;
+
+    card.style.cssText = `
+      position: fixed;
+      left: ${startX}px;
+      top: ${startY}px;
+      width: ${cardWidth}px;
+      height: ${cardHeight}px;
+      transform: translate(-50%, -50%) scale(0.1) rotate(0deg);
+      opacity: 0;
+      z-index: 3000;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 34px rgba(0,0,0,0.65);
+      pointer-events: auto;
+      border: 2px solid rgba(255, 214, 122, 0.5);
+      background: #0f1118;
+    `;
+
+    card.onmouseenter = function() {
+      this.style.transform = this.style.transform.replace('scale(1)', 'scale(1.08)');
+      this.style.boxShadow = '0 0 26px rgba(255, 214, 122, 0.75), 0 10px 34px rgba(0,0,0,0.75)';
+      this.style.borderColor = 'rgba(255, 214, 122, 0.95)';
+      this.style.zIndex = '3001';
+    };
+
+    card.onmouseleave = function() {
+      this.style.transform = this.style.transform.replace('scale(1.08)', 'scale(1)');
+      this.style.boxShadow = '0 10px 34px rgba(0,0,0,0.65)';
+      this.style.borderColor = 'rgba(255, 214, 122, 0.5)';
+      this.style.zIndex = '3000';
+    };
+
+    const img = document.createElement('img');
+    img.src = book.cover;
+    img.alt = book.title;
+    img.style.cssText = `
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    `;
+
+    const titleOverlay = document.createElement('div');
+    titleOverlay.className = 'books-card-title';
+    titleOverlay.textContent = book.title;
+    titleOverlay.style.cssText = `
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 8px 6px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.25));
+      color: #f6e7bf;
+      font-size: 9px;
+      line-height: 1.35;
+      text-align: center;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+    `;
+
+    card.appendChild(img);
+    card.appendChild(titleOverlay);
+    card.onclick = function(e) {
+      e.stopPropagation();
+      playSound('tabClick', 0);
+      startBookSequence(book, button);
+    };
+
+    document.body.appendChild(card);
+    booksCardElements.push(card);
+
+    setTimeout(() => {
+      const rotate = (index % 2 === 0 ? -2 : 2);
+      card.style.left = `${cardX}px`;
+      card.style.top = `${cardY}px`;
+      card.style.transform = `translate(-50%, -50%) scale(1) rotate(${rotate}deg)`;
+      card.style.opacity = '1';
+    }, 60 + (index * 90));
+  });
+
+  booksCardsShowing = true;
+}
+
+function hideBooksCards(button) {
+  if (booksCardElements.length === 0) return;
+
+  let targetX;
+  let targetY;
+  if (button) {
+    const rect = button.getBoundingClientRect();
+    targetX = rect.left + rect.width / 2;
+    targetY = rect.top + rect.height / 2;
+  } else {
+    targetX = window.innerWidth / 2;
+    targetY = window.innerHeight / 2;
+  }
+
+  booksCardElements.forEach((card, index) => {
+    setTimeout(() => {
+      card.style.transform = 'translate(-50%, -50%) scale(0.1) rotate(0deg)';
+      card.style.left = `${targetX}px`;
+      card.style.top = `${targetY}px`;
+      card.style.opacity = '0';
+    }, index * 45);
+
+    setTimeout(() => {
+      if (card.parentNode) card.remove();
+    }, 560 + (index * 45));
+  });
+
+  booksCardElements = [];
+  booksCardsShowing = false;
+}
+
+function startBookSequence(book, sourceButton) {
+  hideBooksCards(sourceButton);
+
+  const existing = document.getElementById('bookTransitionOverlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'bookTransitionOverlay';
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 3500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.12);
+  `;
+
+  overlay.innerHTML = `
+    <div id="bookTransitionCard" style="
+      width: min(30vw, 260px);
+      height: min(45vw, 380px);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 214, 122, 0.7);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 0 25px rgba(255, 214, 122, 0.5);
+      transform-style: preserve-3d;
+      transition: transform 0.9s ease, box-shadow 0.9s ease, opacity 0.5s ease;
+      background: #111;
+      opacity: 1;
+    ">
+      <img src="${book.cover}" alt="${book.title}" style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  const card = document.getElementById('bookTransitionCard');
+  if (!card) return;
+
+  requestAnimationFrame(() => {
+    card.style.transform = 'rotateY(360deg) scale(1.03)';
+  });
+
+  setTimeout(() => {
+    card.style.transform = 'rotateY(720deg) scale(1.08)';
+    card.style.boxShadow = '0 20px 55px rgba(0,0,0,0.78), 0 0 35px rgba(255, 214, 122, 0.7)';
+  }, 850);
+
+  setTimeout(async () => {
+    card.style.opacity = '0';
+    await openBookReader(book);
+    overlay.remove();
+  }, 1800);
+}
+
+function ensureDocxPreviewAssets() {
+  if (window.JSZip && window.docx && typeof window.docx.renderAsync === 'function') {
+    return Promise.resolve();
+  }
+  if (docxPreviewAssetsPromise) return docxPreviewAssetsPromise;
+
+  docxPreviewAssetsPromise = new Promise((resolve, reject) => {
+    const cssHref = 'https://unpkg.com/docx-preview@0.3.6/dist/docx-preview.min.css';
+    const jszipSrc = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+    const docxSrc = 'https://unpkg.com/docx-preview@0.3.6/dist/docx-preview.min.js';
+
+    if (!document.querySelector(`link[href="${cssHref}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = cssHref;
+      document.head.appendChild(link);
+    }
+
+    const waitForScript = (src, errorMessage) => new Promise((res, rej) => {
+      const existing = document.querySelector(`script[src="${src}"]`);
+      if (existing) {
+        // If already loaded, continue immediately.
+        if (existing.dataset.loaded === '1') {
+          res();
+          return;
+        }
+        existing.addEventListener('load', () => {
+          existing.dataset.loaded = '1';
+          res();
+        }, { once: true });
+        existing.addEventListener('error', () => rej(new Error(errorMessage)), { once: true });
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = () => {
+        script.dataset.loaded = '1';
+        res();
+      };
+      script.onerror = () => rej(new Error(errorMessage));
+      document.head.appendChild(script);
+    });
+
+    (async () => {
+      await waitForScript(jszipSrc, 'Failed to load JSZip dependency.');
+      await waitForScript(docxSrc, 'Failed to load DOCX renderer.');
+      if (!window.JSZip) {
+        throw new Error('JSZip not available after loading.');
+      }
+      if (!window.docx || typeof window.docx.renderAsync !== 'function') {
+        throw new Error('DOCX renderer not available after loading.');
+      }
+      resolve();
+    })().catch(reject);
+  });
+
+  return docxPreviewAssetsPromise;
+}
+
+function splitDocxHostOnWordPageBreaks(hostEl) {
+  const kids = Array.from(hostEl.children);
+  if (!kids.length) return null;
+
+  const isPageBreakStart = (el) => {
+    const st = (el.getAttribute('style') || '').toLowerCase().replace(/\s+/g, '');
+    return st.includes('page-break-before:always') || st.includes('break-before:page');
+  };
+
+  const chunks = [];
+  let current = [];
+  kids.forEach((el) => {
+    if (isPageBreakStart(el) && current.length) {
+      chunks.push(current.map((n) => n.outerHTML).join(''));
+      current = [];
+    }
+    current.push(el);
+  });
+  if (current.length) {
+    chunks.push(current.map((n) => n.outerHTML).join(''));
+  }
+  return chunks.length > 1 ? chunks : null;
+}
+
+function extractDocxPageHtml(hiddenMount) {
+  const wrapper = hiddenMount.querySelector('.docx-wrapper');
+  if (!wrapper) return [];
+
+  const selectors = [
+    () => Array.from(wrapper.querySelectorAll(':scope > section.docx')),
+    () => Array.from(wrapper.querySelectorAll(':scope > section')),
+    () => Array.from(hiddenMount.querySelectorAll('.docx-wrapper > section.docx')),
+    () => Array.from(hiddenMount.querySelectorAll('.docx-wrapper > section')),
+    () => Array.from(hiddenMount.querySelectorAll('.docx-wrapper section.docx')),
+  ];
+
+  for (const pick of selectors) {
+    const nodes = pick();
+    if (nodes.length > 0) {
+      return nodes.map((el) => el.outerHTML);
+    }
+  }
+
+  let host = wrapper;
+  if (wrapper.children.length === 1 && wrapper.children[0].tagName === 'SECTION') {
+    host = wrapper.children[0];
+  }
+  const split = splitDocxHostOnWordPageBreaks(host);
+  if (split) return split;
+
+  return [wrapper.outerHTML];
+}
+
+async function loadBookPages(book) {
+  if (bookPagesCache.has(book.id)) {
+    return bookPagesCache.get(book.id);
+  }
+
+  if (book.sourceType !== 'docx') {
+    throw new Error('Unsupported book source type.');
+  }
+
+  await ensureDocxPreviewAssets();
+
+  const response = await fetch(new URL(book.sourceFile, window.location.href));
+  if (!response.ok) {
+    throw new Error('Could not load book file.');
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  const hiddenMount = document.createElement('div');
+  hiddenMount.style.cssText = 'position:fixed;left:-99999px;top:-99999px;width:900px;opacity:0;pointer-events:none;z-index:-1;';
+  document.body.appendChild(hiddenMount);
+
+  await window.docx.renderAsync(arrayBuffer, hiddenMount, null, {
+    inWrapper: true,
+    breakPages: true,
+    experimental: true
+  });
+
+  const pages = extractDocxPageHtml(hiddenMount);
+
+  hiddenMount.remove();
+
+  if (!pages.length) {
+    throw new Error('No readable pages found in book file.');
+  }
+
+  bookPagesCache.set(book.id, pages);
+  return pages;
+}
+
+function renderBookReaderPages() {
+  const singlePage = document.getElementById('bookReaderSinglePage');
+  if (!singlePage) return;
+
+  const blocks = bookReaderPages.map((html, i) => {
+    const pageContent = html || '<p style="opacity:.6">No content</p>';
+    const n = i + 1;
+    return `<section class="book-reader-page-block" aria-label="Page ${n}"><div class="book-reader-page-label">Page ${n}</div><div class="book-page-fit">${pageContent}</div></section>`;
+  });
+  singlePage.innerHTML = blocks.join('');
+  fitBookPageContent(singlePage);
+}
+
+function fitBookPageContent(pageContainer) {
+  if (!pageContainer) return;
+  const availableWidth = Math.max(pageContainer.clientWidth - 12, 1);
+  pageContainer.querySelectorAll('.book-page-fit').forEach((fitRoot) => {
+    fitRoot.style.transformOrigin = 'top left';
+    fitRoot.style.margin = '0';
+    fitRoot.style.padding = '0';
+    fitRoot.style.display = 'inline-block';
+    const contentWidth = Math.max(fitRoot.scrollWidth, 1);
+    const scale = Math.min(1, availableWidth / contentWidth);
+    fitRoot.style.transform = `scale(${scale})`;
+  });
+}
+
+function closeBookReader() {
+  const overlay = document.getElementById('bookReaderOverlay');
+  if (overlay) overlay.remove();
+}
+
+async function openBookReader(book) {
+  const existing = document.getElementById('bookReaderOverlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'bookReaderOverlay';
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 3600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 24px;
+    box-sizing: border-box;
+  `;
+
+  overlay.innerHTML = `
+    <div id="bookReaderFrame" style="
+      width: min(1100px, 94vw);
+      height: min(720px, 90vh);
+      background: linear-gradient(135deg, #1c1b24 0%, #111018 100%);
+      border: 2px solid rgba(255, 214, 122, 0.55);
+      border-radius: 16px;
+      box-shadow: 0 25px 75px rgba(0,0,0,0.78);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: transform .35s ease, opacity .35s ease;
+    ">
+      <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.12);color:#f6e7bf;font-size:10px;">
+        <div style="max-width:75%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${book.title}</div>
+        <button id="bookReaderClose" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:8px 10px;cursor:pointer;font-size:10px;">Close</button>
+      </div>
+      <div id="bookReaderLoading" style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;color:#e8d8ad;font-size:10px;padding:20px;">Loading book pages...</div>
+      <div id="bookReaderBody" style="display:none;flex:1;min-height:0;flex-direction:column;gap:10px;padding:12px;background:rgba(0,0,0,0.2);overflow:hidden;">
+        <div id="bookReaderSinglePage" style="flex:1;min-height:0;width:min(780px,100%);margin:0 auto;background:#f6efdf;border:1px solid #c8b48a;border-radius:8px;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;padding:10px 12px 14px;color:#222;font-family:Georgia,serif;font-size:14px;line-height:1.55;"></div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  const frame = document.getElementById('bookReaderFrame');
+  const closeBtn = document.getElementById('bookReaderClose');
+  const loading = document.getElementById('bookReaderLoading');
+  const body = document.getElementById('bookReaderBody');
+
+  requestAnimationFrame(() => {
+    if (frame) {
+      frame.style.transform = 'scale(1)';
+      frame.style.opacity = '1';
+    }
+  });
+
+  closeBtn.addEventListener('click', closeBookReader);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeBookReader();
+  });
+
+  try {
+    bookReaderPages = await loadBookPages(book);
+    loading.style.display = 'none';
+    body.style.display = 'flex';
+    renderBookReaderPages();
+  } catch (error) {
+    loading.textContent = `Failed to load book: ${error.message}`;
+    loading.style.color = '#ffb3b3';
+  }
+}
+
+window.addEventListener('resize', () => {
+  const singlePage = document.getElementById('bookReaderSinglePage');
+  if (singlePage && singlePage.innerHTML.trim() !== '') {
+    fitBookPageContent(singlePage);
+  }
+});
+
 function openWorkCardFullscreen(card, src, title) {
   // Store the card's current position for return
   const rect = card.getBoundingClientRect();
@@ -6978,7 +7697,7 @@ function proceedWithPageOpen(pageKey) {
   }
   
   // NEVER maximize these tabs - keep them normal size PERMANENTLY
-  if (pageKey === "manga" || pageKey === "home" || pageKey === "about" || pageKey === "faq") {
+  if (pageKey === "manga" || pageKey === "home" || pageKey === "books" || pageKey === "faq") {
     // Force ensure these tabs are NEVER maximized
     middleTab.classList.remove('maximized');
     document.body.classList.remove('window-maximized');
@@ -6996,15 +7715,27 @@ let diaryData = {
       content: `
         <h2>Who is Lazyman_XD?</h2>
         <p>Lazyman_XD is a passionate manga artist and illustrator dedicated to creating captivating visual stories. With a unique artistic style that blends traditional manga aesthetics with modern digital techniques, Lazyman brings characters and worlds to life.</p>
-        
+
         <h2>What I Do</h2>
         <p>I specialize in creating manga, character illustrations, and concept art. My work spans various genres from fantasy and adventure to slice-of-life and emotional dramas. Each piece is crafted with attention to detail and a deep love for storytelling.</p>
-        
+
         <h2>My Work</h2>
         <p>Over the years, I've created illustrations, manga on progress. Some of my notable works, character-driven dramas, and experimental art pieces. Every project is a new adventure in creativity.</p>
-        
+
         <h2>Get In Touch</h2>
         <p>I'm always open to collaborations, commissions, and connecting with fellow artists. Feel free to explore my work and reach out if you'd like to work together!</p>
+
+        <h2>My Journey</h2>
+        <p>My artistic journey began at a young age, doodling characters from my favorite anime and manga. Over time, those doodles evolved into original characters and stories of my own. Each drawing taught me something new about anatomy, perspective, and storytelling.</p>
+
+        <h2>Inspiration</h2>
+        <p>I draw inspiration from various sources - nature, music, other artists, and everyday life. The way light filters through leaves, the emotion in a song, the story in a stranger's eyes - all these moments fuel my creativity and find their way into my art.</p>
+
+        <h2>Future Goals</h2>
+        <p>My dream is to publish my own manga series and share my stories with the world. I want to create characters that resonate with readers, worlds they can get lost in, and stories that stay with them long after they've finished reading.</p>
+
+        <h2>Thank You</h2>
+        <p>Thank you for visiting my website and taking the time to learn about me. Your support means the world to me. Keep creating, keep dreaming, and never give up on your passions!</p>
       `
     }
   ],
@@ -7131,17 +7862,20 @@ function loadDiaryPage(pageIndex) {
   const pageIndicator = document.getElementById('pageIndicator');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
-  
+
   if (pageIndex >= 0 && pageIndex < diaryData.pages.length) {
     const page = diaryData.pages[pageIndex];
     contentDiv.innerHTML = `<h1 class="diary-title">${page.title}</h1>${page.content}`;
     pageIndicator.textContent = `${pageIndex + 1} / ${diaryData.pages.length}`;
-    
+
     // Update button states
     prevBtn.disabled = pageIndex === 0;
     nextBtn.disabled = pageIndex === diaryData.pages.length - 1;
-    
+
     diaryData.currentPage = pageIndex;
+
+    // Reset scroll to top when changing pages
+    contentDiv.scrollTop = 0;
   }
 }
 
@@ -7156,6 +7890,24 @@ function prevDiaryPage() {
 function nextDiaryPage() {
   if (diaryData.currentPage < diaryData.pages.length - 1) {
     loadDiaryPage(diaryData.currentPage + 1);
+  }
+}
+
+// Scroll to top of diary page
+function scrollDiaryToTop() {
+  const contentPage = document.getElementById('diaryContentPage');
+  if (contentPage) {
+    contentPage.scrollTop = 0;
+    contentPage.classList.remove('scrolled');
+  }
+}
+
+// Scroll to bottom of diary page
+function scrollDiaryToBottom() {
+  const contentPage = document.getElementById('diaryContentPage');
+  if (contentPage) {
+    contentPage.scrollTop = contentPage.scrollHeight;
+    contentPage.classList.add('scrolled');
   }
 }
 
