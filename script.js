@@ -552,11 +552,11 @@ const pages = {
     title: "Lazyman_XD",
     subtitle: "manga artist and illustrator",
     buttons: [
-      {icon: "<img src='./me.png' alt='Books' class='about-icon' style='object-fit: contain; background: transparent; border: none; padding: 0; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: -webkit-crisp-edges;'>", label: "books", page: "books"},
-      {icon: "<img src='./folder-icon.png' alt='Work' class='work-btn-shake' style='object-fit: contain; background: transparent; border: none; padding: 0;'>", label: "work", page: "work"},
-      {icon: "<img src='./manga.png' alt='Manga' class='manga-icon' style='object-fit: contain; background: transparent; border: none; padding: 0; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: -webkit-crisp-edges;'>", label: "manga", page: "manga"},
-      {icon: "<img src='./question.png' alt='Q&A' style='object-fit: contain; background: transparent; border: none; padding: 0;'>", label: "Q&A", page: "faq", class: "qa-btn"},
-      {icon: "<img src='./wiki-logog.png' alt='Wiki' style='object-fit: contain; background: transparent; border: none; padding: 0; image-rendering: -moz-crisp-edges; image-rendering: -webkit-crisp-edges; image-rendering: pixelated; image-rendering: crisp-edges; -webkit-font-smoothing: none; -moz-osx-font-smoothing: grayscale; font-smooth: never; image-rendering: optimize-contrast; filter: contrast(1.2) brightness(1.1);'>", label: "wiki", page: "wiki"}
+      {icon: "<img src='./me.webp' alt='Books' class='about-icon' style='object-fit: contain; background: transparent; border: none; padding: 0; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: -webkit-crisp-edges;'>", label: "books", page: "books"},
+      {icon: "<img src='./folder-icon.webp' alt='Work' class='work-btn-shake' style='object-fit: contain; background: transparent; border: none; padding: 0;'>", label: "work", page: "work"},
+      {icon: "<img src='./manga.webp' alt='Manga' class='manga-icon' style='object-fit: contain; background: transparent; border: none; padding: 0; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: -webkit-crisp-edges;'>", label: "manga", page: "manga"},
+      {icon: "<img src='./question.webp' alt='Q&A' style='object-fit: contain; background: transparent; border: none; padding: 0;'>", label: "Q&A", page: "faq", class: "qa-btn"},
+      {icon: "<img src='./wiki-logog.webp' alt='Wiki' style='object-fit: contain; background: transparent; border: none; padding: 0; image-rendering: -moz-crisp-edges; image-rendering: -webkit-crisp-edges; image-rendering: pixelated; image-rendering: crisp-edges; -webkit-font-smoothing: none; -moz-osx-font-smoothing: grayscale; font-smooth: never; image-rendering: optimize-contrast; filter: contrast(1.2) brightness(1.1);'>", label: "wiki", page: "wiki"}
     ]
   },
   about: {
@@ -673,8 +673,8 @@ const pages = {
       </style>
       <div class="wiki-wrapper">
         <div class="wiki-images">
-          <img src="./CA.png" class="wiki-ca-img" alt="CA">
-          <img src="./girl 1.png" class="wiki-girl-img wiki-girl-wiggle" alt="Girl">
+          <img src="./CA.webp" class="wiki-ca-img" alt="CA">
+          <img src="./girl 1.webp" class="wiki-girl-img wiki-girl-wiggle" alt="Girl">
         </div>
         <div class="wiki-text">WIKI COMING SOON</div>
         <button class="wiki-back-btn" onclick="showPage('home')">← Back</button>
@@ -1379,7 +1379,7 @@ const pages = {
               <div class="character-display">
                 <div class="character-title">CHARACTER SHEETS</div>
                 <div class="character-image-container">
-                  <img id="character-image" src="./character1_sketch.png" alt="Character" class="character-image" onerror="this.src='./girl 1.png'">
+                  <img id="character-image" src="./character1_sketch.webp" alt="Character" class="character-image" onerror="this.src='./girl 1.webp'">
                   <div class="style-switcher">
                     <div class="style-circle active" onclick="switchCharacterStyle('sketch')" title="Sketch"></div>
                     <div class="style-circle" onclick="switchCharacterStyle('flat')" title="Flat Color"></div>
@@ -4547,7 +4547,7 @@ function updateWikiWithMangaData() {
       gap: 15px;
       margin-top: -10px;
     ">
-      <img src="./wiki-logo.jpg" alt="Logo" style="width: 32px; height: 32px;">
+      <img src="./wiki-logo.webp" alt="Logo" style="width: 32px; height: 32px;">
       <span style="font-weight: bold; color: #333;">Manga Wiki</span>
       <input type="text" placeholder="Search..." style="
         flex: 1;
@@ -4735,7 +4735,7 @@ function removeArtwork() {
   }
 }
 
-const mangaCoverImage = "./SHOWERTHOUGHTS.jpg";
+const mangaCoverImage = "./SHOWERTHOUGHTS.webp";
 
 const mangaInfo = {
   title: "Shower Thoughts",
@@ -4940,15 +4940,15 @@ let qaCurrentCharacter = 1;
 let qaCurrentStyle = 'sketch';
 
 const qaCharacterImages = {
-  1: { sketch: './character1_sketch.png', flat: './character1_flat.png', rendered: './character1_rendered.png' },
-  2: { sketch: './character2_sketch.png', flat: './character2_flat.png', rendered: './character2_rendered.png' },
-  3: { sketch: './character3_sketch.png', flat: './character3_flat.png', rendered: './character3_rendered.png' },
-  4: { sketch: './character4_sketch.png', flat: './character4_flat.png', rendered: './character4_rendered.png' },
-  5: { sketch: './character5_sketch.png', flat: './character5_flat.png', rendered: './character5_rendered.png' }
+  1: { sketch: './character1_sketch.webp', flat: './character1_flat.webp', rendered: './character1_rendered.webp' },
+  2: { sketch: './character2_sketch.webp', flat: './character2_flat.webp', rendered: './character2_rendered.webp' },
+  3: { sketch: './character3_sketch.webp', flat: './character3_flat.webp', rendered: './character3_rendered.webp' },
+  4: { sketch: './character4_sketch.webp', flat: './character4_flat.webp', rendered: './character4_rendered.webp' },
+  5: { sketch: './character5_sketch.webp', flat: './character5_flat.webp', rendered: './character5_rendered.webp' }
 };
 
 function getQACharacterImage(char, style) {
-  const img = qaCharacterImages[char] && qaCharacterImages[char][style] ? qaCharacterImages[char][style] : './girl 1.png';
+  const img = qaCharacterImages[char] && qaCharacterImages[char][style] ? qaCharacterImages[char][style] : './girl 1.webp';
   return img;
 }
 
@@ -5039,7 +5039,7 @@ function createCircularFavicon() {
       document.head.appendChild(link);
     }
   };
-  img.src = './profile website.jpg';
+  img.src = './profile website.webp';
 }
 
 // Run when page loads
