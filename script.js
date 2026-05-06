@@ -1412,6 +1412,10 @@ const pages = {
 };
 
 function showPage(pageKey) {
+  // Hide roadmap button when any nav button is pressed
+  const roadmapBtn = document.getElementById('roadmapToggleBtn');
+  if (roadmapBtn) roadmapBtn.style.display = 'none';
+
   // For Q&A page, open AI companion instead - don't open tab
   if(pageKey === "faq") {
     if (workCardsShowing) hideWorkCards();
