@@ -9290,6 +9290,7 @@ let aiBubbleHideTimeout = null;
 let aiTypingSoundTimeout = null;
 let aiIdleSmallTalkTimeout = null;
 let aiIdleSpeakAbortToken = 0;
+let aiUsedIdleScripts = new Set();
 
 /** Five-line idle monologues when the user hasn’t pressed a topic button (~5s quiet) */
 const AI_IDLE_SMALL_TALK_SCRIPTS = [
@@ -9326,6 +9327,7 @@ function abortAiIdleMonologue() {
 function clearAiIdleSmallTalk() {
   clearAiIdleSmallTalkTimer();
   abortAiIdleMonologue();
+  aiUsedIdleScripts.clear();
 }
 
 function scheduleAiIdleSmallTalk(delayMs) {
@@ -9368,8 +9370,23 @@ function runAiIdleSmallTalk() {
     scheduleAiIdleSmallTalk(1200);
     return;
   }
-  console.log('runAiIdleSmallTalk: starting idle script');
-  const script = AI_IDLE_SMALL_TALK_SCRIPTS[Math.floor(Math.random() * AI_IDLE_SMALL_TALK_SCRIPTS.length)];
+
+  // Get available scripts (not used yet)
+  const availableIndices = AI_IDLE_SMALL_TALK_SCRIPTS.map((_, i) => i).filter(i => !aiUsedIdleScripts.has(i));
+
+  // If all scripts used, reset the tracking
+  if (availableIndices.length === 0) {
+    console.log('runAiIdleSmallTalk: all scripts used, resetting');
+    aiUsedIdleScripts.clear();
+    availableIndices.push(...AI_IDLE_SMALL_TALK_SCRIPTS.map((_, i) => i));
+  }
+
+  // Pick random available script
+  const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+  aiUsedIdleScripts.add(randomIndex);
+
+  console.log('runAiIdleSmallTalk: starting idle script #' + randomIndex);
+  const script = AI_IDLE_SMALL_TALK_SCRIPTS[randomIndex];
   speakIdleScriptLines(script, 0);
 }
 
