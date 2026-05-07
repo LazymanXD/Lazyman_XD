@@ -1,2 +1,0 @@
-# Lazyman_XD
-
