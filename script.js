@@ -1603,192 +1603,37 @@ let lastOpenedPage = 'home';
 // Track if work cards are currently showing
 let workCardsShowing = false;
 let workCardElements = [];
+let workCardsShowTimeoutId = null;
+let lastWorkCardsButton = null;
 let mangaCardsShowing = false;
 let mangaCardElements = [];
+let mangaCardsShowTimeoutId = null;
+let lastMangaCardsButton = null;
 let booksCardsShowing = false;
 let booksCardElements = [];
+let lastBooksCardsButton = null;
 let bookReaderPages = [];
 const bookPagesCache = new Map();
 const bookFileBufferCache = new Map();
 let docxPreviewAssetsPromise = null;
 
-function showWorkCards(button) {
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-  
-  // Get button position - cards will appear ABOVE the button
-  const buttonRect = button.getBoundingClientRect();
-  const buttonCenterX = buttonRect.left + buttonRect.width / 2;
-  const buttonTopY = buttonRect.top;
-  
-  // Responsive card size based on screen
-  let cardWidth, spacingX, spacingY, cardsPerRow;
-  const workCount = workData.length;
-  
-  if (viewportWidth <= 480) {
-    // Phone
-    cardWidth = 120;
-    spacingX = 140;
-    spacingY = 160;
-    cardsPerRow = 2;
-  } else if (viewportWidth <= 768) {
-    // Tablet
-    cardWidth = 160;
-    spacingX = 180;
-    spacingY = 200;
-    cardsPerRow = 3;
-  } else {
-    // PC
-    cardWidth = 180;
-    spacingX = 200;
-    spacingY = 220;
-    cardsPerRow = Math.min(workCount, 5);
-  }
-  
-  // Calculate how many rows we need
-  const totalRows = Math.ceil(workCount / cardsPerRow);
-  
-  // Calculate the grid height
-  const gridHeight = totalRows * spacingY;
-  
-  // Position the grid so it ends just above the button (with a small gap)
-  const gapAboveButton = 20; // pixels of space between cards and button
-  const gridBottomY = buttonTopY - gapAboveButton;
-  const gridTopY = gridBottomY - gridHeight;
-  
-  workCardElements = [];
-  
-  workData.forEach((work, index) => {
-    const card = document.createElement('div');
-    card.className = 'work-card-item';
-    card.dataset.id = work.id;
-    card.dataset.title = work.title;
-    
-    // Calculate position in grid
-    const row = Math.floor(index / cardsPerRow);
-    const col = index % cardsPerRow;
-    
-    // Calculate grid width for this row
-    const cardsInThisRow = Math.min(cardsPerRow, workCount - (row * cardsPerRow));
-    const rowWidth = cardsInThisRow * spacingX;
-    const rowStartX = buttonCenterX - (rowWidth / 2) + (spacingX / 2);
-    
-    const cardX = rowStartX + (col * spacingX);
-    const cardY = gridTopY + (row * spacingY) + (spacingY / 2);
-    
-    // Start at button position for animation
-    const startX = buttonRect.left + buttonRect.width / 2;
-    const startY_btn = buttonRect.top + buttonRect.height / 2;
-    
-    card.style.cssText = `
-      position: fixed;
-      left: ${startX}px;
-      top: ${startY_btn}px;
-      width: ${cardWidth}px;
-      transform: translate(-50%, -50%) scale(0.1);
-      opacity: 0;
-      z-index: 3000;
-      cursor: pointer;
-      transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-      pointer-events: auto;
-      background: #1a1a2e;
-      border: 2px solid rgba(255, 215, 0, 0.3);
-    `;
-    
-    // Cover image only
-    const img = document.createElement('img');
-    img.src = work.cover;
-    img.alt = work.title;
-    img.loading = 'lazy';
-    img.decoding = 'async';
-    img.style.cssText = `
-      width: 100%;
-      height: ${cardWidth * 1.4}px;
-      object-fit: cover;
-      display: block;
-    `;
-    
-    // Work name overlay at bottom
-    const titleDiv = document.createElement('div');
-    titleDiv.textContent = work.title;
-    titleDiv.style.cssText = `
-      padding: 10px;
-      color: #ffd700;
-      font-weight: bold;
-      font-size: ${viewportWidth <= 480 ? '11px' : '13px'};
-      text-align: center;
-      font-family: 'Press Start 2P', cursive;
-      background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5));
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-    `;
-    
-    card.appendChild(img);
-    card.appendChild(titleDiv);
-    
-    // Click to open work detail
-    card.onclick = function(e) {
-      e.stopPropagation();
-      playSound('tabClick', 0);
-      this.style.animation = 'workGlowBeat 0.5s ease-in-out';
-      setTimeout(() => {
-        this.style.animation = '';
-        const workId = parseInt(this.dataset.id);
-        openWorkDetail(workId);
-      }, 250);
-    };
-    
-    document.body.appendChild(card);
-    workCardElements.push(card);
-    
-    // Animate to position
-    setTimeout(() => {
-      card.style.left = `${cardX}px`;
-      card.style.top = `${cardY}px`;
-      card.style.transform = `translate(-50%, -50%) scale(1)`;
-      card.style.opacity = '1';
-    }, 50 + (index * 80));
+let cardsResizeRafId = null;
+window.addEventListener('resize', () => {
+  if (cardsResizeRafId !== null) cancelAnimationFrame(cardsResizeRafId);
+  cardsResizeRafId = requestAnimationFrame(() => {
+    cardsResizeRafId = null;
+    if (workCardsShowing && lastWorkCardsButton) showWorkCards(lastWorkCardsButton);
+    if (mangaCardsShowing && lastMangaCardsButton) showMangaCards(lastMangaCardsButton);
+    if (booksCardsShowing && lastBooksCardsButton) showBooksCards(lastBooksCardsButton);
   });
-  
-  workCardsShowing = true;
+});
+
+function showWorkCards(button) {
+  return window.__showWorkCardsImpl(button);
 }
 
 function hideWorkCards(button) {
-  if (workCardElements.length === 0) return;
-  
-  let targetX, targetY;
-  
-  if (button) {
-    const buttonRect = button.getBoundingClientRect();
-    targetX = buttonRect.left + buttonRect.width / 2;
-    targetY = buttonRect.top + buttonRect.height / 2;
-  } else {
-    targetX = window.innerWidth / 2;
-    targetY = window.innerHeight / 2;
-  }
-  
-  workCardElements.forEach((card, index) => {
-    setTimeout(() => {
-      card.style.transform = `translate(-50%, -50%) scale(0.1)`;
-      card.style.left = `${targetX}px`;
-      card.style.top = `${targetY}px`;
-      card.style.opacity = '0';
-    }, index * 50);
-    
-    setTimeout(() => {
-      if (card.parentNode) {
-        card.remove();
-      }
-    }, 600 + (index * 50));
-  });
-  
-  workCardElements = [];
-  workCardsShowing = false;
+  return window.__hideWorkCardsImpl(button);
 }
 
 // Add glow beat animation keyframes
@@ -2518,7 +2363,12 @@ function attachNavListeners() {
         if (booksCardsShowing) hideBooksCards();
         
         // Show cards after animation
-        setTimeout(() => {
+        if (workCardsShowTimeoutId !== null) {
+          clearTimeout(workCardsShowTimeoutId);
+          workCardsShowTimeoutId = null;
+        }
+        workCardsShowTimeoutId = setTimeout(() => {
+          workCardsShowTimeoutId = null;
           showWorkCards(this);
         }, 500);
         return;
@@ -2538,7 +2388,12 @@ function attachNavListeners() {
         }
         if (workCardsShowing) hideWorkCards();
         if (booksCardsShowing) hideBooksCards();
-        setTimeout(() => {
+        if (mangaCardsShowTimeoutId !== null) {
+          clearTimeout(mangaCardsShowTimeoutId);
+          mangaCardsShowTimeoutId = null;
+        }
+        mangaCardsShowTimeoutId = setTimeout(() => {
+          mangaCardsShowTimeoutId = null;
           showMangaCards(this);
         }, 350);
         return;
@@ -2581,26 +2436,59 @@ function attachNavListeners() {
 
 // Artwork data
 const artworkData = [
-  {src: "./3.1 (2).jpg", title: "Artwork 1"},
-  {src: "./016826d6-1d68-409f-b770-a8ea4a3a289d.jpg", title: "Artwork 2"},
-  {src: "./angelist.jpg", title: "Artwork 3"},
-  {src: "./BFF forever.jpg", title: "Artwork 4"},
-  {src: "./dancing in the rain of blood.jpg", title: "Artwork 5"},
-  {src: "./milestone with hornet.jpg", title: "Artwork 6"},
-  {src: "./sketch of ya shit - Copy - Copy - Copy (15) - Copy - Copy.jpg", title: "Artwork 7"},
-  {src: "./the paler king.jpg", title: "Artwork 8"},
-  {src: "./SHOWERTHOUGHTS2.jpg", title: "Artwork 9"},
-  {src: "./490114687_9595337863888220_562112844725561463_n.jpg", title: "Artwork 10"},
-  {src: "./work-artwork-11.png", title: "Artwork 11"},
-  {src: "./work-artwork-12.jpg", title: "Artwork 12"},
-  {src: "./work-artwork-13.jpg", title: "Artwork 13"}
+  {src: "./3.1 (2).webp", title: "Artwork 1"},
+  {src: "./marry.webp", title: "Artwork 2"},
+  {src: "./angelist.webp", title: "Artwork 3"},
+  {src: "./BFF forever.webp", title: "Artwork 4"},
+  {src: "./dancing in the rain of blood.webp", title: "Artwork 5"},
+  {src: "./milestone with hornet.webp", title: "Artwork 6"},
+  {src: "./sketch of ya shit - Copy - Copy - Copy (15) - Copy - Copy.webp", title: "Artwork 7"},
+  {src: "./the paler king.webp", title: "Artwork 8"},
+  {src: "./SHOWERTHOUGHTS2.webp", title: "Artwork 9"},
+  {src: "./490114687_9595337863888220_562112844725561463_n.webp", title: "Artwork 10"},
+  {src: "./work-artwork-11.webp", title: "Artwork 11"},
+  {src: "./work-artwork-12.webp", title: "Artwork 12"},
+  {src: "./work-artwork-13.webp", title: "Artwork 13"}
 ];
 
+// Shared image pool - each image stored only once
+const mangaImagePool = {
+  // Main images - no duplicates!
+  showerThoughts: "./SHOWERTHOUGHTS.webp",
+  witchesEnd: "./manga-card-2.webp",  // Using webp version
+  lastIllsins: "./manga-card-3.webp"  // Using webp version
+};
+
 const mangaGalleryData = [
-  {src: "./manga-card-1.jpg", title: "Shower Thoughts"},
-  {src: "./manga-card-2.jpg", title: "Witch's End"},
-  {src: "./manga-card-3.jpg", title: "Last IIIsins"}
+  {
+    coverKey: "showerThoughts",
+    src: mangaImagePool.showerThoughts,
+    title: "Shower Thoughts",
+    synopsis: "A collection of philosophical musings and introspective moments. Journey through the random thoughts that emerge when the mind wanders.",
+    // Pages reference image pool keys - all using showerThoughts.webp!
+    pageKeys: ["showerThoughts", "witchesEnd", "lastIllsins"]
+  },
+  {
+    coverKey: "witchesEnd",
+    src: mangaImagePool.witchesEnd,
+    title: "Witch's End",
+    synopsis: "In a world where magic fades, one witch must face her final days. A tale of legacy, memory, and the end of an era.",
+    pageKeys: ["witchesEnd", "showerThoughts", "lastIllsins"]
+  },
+  {
+    coverKey: "lastIllsins",
+    src: mangaImagePool.lastIllsins,
+    title: "Last IIIsins",
+    synopsis: "Three sins, three stories, one interconnected fate. Explore the darker corners of human nature through this gripping narrative.",
+    pageKeys: ["lastIllsins", "showerThoughts", "witchesEnd"]
+  }
 ];
+
+// Helper function to get actual pages array from keys
+function getMangaPages(manga) {
+  if (!manga.pageKeys) return [];
+  return manga.pageKeys.map(key => mangaImagePool[key]).filter(Boolean);
+}
 
 // Preload images for instant display when cards open
 function preloadImages(imageList) {
@@ -2623,14 +2511,14 @@ const booksData = [
   {
     id: "empire-age-magic",
     title: "A History of the Empire and the Age of Magic",
-    cover: "./lastIIIsins.jpg",
+    cover: "./manga-card-3.webp",
     sourceFile: "./A History of the Empire and the Age of Magic.docx",
     sourceType: "docx"
   },
   {
     id: "valerian-empire",
     title: "The Valerian Empire: Order, Control, and Collapse",
-    cover: "./witchs end.jpg",
+    cover: "./manga-card-2.webp",
     sourceFile: "./THE VALERIAN EMPIRE ORDER, CONTROL, AND COLLAPSE.docx",
     sourceType: "docx"
   }
@@ -2685,7 +2573,11 @@ function scheduleWarmBookAssets() {
   // This prevents unnecessary network requests on initial page load
 }
 
-function showWorkCards(button) {
+window.__showWorkCardsImpl = function showWorkCards(button) {
+  lastWorkCardsButton = button;
+  workCardElements.forEach(el => el.remove());
+  workCardElements = [];
+  workCardsShowing = false;
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   
@@ -2839,10 +2731,18 @@ function showWorkCards(button) {
   });
   
   workCardsShowing = true;
-}
+};
 
-function hideWorkCards(button) {
-  if (workCardElements.length === 0) return;
+window.__hideWorkCardsImpl = function hideWorkCards(button) {
+  if (workCardsShowTimeoutId !== null) {
+    clearTimeout(workCardsShowTimeoutId);
+    workCardsShowTimeoutId = null;
+  }
+
+  if (workCardElements.length === 0) {
+    workCardsShowing = false;
+    return;
+  }
   
   let targetX, targetY;
   
@@ -2875,9 +2775,13 @@ function hideWorkCards(button) {
   
   workCardElements = [];
   workCardsShowing = false;
-}
+};
 
 function showMangaCards(button) {
+  lastMangaCardsButton = button;
+  mangaCardElements.forEach(el => el.remove());
+  mangaCardElements = [];
+  mangaCardsShowing = false;
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   const buttonRect = button.getBoundingClientRect();
@@ -2994,7 +2898,7 @@ function showMangaCards(button) {
     card.onclick = function(e) {
       e.stopPropagation();
       playSound('tabClick', 0);
-      openWorkCardFullscreen(card, manga.src, manga.title);
+      openMangaReader(manga);
     };
 
     document.body.appendChild(card);
@@ -3012,6 +2916,11 @@ function showMangaCards(button) {
 }
 
 function hideMangaCards(button) {
+  if (mangaCardsShowTimeoutId !== null) {
+    clearTimeout(mangaCardsShowTimeoutId);
+    mangaCardsShowTimeoutId = null;
+  }
+
   if (mangaCardElements.length === 0) return;
 
   let targetX, targetY;
@@ -3041,7 +2950,340 @@ function hideMangaCards(button) {
   mangaCardsShowing = false;
 }
 
+// Manga Reader Functions
+let currentMangaReader = null;
+let currentMangaPages = [];
+let currentMangaPageIndex = 0;
+let currentMangaTitle = '';
+
+function openMangaReader(manga) {
+  // Hide manga cards
+  hideMangaCards();
+
+  // Get pages using helper (avoids duplicate image storage)
+  const pages = getMangaPages(manga);
+
+  // Create manga reader container
+  const reader = document.createElement('div');
+  reader.id = 'mangaReader';
+  reader.className = 'manga-reader-container';
+
+  reader.innerHTML = `
+    <div class="manga-reader-sidebar">
+      <button class="manga-reader-exit" onclick="closeMangaReader()" title="Exit">✕</button>
+      <div class="manga-reader-cover">
+        <img src="${manga.src}" alt="${manga.title}" loading="eager">
+      </div>
+      <div class="manga-reader-info">
+        <h2 class="manga-reader-title">${manga.title}</h2>
+        <p class="manga-reader-synopsis">${manga.synopsis || ''}</p>
+      </div>
+      <button class="manga-section-toggle" id="mangaSectionToggle" onclick="toggleMangaSection()">Manga</button>
+    </div>
+    <div class="manga-reader-main">
+      <div class="manga-reader-grid" id="mangaReaderGrid"></div>
+    </div>
+  `;
+
+  document.body.appendChild(reader);
+  currentMangaReader = reader;
+
+  // Populate grid with pages
+  const grid = document.getElementById('mangaReaderGrid');
+
+  if (pages && pages.length > 0) {
+    const fragment = document.createDocumentFragment();
+    pages.forEach((pageSrc, index) => {
+      const panel = document.createElement('div');
+      panel.className = 'manga-panel';
+      
+      const img = document.createElement('img');
+      img.src = pageSrc;
+      img.alt = `Page ${index + 1}`;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      
+      panel.appendChild(img);
+      panel.dataset.index = index;
+      
+      fragment.appendChild(panel);
+    });
+    grid.appendChild(fragment);
+    
+    // Single click handler for all panels using delegation
+    grid.addEventListener('click', (e) => {
+      const panel = e.target.closest('.manga-panel');
+      if (panel) {
+        const index = parseInt(panel.dataset.index);
+        playSound('tabClick', 0);
+        openMangaPageViewer(pages, index, manga.title);
+      }
+    });
+  }
+
+  // Hide roadmap button
+  if (roadmapToggleBtn) roadmapToggleBtn.style.display = 'none';
+
+  // Play sound
+  playSound('open', 0);
+
+  // Escape key handler
+  const escapeHandler = (e) => {
+    if (e.key === 'Escape') {
+      closeMangaReader();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+function closeMangaReader() {
+  if (currentMangaReader) {
+    currentMangaReader.remove();
+    currentMangaReader = null;
+  }
+
+  // Show roadmap button
+  if (roadmapToggleBtn) roadmapToggleBtn.style.display = '';
+
+  // Show manga cards again
+  const mangaBtn = document.querySelector('.nav-btn[data-page="manga"]');
+  if (mangaBtn) {
+    showMangaCards(mangaBtn);
+  }
+
+  // Play sound
+  playSound('close', 0);
+}
+
+let currentMangaSection = 'manga';
+function toggleMangaSection() {
+  const btn = document.getElementById('mangaSectionToggle');
+  if (!btn) return;
+  
+  if (currentMangaSection === 'manga') {
+    currentMangaSection = 'illustrations';
+    btn.textContent = 'Illustrations';
+    // Load illustrations if available (placeholder)
+    console.log('Switched to Illustrations section');
+  } else {
+    currentMangaSection = 'manga';
+    btn.textContent = 'Manga';
+    console.log('Switched to Manga section');
+  }
+  playSound('tabClick', 0);
+}
+
+let mangaNavDebounceTimer = null;
+let currentMangaKeyHandler = null;
+
+function openMangaPageViewer(pages, startIndex, title) {
+  currentMangaPages = pages;
+  currentMangaPageIndex = startIndex;
+  currentMangaTitle = title;
+
+  const viewer = document.createElement('div');
+  viewer.id = 'mangaPageViewer';
+  viewer.className = 'manga-page-viewer';
+
+  // Create optimized image with priority loading
+  const img = document.createElement('img');
+  img.id = 'mangaViewerImage';
+  img.src = pages[startIndex];
+  img.alt = `Page ${startIndex + 1}`;
+  img.decoding = 'async';
+  img.fetchPriority = 'high';
+  img.style.cssText = 'max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 8px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);';
+
+  viewer.innerHTML = `
+    <div class="manga-viewer-header">
+      <span class="manga-viewer-title">${title}</span>
+      <span class="manga-viewer-counter" id="mangaPageCounter">Page ${startIndex + 1} of ${pages.length}</span>
+      <button class="manga-viewer-close" id="mangaViewerClose" title="Close">✕</button>
+    </div>
+    <div class="manga-viewer-content" id="mangaViewerContent">
+      <button class="manga-nav-arrow manga-nav-prev" id="mangaNavPrev" title="Previous">‹</button>
+      <div class="manga-viewer-image-container" id="mangaViewerImageContainer"></div>
+      <button class="manga-nav-arrow manga-nav-next" id="mangaNavNext" title="Next">›</button>
+    </div>
+    <div class="manga-viewer-click-zones">
+      <div class="manga-click-zone manga-click-left" id="mangaClickLeft"></div>
+      <div class="manga-click-zone manga-click-right" id="mangaClickRight"></div>
+    </div>
+  `;
+
+  document.body.appendChild(viewer);
+  
+  // Append image to container
+  document.getElementById('mangaViewerImageContainer').appendChild(img);
+
+  // Preload adjacent pages with low priority
+  preloadAdjacentPages(startIndex);
+
+  // Play sound
+  playSound('open', 0);
+
+  // Debounced navigation function
+  const debouncedNavigate = (direction) => {
+    if (mangaNavDebounceTimer) return; // Prevent rapid navigation
+    navigateMangaPage(direction);
+    mangaNavDebounceTimer = setTimeout(() => {
+      mangaNavDebounceTimer = null;
+    }, 150); // 150ms debounce
+  };
+
+  // Use event delegation for all click handlers
+  viewer.addEventListener('click', (e) => {
+    const target = e.target;
+    if (target.id === 'mangaViewerClose' || target.closest('#mangaViewerClose')) {
+      closeMangaPageViewer();
+    } else if (target.id === 'mangaNavPrev' || target.closest('#mangaNavPrev') || 
+               target.id === 'mangaClickLeft' || target.closest('#mangaClickLeft')) {
+      debouncedNavigate(-1);
+    } else if (target.id === 'mangaNavNext' || target.closest('#mangaNavNext') || 
+               target.id === 'mangaClickRight' || target.closest('#mangaClickRight')) {
+      debouncedNavigate(1);
+    }
+  });
+
+  // Keyboard handler with cleanup reference
+  currentMangaKeyHandler = (e) => {
+    if (e.key === 'Escape') {
+      closeMangaPageViewer();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      debouncedNavigate(-1);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      debouncedNavigate(1);
+    }
+  };
+  document.addEventListener('keydown', currentMangaKeyHandler);
+
+  // Swipe support with throttling
+  let touchStartX = 0;
+  let touchStartTime = 0;
+  let isSwiping = false;
+
+  viewer.addEventListener('touchstart', (e) => {
+    if (isSwiping) return;
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartTime = Date.now();
+  }, { passive: true });
+
+  viewer.addEventListener('touchend', (e) => {
+    if (isSwiping) return;
+    const touchEndX = e.changedTouches[0].screenX;
+    const touchDuration = Date.now() - touchStartTime;
+    const diff = touchStartX - touchEndX;
+    
+    // Only handle quick swipes, not slow drags
+    if (touchDuration < 300 && Math.abs(diff) > 50) {
+      isSwiping = true;
+      if (diff > 0) {
+        debouncedNavigate(1);
+      } else {
+        debouncedNavigate(-1);
+      }
+      setTimeout(() => { isSwiping = false; }, 200);
+    }
+  }, { passive: true });
+}
+
+function closeMangaPageViewer() {
+  const viewer = document.getElementById('mangaPageViewer');
+  if (viewer) {
+    // Cancel any pending image loads
+    const img = document.getElementById('mangaViewerImage');
+    if (img) {
+      img.src = '';
+    }
+    viewer.remove();
+  }
+  
+  // Clean up keyboard handler
+  if (currentMangaKeyHandler) {
+    document.removeEventListener('keydown', currentMangaKeyHandler);
+    currentMangaKeyHandler = null;
+  }
+  
+  // Clear any pending timers
+  if (mangaNavDebounceTimer) {
+    clearTimeout(mangaNavDebounceTimer);
+    mangaNavDebounceTimer = null;
+  }
+  
+  // Clear data
+  currentMangaPages = [];
+  currentMangaPageIndex = 0;
+  currentMangaTitle = '';
+  
+  playSound('close', 0);
+}
+
+function navigateMangaPage(direction) {
+  const newIndex = currentMangaPageIndex + direction;
+  if (newIndex >= 0 && newIndex < currentMangaPages.length) {
+    currentMangaPageIndex = newIndex;
+    const img = document.getElementById('mangaViewerImage');
+    const counter = document.getElementById('mangaPageCounter');
+
+    if (img && counter) {
+      // Use requestAnimationFrame for smooth image transition
+      requestAnimationFrame(() => {
+        img.style.opacity = '0.7';
+        
+        // Preload the new image first
+        const preloadImg = new Image();
+        preloadImg.decoding = 'async';
+        preloadImg.fetchPriority = 'high';
+        
+        preloadImg.onload = () => {
+          requestAnimationFrame(() => {
+            img.src = currentMangaPages[newIndex];
+            counter.textContent = `Page ${newIndex + 1} of ${currentMangaPages.length}`;
+            img.style.opacity = '1';
+          });
+        };
+        
+        preloadImg.onerror = () => {
+          // Fallback: load anyway
+          requestAnimationFrame(() => {
+            img.src = currentMangaPages[newIndex];
+            counter.textContent = `Page ${newIndex + 1} of ${currentMangaPages.length}`;
+            img.style.opacity = '1';
+          });
+        };
+        
+        preloadImg.src = currentMangaPages[newIndex];
+        
+        // Preload adjacent pages in background
+        setTimeout(() => preloadAdjacentPages(newIndex), 100);
+      });
+      
+      playSound('tabClick', 0);
+    }
+  }
+}
+
+function preloadAdjacentPages(currentIndex) {
+  // Preload next and previous pages with low priority
+  const preloadIndexes = [currentIndex - 1, currentIndex + 1];
+  preloadIndexes.forEach(index => {
+    if (index >= 0 && index < currentMangaPages.length) {
+      const img = new Image();
+      img.decoding = 'async';
+      img.fetchPriority = 'low';
+      img.src = currentMangaPages[index];
+    }
+  });
+}
+
 function showBooksCards(button) {
+  lastBooksCardsButton = button;
+  booksCardElements.forEach(el => el.remove());
+  booksCardElements = [];
+  booksCardsShowing = false;
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   const buttonRect = button.getBoundingClientRect();
@@ -4739,7 +4981,7 @@ const mangaCoverImage = "./SHOWERTHOUGHTS.webp";
 
 const mangaInfo = {
   title: "Shower Thoughts",
-  cover: "./SHOWERTHOUGHTS.jpg",
+  cover: "./SHOWERTHOUGHTS.webp",
   synopsis: "A contemplative journey through the deepest thoughts that emerge in the most mundane moments. When the water runs and steam rises, profound revelations surface from the subconscious."
 };
 
