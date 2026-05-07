@@ -2474,6 +2474,14 @@ const mangaImagePool = {
   last3sisnsOne7: "./1/one/7.webp",
   last3sisnsOne8: "./1/one/8.webp",
   last3sisnsOne9: "./1/one/9.webp",
+  // Last 3 Sins illustrations from folder 1/illustration folder
+  last3sisnsIllust1: "./1/illustration folder/3.1 - Copy.webp",
+  last3sisnsIllust2: "./1/illustration folder/5.2.webp",
+  last3sisnsIllust3: "./1/illustration folder/5.3.webp",
+  last3sisnsIllust4: "./1/illustration folder/6.1.webp",
+  last3sisnsIllust5: "./1/illustration folder/6.2.webp",
+  last3sisnsIllust6: "./1/illustration folder/6.3111.webp",
+  last3sisnsIllust7: "./1/illustration folder/HFhGar0bQAETqpE.webp",
   // Witch's End images from folder 2
   witchesEnd1: "./2/manga (1)_003.webp",
   witchesEnd2: "./2/manga (1)_004.webp",
@@ -2536,7 +2544,8 @@ const mangaGalleryData = [
         name: "Section 2",
         pageKeys: ["last3sisnsOne1", "last3sisnsOne2", "last3sisnsOne3", "last3sisnsOne3_1", "last3sisnsOne4", "last3sisnsOne5", "last3sisnsOne6", "last3sisnsOne7", "last3sisnsOne8", "last3sisnsOne9"]
       }
-    ]
+    ],
+    illustrations: ["last3sisnsIllust1", "last3sisnsIllust2", "last3sisnsIllust3", "last3sisnsIllust4", "last3sisnsIllust5", "last3sisnsIllust6", "last3sisnsIllust7"]
   },
   {
     coverKey: "showerThoughts",
@@ -3104,8 +3113,10 @@ function openMangaReader(manga) {
   reader.id = 'mangaReader';
   reader.className = 'manga-reader-container';
 
-  // Check if manga has illustrations
+  // Check if manga has illustrations OR multiple sections (for toggle button)
   const hasIllustrations = manga.illustrations && manga.illustrations.length > 0;
+  const hasSections = manga.sections && manga.sections.length > 1;
+  const showToggle = hasIllustrations || hasSections;
   
   reader.innerHTML = `
     <div class="manga-reader-sidebar">
@@ -3117,7 +3128,7 @@ function openMangaReader(manga) {
         <h2 class="manga-reader-title">${manga.title}</h2>
         <p class="manga-reader-synopsis">${manga.synopsis || ''}</p>
       </div>
-      ${hasIllustrations ? `<button class="manga-section-toggle" id="mangaSectionToggle" onclick="toggleMangaSection()">Manga</button>` : ''}
+      ${showToggle ? `<button class="manga-section-toggle" id="mangaSectionToggle" onclick="toggleMangaSection()" data-manga-key="${manga.coverKey}">${hasIllustrations ? 'Manga' : 'Section 1'}</button>` : ''}
     </div>
     <div class="manga-reader-main">
       <div class="manga-reader-grid" id="mangaReaderGrid"></div>
@@ -3127,6 +3138,9 @@ function openMangaReader(manga) {
 
   document.body.appendChild(reader);
   currentMangaReader = reader;
+
+  // Reset global toggle state when opening new reader
+  currentMangaSection = 'manga';
 
   let currentSectionIndex = 0;
   let currentViewMode = 'manga'; // 'manga' or 'illustrations'
@@ -3233,10 +3247,11 @@ function openMangaReader(manga) {
   // Listen for view mode toggle events
   reader.addEventListener('switchViewMode', (e) => {
     const mode = e.detail.mode;
+    const sectionIdx = e.detail.section !== undefined ? e.detail.section : currentSectionIndex;
     if (mode === 'illustrations') {
       populateGrid(0, 'illustrations');
     } else {
-      populateGrid(currentSectionIndex, 'manga');
+      populateGrid(sectionIdx, 'manga');
     }
   });
 
@@ -3278,26 +3293,40 @@ function closeMangaReader() {
 let currentMangaSection = 'manga';
 function toggleMangaSection() {
   const btn = document.getElementById('mangaSectionToggle');
-  const grid = document.getElementById('mangaReaderGrid');
-  if (!btn || !grid) return;
-  
-  // Get current manga data from the reader
   const reader = document.getElementById('mangaReader');
-  if (!reader) return;
+  if (!btn || !reader) return;
   
-  if (currentMangaSection === 'manga') {
-    currentMangaSection = 'illustrations';
-    btn.textContent = 'Manga';
-    // Trigger re-populate with illustrations
-    const event = new CustomEvent('switchViewMode', { detail: { mode: 'illustrations' } });
-    reader.dispatchEvent(event);
-  } else {
-    currentMangaSection = 'manga';
-    btn.textContent = 'Illustrations';
-    // Trigger re-populate with manga
-    const event = new CustomEvent('switchViewMode', { detail: { mode: 'manga' } });
-    reader.dispatchEvent(event);
+  // Get manga key from button and find manga data
+  const mangaKey = btn.dataset.mangaKey;
+  const currentManga = mangaKey ? mangaGalleryData.find(m => m.coverKey === mangaKey) : null;
+  
+  if (!currentManga) return;
+  
+  const hasIllustrations = currentManga.illustrations && currentManga.illustrations.length > 0;
+  const hasSections = currentManga.sections && currentManga.sections.length > 1;
+  
+  if (hasIllustrations) {
+    // Toggle between manga and illustrations
+    if (currentMangaSection === 'manga') {
+      currentMangaSection = 'illustrations';
+      btn.textContent = 'Manga';
+      reader.dispatchEvent(new CustomEvent('switchViewMode', { detail: { mode: 'illustrations' } }));
+    } else {
+      currentMangaSection = 'manga';
+      btn.textContent = 'Illustrations';
+      reader.dispatchEvent(new CustomEvent('switchViewMode', { detail: { mode: 'manga' } }));
+    }
+  } else if (hasSections) {
+    // Toggle between sections
+    const maxSection = currentManga.sections.length - 1;
+    let nextSection = parseInt(btn.dataset.section || '0') + 1;
+    if (nextSection > maxSection) nextSection = 0;
+    
+    btn.dataset.section = nextSection;
+    btn.textContent = `Section ${nextSection + 1}`;
+    reader.dispatchEvent(new CustomEvent('switchViewMode', { detail: { mode: 'manga', section: nextSection } }));
   }
+  
   playSound('tabClick', 0);
 }
 
