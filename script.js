@@ -1414,9 +1414,9 @@ const pages = {
 };
 
 function showPage(pageKey) {
-  // Hide roadmap button when any nav button is pressed
+  // Show roadmap button on home, hide on other pages
   const roadmapBtn = document.getElementById('roadmapToggleBtn');
-  if (roadmapBtn) roadmapBtn.style.display = 'none';
+  if (roadmapBtn) roadmapBtn.style.display = pageKey === 'home' ? '' : 'none';
 
   // For Q&A page, open AI companion instead - don't open tab
   if(pageKey === "faq") {
