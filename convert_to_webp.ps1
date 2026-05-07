@@ -1,3 +1,4 @@
+@ -1,70 +0,0 @@
 # Image to WebP Conversion Script
 # Requires: cwebp (libwebp) or ImageMagick installed
 

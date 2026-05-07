@@ -9,7 +9,7 @@ foreach ($img in $images) {
     
     Write-Host "Converting: $relName" -NoNewline
     
-    $proc = Start-Process -FilePath $cwebp -ArgumentList "-q", "85", "-mt", $img.FullName, "-o", $out -Wait -PassThru -WindowStyle Hidden
+    Start-Process -FilePath $cwebp -ArgumentList "-q", "85", "-mt", $img.FullName, "-o", $out -Wait -WindowStyle Hidden
     
     if ((Test-Path $out) -and (Get-Item $out).Length -gt 100) {
         $orig = [math]::Round($img.Length / 1KB, 1)

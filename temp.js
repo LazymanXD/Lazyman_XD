@@ -1,4 +1,5 @@
-﻿// Elements
+
+// Elements
 const loadingScreen = document.getElementById('loadingScreen');
 const desktop = document.getElementById('desktop');
 const middleTab = document.getElementById('middleTab');
@@ -3104,9 +3105,6 @@ function openMangaReader(manga) {
   reader.id = 'mangaReader';
   reader.className = 'manga-reader-container';
 
-  // Check if manga has illustrations
-  const hasIllustrations = manga.illustrations && manga.illustrations.length > 0;
-  
   reader.innerHTML = `
     <div class="manga-reader-sidebar">
       <button class="manga-reader-exit" onclick="closeMangaReader()" title="Exit">✕</button>
@@ -3117,7 +3115,7 @@ function openMangaReader(manga) {
         <h2 class="manga-reader-title">${manga.title}</h2>
         <p class="manga-reader-synopsis">${manga.synopsis || ''}</p>
       </div>
-      ${hasIllustrations ? `<button class="manga-section-toggle" id="mangaSectionToggle" onclick="toggleMangaSection()">Manga</button>` : ''}
+      <button class="manga-section-toggle" id="mangaSectionToggle" onclick="toggleMangaSection()">Manga</button>
     </div>
     <div class="manga-reader-main">
       <div class="manga-reader-grid" id="mangaReaderGrid"></div>
@@ -3129,63 +3127,42 @@ function openMangaReader(manga) {
   currentMangaReader = reader;
 
   let currentSectionIndex = 0;
-  let currentViewMode = 'manga'; // 'manga' or 'illustrations'
 
-  // Function to populate grid with pages or illustrations
-  function populateGrid(sectionIdx, viewMode = 'manga') {
+  // Function to populate grid with section pages
+  function populateGrid(sectionIdx) {
     const grid = document.getElementById('mangaReaderGrid');
-    const dotsContainer = document.getElementById('mangaSectionDots');
-    
-    let itemsToShow = [];
-    
-    if (viewMode === 'illustrations' && manga.illustrations) {
-      // Show illustrations
-      itemsToShow = manga.illustrations.map(key => mangaImagePool[key]).filter(Boolean);
-      dotsContainer.style.display = 'none'; // Hide section dots for illustrations
-    } else {
-      // Show manga pages
-      itemsToShow = manga.sections ? getMangaPages(manga, sectionIdx) : pages;
-      // Show/hide section dots based on sections
-      dotsContainer.style.display = (manga.sections && manga.sections.length > 1) ? 'flex' : 'none';
-    }
+    const sectionPages = manga.sections ? getMangaPages(manga, sectionIdx) : pages;
     
     grid.innerHTML = '';
     
-    if (itemsToShow && itemsToShow.length > 0) {
+    if (sectionPages && sectionPages.length > 0) {
       const fragment = document.createDocumentFragment();
-      itemsToShow.forEach((itemSrc, index) => {
+      sectionPages.forEach((pageSrc, index) => {
         const panel = document.createElement('div');
         panel.className = 'manga-panel';
         
         const img = document.createElement('img');
-        img.src = itemSrc;
-        img.alt = viewMode === 'illustrations' ? `Illustration ${index + 1}` : `Page ${index + 1}`;
+        img.src = pageSrc;
+        img.alt = `Page ${index + 1}`;
         img.loading = 'lazy';
         img.decoding = 'async';
         
         panel.appendChild(img);
         panel.dataset.index = index;
         panel.dataset.sectionIndex = sectionIdx;
-        panel.dataset.viewMode = viewMode;
         
         fragment.appendChild(panel);
       });
       grid.appendChild(fragment);
-    } else {
-      // Show empty message
-      grid.innerHTML = `<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 40px; font-family: 'Press Start 2P', cursive; font-size: 12px;">No ${viewMode} available</div>`;
     }
     
-    // Update dots active state (only for manga sections)
-    if (viewMode === 'manga') {
-      const dots = document.querySelectorAll('.section-dot');
-      dots.forEach((dot, idx) => {
-        dot.classList.toggle('active', idx === sectionIdx);
-      });
-    }
+    // Update dots active state
+    const dots = document.querySelectorAll('.section-dot');
+    dots.forEach((dot, idx) => {
+      dot.classList.toggle('active', idx === sectionIdx);
+    });
     
     currentSectionIndex = sectionIdx;
-    currentViewMode = viewMode;
   }
 
   // Populate initial section
@@ -3197,20 +3174,10 @@ function openMangaReader(manga) {
     const panel = e.target.closest('.manga-panel');
     if (panel) {
       const index = parseInt(panel.dataset.index);
-      const viewMode = panel.dataset.viewMode || 'manga';
-      
-      if (viewMode === 'illustrations' && manga.illustrations) {
-        // Open illustration viewer
-        const illustPages = manga.illustrations.map(key => mangaImagePool[key]).filter(Boolean);
-        playSound('tabClick', 0);
-        openMangaPageViewer(illustPages, index, `${manga.title} - Illustrations`, null, 0);
-      } else {
-        // Open manga page viewer
-        const sectionIdx = parseInt(panel.dataset.sectionIndex) || 0;
-        playSound('tabClick', 0);
-        const sectionPages = getMangaPages(manga, sectionIdx);
-        openMangaPageViewer(sectionPages, index, manga.title, manga.sections || null, sectionIdx);
-      }
+      const sectionIdx = parseInt(panel.dataset.sectionIndex) || 0;
+      playSound('tabClick', 0);
+      const sectionPages = getMangaPages(manga, sectionIdx);
+      openMangaPageViewer(sectionPages, index, manga.title, manga.sections || null, sectionIdx);
     }
   });
 
@@ -3229,16 +3196,6 @@ function openMangaReader(manga) {
       dotsContainer.appendChild(dot);
     });
   }
-
-  // Listen for view mode toggle events
-  reader.addEventListener('switchViewMode', (e) => {
-    const mode = e.detail.mode;
-    if (mode === 'illustrations') {
-      populateGrid(0, 'illustrations');
-    } else {
-      populateGrid(currentSectionIndex, 'manga');
-    }
-  });
 
   // Hide roadmap button
   if (roadmapToggleBtn) roadmapToggleBtn.style.display = 'none';
@@ -3278,25 +3235,17 @@ function closeMangaReader() {
 let currentMangaSection = 'manga';
 function toggleMangaSection() {
   const btn = document.getElementById('mangaSectionToggle');
-  const grid = document.getElementById('mangaReaderGrid');
-  if (!btn || !grid) return;
-  
-  // Get current manga data from the reader
-  const reader = document.getElementById('mangaReader');
-  if (!reader) return;
+  if (!btn) return;
   
   if (currentMangaSection === 'manga') {
     currentMangaSection = 'illustrations';
-    btn.textContent = 'Manga';
-    // Trigger re-populate with illustrations
-    const event = new CustomEvent('switchViewMode', { detail: { mode: 'illustrations' } });
-    reader.dispatchEvent(event);
+    btn.textContent = 'Illustrations';
+    // Load illustrations if available (placeholder)
+    console.log('Switched to Illustrations section');
   } else {
     currentMangaSection = 'manga';
-    btn.textContent = 'Illustrations';
-    // Trigger re-populate with manga
-    const event = new CustomEvent('switchViewMode', { detail: { mode: 'manga' } });
-    reader.dispatchEvent(event);
+    btn.textContent = 'Manga';
+    console.log('Switched to Manga section');
   }
   playSound('tabClick', 0);
 }
@@ -5975,4 +5924,6 @@ function askAI(topic) {
   s.innerHTML = '*{-webkit-user-drag:none;-moz-user-drag:none;-o-user-drag:none;user-drag:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;font-family:"Press Start 2P",cursive !important;-webkit-font-smoothing:none;-moz-osx-font-smoothing:grayscale;}img{pointer-events:none;}';
   document.head.appendChild(s);
 })();
+
+
 

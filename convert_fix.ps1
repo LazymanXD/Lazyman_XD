@@ -1,3 +1,4 @@
+@ -1,36 +0,0 @@
 $cwebp = Join-Path $PSScriptRoot "libwebp\libwebp-1.3.2-windows-x64\bin\cwebp.exe"
 $images = Get-ChildItem -Path $PSScriptRoot -File | Where-Object { $_.Extension -match "^\.(jpg|jpeg|png)$" }
 

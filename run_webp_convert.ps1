@@ -1,3 +1,4 @@
+@ -1,42 +0,0 @@
 $cwebp = Join-Path $PSScriptRoot "libwebp\libwebp-1.3.2-windows-x64\bin\cwebp.exe"
 
 if (-not (Test-Path $cwebp)) {
