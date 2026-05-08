@@ -2682,7 +2682,9 @@ function preloadCriticalAssets() {
     './folder-icon.webp',
     './CA.webp',
     './girl 1.webp',
-    './wiki-logog.webp'
+    './wiki-logog.webp',
+    './3/0.webp',
+    './016826d6-1d68-409f-b770-a8ea4a3a289d.webp'
   ];
   criticalImages.forEach(src => {
     const img = new Image();
@@ -2692,9 +2694,9 @@ function preloadCriticalAssets() {
 
 // Preload all images as early as possible
 function runAllPreloads() {
-  preloadImages(artworkData);
-  preloadMangaImages();
   preloadCriticalAssets();
+  preloadMangaImages();
+  preloadImages(artworkData);
 }
 
 // Start preloading on DOMContentLoaded for maximum speed
@@ -6461,6 +6463,44 @@ function askAI(topic) {
     aiSpeak("They're just characters that might be future cameos in my manga.", function() {
       aiSpeak("You never know who might show up in the story!", function() {
         scheduleAiIdleSmallTalk(10000);
+      });
+    });
+    return;
+
+  } else if (topic === 'freeart') {
+    aiSpeak("Hmm... drawing for free?", function() {
+      aiSpeak("Does it put food on my table? No, it does not.", function() {
+        aiSpeak("I pour hours of heart and soul into every piece I make.", function() {
+          aiSpeak("Art is my passion, but passion alone doesn't pay the bills.", function() {
+            aiSpeak("If you want to support a struggling artist, commissions are always open!", function() {
+              scheduleAiIdleSmallTalk(10000);
+            });
+          });
+        });
+      });
+    });
+    return;
+
+  } else if (topic === 'software') {
+    aiSpeak("I use Clip Studio Paint for almost everything!", function() {
+      aiSpeak("It's got amazing brushes and a solid comic panel workflow.", function() {
+        aiSpeak("Highly recommend it if you're getting into digital art.", function() {
+          scheduleAiIdleSmallTalk(10000);
+        });
+      });
+    });
+    return;
+
+  } else if (topic === 'drawtime') {
+    aiSpeak("It depends on my mood and laziness level, honestly.", function() {
+      aiSpeak("A simple illustration? Could be done in a day or less.", function() {
+        aiSpeak("But sometimes I stare at the canvas for hours doing absolutely nothing.", function() {
+          aiSpeak("Comic panels take longer because of layouts, dialogue, and all that jazz.", function() {
+            aiSpeak("So yeah... anywhere from a few hours to forever.", function() {
+              scheduleAiIdleSmallTalk(10000);
+            });
+          });
+        });
       });
     });
     return;
