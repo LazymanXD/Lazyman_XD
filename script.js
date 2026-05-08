@@ -1608,6 +1608,7 @@ let mangaCardsShowing = false;
 let mangaCardElements = [];
 let mangaCardsShowTimeoutId = null;
 let lastMangaCardsButton = null;
+let mangaShowingConcept = false;
 let booksCardsShowing = false;
 let booksCardElements = [];
 let lastBooksCardsButton = null;
@@ -2518,7 +2519,18 @@ const mangaImagePool = {
   witchesEndIllust23: "./2/illustrations/manga (1)_026.webp",
   witchesEndIllust24: "./2/illustrations/manga (1)_027.webp",
   witchesEndIllust25: "./2/illustrations/manga (1)_028.webp",
-  witchesEndIllust26: "./2/illustrations/manga (1)_030.webp"
+  witchesEndIllust26: "./2/illustrations/manga (1)_030.webp",
+  // Concept manga 1
+  concept1Cover: "./3/0.webp",
+  concept1Page1: "./3/1.webp",
+  concept1Page2: "./3/2.webp",
+  concept1Page3: "./3/3.webp",
+  // Concept manga 2
+  concept2Cover: "./016826d6-1d68-409f-b770-a8ea4a3a289d.webp",
+  concept2Page1: "./3/4.webp",
+  concept2Page2: "./3/5.webp",
+  concept2Page3: "./3/6.webp",
+  concept2Page4: "./3/7.webp"
 };
 
 const mangaGalleryData = [
@@ -2554,6 +2566,23 @@ const mangaGalleryData = [
     synopsis: "Coming soon...",
     comingSoon: true,
     pageKeys: []
+  }
+];
+
+const conceptMangaGalleryData = [
+  {
+    coverKey: "concept1",
+    src: mangaImagePool.concept1Cover,
+    title: "Concept Manga 1",
+    synopsis: "A concept manga exploring new ideas and worlds.",
+    pageKeys: ["concept1Page1", "concept1Page2", "concept1Page3"]
+  },
+  {
+    coverKey: "concept2",
+    src: mangaImagePool.concept2Cover,
+    title: "Concept Manga 2",
+    synopsis: "Another concept manga with its own unique story.",
+    pageKeys: ["concept2Page1", "concept2Page2", "concept2Page3", "concept2Page4"]
   }
 ];
 
@@ -2622,6 +2651,21 @@ function preloadMangaImages() {
       });
     }
   });
+  // Also preload concept manga images
+  conceptMangaGalleryData.forEach(manga => {
+    if (manga.src) {
+      const img = new Image();
+      img.src = manga.src;
+    }
+    if (manga.pageKeys) {
+      manga.pageKeys.forEach(key => {
+        if (mangaImagePool[key]) {
+          const img = new Image();
+          img.src = mangaImagePool[key];
+        }
+      });
+    }
+  });
 }
 
 // Preload CSS background images and other critical UI assets
@@ -2632,10 +2676,13 @@ function preloadCriticalAssets() {
     './FORGROUND.webp',
     './profile website.webp',
     './roadmap.webp',
-    './icons8-infinite-50.webp',
     './manga-card-2.webp',
     './manga-card-3.webp',
-    './SHOWERTHOUGHTS.webp'
+    './SHOWERTHOUGHTS.webp',
+    './folder-icon.webp',
+    './CA.webp',
+    './girl 1.webp',
+    './wiki-logog.webp'
   ];
   criticalImages.forEach(src => {
     const img = new Image();
@@ -2939,7 +2986,8 @@ function showMangaCards(button) {
   const buttonTopY = buttonRect.top;
 
   let cardWidth, cardHeight, spacingX, spacingY, cardsPerRow;
-  const totalCards = mangaGalleryData.length;
+  const activeData = mangaShowingConcept ? conceptMangaGalleryData : mangaGalleryData;
+  const totalCards = activeData.length;
 
   if (viewportWidth <= 480) {
     cardWidth = 95;
@@ -2982,7 +3030,7 @@ function showMangaCards(button) {
 
   mangaCardElements = [];
 
-  mangaGalleryData.forEach((manga, index) => {
+  activeData.forEach((manga, index) => {
     const card = document.createElement('div');
     card.className = 'work-card';
     card.dataset.src = manga.src;
@@ -3121,6 +3169,53 @@ function showMangaCards(button) {
     }, 60 + (index * 90));
   });
 
+  // Add Concept Manga toggle button below the grid
+  const toggleBtn = document.createElement('button');
+  toggleBtn.textContent = mangaShowingConcept ? 'Back to Manga' : 'Concept Manga';
+  toggleBtn.style.cssText = `
+    position: fixed;
+    left: 50%;
+    top: ${gridTopY + gridHeight + 30}px;
+    transform: translateX(-50%);
+    z-index: 3000;
+    background: rgba(255, 215, 0, 0.15);
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    color: #ffd700;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    padding: 10px 20px;
+    border-radius: 24px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: all 0.25s ease;
+    opacity: 0;
+    pointer-events: auto;
+  `;
+  toggleBtn.onmouseenter = function() {
+    this.style.background = 'rgba(255, 215, 0, 0.35)';
+    this.style.borderColor = '#ffd700';
+    this.style.transform = 'translateX(-50%) scale(1.05)';
+  };
+  toggleBtn.onmouseleave = function() {
+    this.style.background = 'rgba(255, 215, 0, 0.15)';
+    this.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+    this.style.transform = 'translateX(-50%) scale(1)';
+  };
+  toggleBtn.onclick = function(e) {
+    e.stopPropagation();
+    playSound('click', 0);
+    mangaShowingConcept = !mangaShowingConcept;
+    showMangaCards(button);
+  };
+
+  document.body.appendChild(toggleBtn);
+  mangaCardElements.push(toggleBtn);
+
+  setTimeout(() => {
+    toggleBtn.style.opacity = '1';
+    toggleBtn.style.transition = 'opacity 0.4s ease, transform 0.25s ease, background 0.25s ease, border-color 0.25s ease';
+  }, 60 + (totalCards * 90));
+
   mangaCardsShowing = true;
 }
 
@@ -3157,6 +3252,7 @@ function hideMangaCards(button) {
 
   mangaCardElements = [];
   mangaCardsShowing = false;
+  mangaShowingConcept = false;
 }
 
 // Manga Reader Functions
@@ -5875,6 +5971,29 @@ function stopAITypingSound() {
   }
 }
 
+const AI_GREETINGS = [
+  "Hi! Lazyman_XD here. What can I do for you?",
+  "Ohhh, you're back! What can I do for you this time?",
+  "Back at it again, I see? What's up?",
+  "Hey there, welcome back! Need anything?",
+  "You just can't stay away, huh? What do you need?",
+  "Here we go again! What can I help you with?",
+  "Welcome back! Lazyman_XD at your service.",
+  "Oh, it's you again! What's on your mind?"
+];
+const AI_VISIT_KEY = 'aiVisitCount_v1';
+
+function getAIGreeting() {
+  const count = parseInt(localStorage.getItem(AI_VISIT_KEY) || '0', 10);
+  const idx = Math.min(count, AI_GREETINGS.length - 1);
+  return AI_GREETINGS[idx];
+}
+
+function bumpAIVistCount() {
+  const count = parseInt(localStorage.getItem(AI_VISIT_KEY) || '0', 10);
+  localStorage.setItem(AI_VISIT_KEY, String(count + 1));
+}
+
 function openAICompanion() {
   clearAiIdleSmallTalk();
   const companion = document.getElementById('aiCompanion');
@@ -5896,9 +6015,12 @@ function openAICompanion() {
   // Hide options initially
   if (optionsContainer) optionsContainer.classList.remove('show');
 
+  // Pick greeting based on how many times the user has returned
+  const greeting = getAIGreeting();
+
   // After greeting, move to top-left
   setTimeout(() => {
-    aiSpeak("Hi! Lazyman_XD here. What can I do for you?", () => {
+    aiSpeak(greeting, () => {
       scheduleAiIdleSmallTalk(10000);
     });
   }, 500);
@@ -5931,6 +6053,9 @@ function closeAICompanion() {
   }
   stopAITypingSound();
   aiCompanionActive = false;
+
+  // Track that the user visited the AI once; next open gets a return greeting
+  bumpAIVistCount();
 
   // Show nav buttons again
   if (navButtons) navButtons.classList.remove('hidden');
@@ -5998,45 +6123,52 @@ function aiSpeak(text, callback) {
 }
 
 let aiPopupOverlay = null;
+let aiPopupTimeout = null;
 
 function showPopupImage(src, label, durationMs = 3000) {
-  if (aiPopupOverlay) {
-    aiPopupOverlay.remove();
-    aiPopupOverlay = null;
+  // Reuse overlay DOM node instead of creating/destroying repeatedly
+  if (!aiPopupOverlay) {
+    aiPopupOverlay = document.createElement('div');
+    aiPopupOverlay.className = 'ai-popup-overlay';
+    aiPopupOverlay.style.display = 'none';
+    document.body.appendChild(aiPopupOverlay);
   }
 
-  const overlay = document.createElement('div');
-  overlay.className = 'ai-popup-overlay';
+  // Cancel any pending hide
+  if (aiPopupTimeout) {
+    clearTimeout(aiPopupTimeout);
+    aiPopupTimeout = null;
+  }
+
+  // Swap content fresh so CSS animation restarts
+  aiPopupOverlay.innerHTML = '';
+  aiPopupOverlay.style.display = 'flex';
 
   const img = document.createElement('img');
   img.src = src;
   img.className = 'ai-popup-image';
   img.alt = label || '';
-
-  overlay.appendChild(img);
+  aiPopupOverlay.appendChild(img);
 
   if (label) {
     const lbl = document.createElement('div');
     lbl.className = 'ai-popup-label';
     lbl.textContent = label;
-    overlay.appendChild(lbl);
+    aiPopupOverlay.appendChild(lbl);
   }
 
-  document.body.appendChild(overlay);
-  aiPopupOverlay = overlay;
-
-  setTimeout(() => {
-    if (aiPopupOverlay === overlay) {
-      overlay.remove();
-      aiPopupOverlay = null;
-    }
+  aiPopupTimeout = setTimeout(() => {
+    if (aiPopupOverlay) aiPopupOverlay.style.display = 'none';
   }, durationMs);
 }
 
 function hidePopupImage() {
+  if (aiPopupTimeout) {
+    clearTimeout(aiPopupTimeout);
+    aiPopupTimeout = null;
+  }
   if (aiPopupOverlay) {
-    aiPopupOverlay.remove();
-    aiPopupOverlay = null;
+    aiPopupOverlay.style.display = 'none';
   }
 }
 
