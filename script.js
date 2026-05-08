@@ -2579,19 +2579,83 @@ function getAllMangaPages(manga) {
 // Preload images for instant display when cards open
 function preloadImages(imageList) {
   imageList.forEach(item => {
-    const img = new Image();
-    img.src = item.src;
+    if (item && item.src) {
+      const img = new Image();
+      img.src = item.src;
+    }
   });
 }
 
-// Preload artwork and manga images on page load
-window.addEventListener('load', () => {
-  // Delay preloading to not block initial page render
-  setTimeout(() => {
-    preloadImages(artworkData);
-    preloadImages(mangaGalleryData);
-  }, 2000);
-});
+// Preload all manga images (covers, pages, illustrations) from image pool keys
+function preloadMangaImages() {
+  mangaGalleryData.forEach(manga => {
+    if (manga.src) {
+      const img = new Image();
+      img.src = manga.src;
+    }
+    if (manga.pageKeys) {
+      manga.pageKeys.forEach(key => {
+        if (mangaImagePool[key]) {
+          const img = new Image();
+          img.src = mangaImagePool[key];
+        }
+      });
+    }
+    if (manga.sections) {
+      manga.sections.forEach(section => {
+        if (section.pageKeys) {
+          section.pageKeys.forEach(key => {
+            if (mangaImagePool[key]) {
+              const img = new Image();
+              img.src = mangaImagePool[key];
+            }
+          });
+        }
+      });
+    }
+    if (manga.illustrations) {
+      manga.illustrations.forEach(key => {
+        if (mangaImagePool[key]) {
+          const img = new Image();
+          img.src = mangaImagePool[key];
+        }
+      });
+    }
+  });
+}
+
+// Preload CSS background images and other critical UI assets
+function preloadCriticalAssets() {
+  const criticalImages = [
+    './background-back.webp',
+    './shine-1.webp',
+    './FORGROUND.webp',
+    './profile website.webp',
+    './roadmap.webp',
+    './icons8-infinite-50.webp',
+    './manga-card-2.webp',
+    './manga-card-3.webp',
+    './SHOWERTHOUGHTS.webp'
+  ];
+  criticalImages.forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
+}
+
+// Preload all images as early as possible
+function runAllPreloads() {
+  preloadImages(artworkData);
+  preloadMangaImages();
+  preloadCriticalAssets();
+}
+
+// Start preloading on DOMContentLoaded for maximum speed
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', runAllPreloads);
+} else {
+  runAllPreloads();
+}
 
 const booksData = [
   {
@@ -3309,11 +3373,11 @@ function toggleMangaSection() {
     // Toggle between manga and illustrations
     if (currentMangaSection === 'manga') {
       currentMangaSection = 'illustrations';
-      btn.textContent = 'Manga';
+      btn.textContent = 'Illustrations';
       reader.dispatchEvent(new CustomEvent('switchViewMode', { detail: { mode: 'illustrations' } }));
     } else {
       currentMangaSection = 'manga';
-      btn.textContent = 'Illustrations';
+      btn.textContent = 'Manga';
       reader.dispatchEvent(new CustomEvent('switchViewMode', { detail: { mode: 'manga' } }));
     }
   } else if (hasSections) {
@@ -3377,6 +3441,9 @@ function openMangaPageViewer(pages, startIndex, title, sections = null, initialS
   
   // Append image to container
   document.getElementById('mangaViewerImageContainer').appendChild(img);
+
+  // Preload all pages in the current section for instant navigation
+  preloadAllPages(pages);
 
   // Preload adjacent pages with low priority
   preloadAdjacentPages(startIndex);
@@ -3487,35 +3554,41 @@ function closeMangaPageViewer() {
 function switchMangaSection(sectionIndex, section) {
   // Get new pages from section pageKeys
   const newPages = section.pageKeys.map(key => mangaImagePool[key]).filter(Boolean);
-  
+
   // Update state
   currentMangaPages = newPages;
   currentMangaPageIndex = 0;
   currentMangaSectionIndex = sectionIndex;
-  
+
   // Update image
   const img = document.getElementById('mangaViewerImage');
   const counter = document.getElementById('mangaPageCounter');
-  
+
   if (img && counter && newPages.length > 0) {
+    showMangaViewerLoader();
     img.style.opacity = '0.7';
-    
+
+    // Preload all pages in this section immediately
+    preloadAllPages(newPages);
+
     const preloadImg = new Image();
     preloadImg.decoding = 'async';
     preloadImg.fetchPriority = 'high';
-    
+
     preloadImg.onload = () => {
       img.src = newPages[0];
       counter.textContent = `Page 1 of ${newPages.length}`;
       img.style.opacity = '1';
+      hideMangaViewerLoader();
     };
-    
+
     preloadImg.onerror = () => {
       img.src = newPages[0];
       counter.textContent = `Page 1 of ${newPages.length}`;
       img.style.opacity = '1';
+      hideMangaViewerLoader();
     };
-    
+
     preloadImg.src = newPages[0];
   }
 }
@@ -3528,39 +3601,52 @@ function navigateMangaPage(direction) {
     const counter = document.getElementById('mangaPageCounter');
 
     if (img && counter) {
+      showMangaViewerLoader();
       // Use requestAnimationFrame for smooth image transition
       requestAnimationFrame(() => {
         img.style.opacity = '0.7';
-        
+
         // Preload the new image first
         const preloadImg = new Image();
         preloadImg.decoding = 'async';
         preloadImg.fetchPriority = 'high';
-        
+
         preloadImg.onload = () => {
           requestAnimationFrame(() => {
             img.src = currentMangaPages[newIndex];
             counter.textContent = `Page ${newIndex + 1} of ${currentMangaPages.length}`;
             img.style.opacity = '1';
+            hideMangaViewerLoader();
           });
         };
-        
+
         preloadImg.onerror = () => {
           // Fallback: load anyway
           requestAnimationFrame(() => {
             img.src = currentMangaPages[newIndex];
             counter.textContent = `Page ${newIndex + 1} of ${currentMangaPages.length}`;
             img.style.opacity = '1';
+            hideMangaViewerLoader();
           });
         };
-        
+
         preloadImg.src = currentMangaPages[newIndex];
-        
+
         // Preload adjacent pages in background
         setTimeout(() => preloadAdjacentPages(newIndex), 100);
       });
     }
   }
+}
+
+function preloadAllPages(pages) {
+  // Preload every page in the section so switching is instant
+  pages.forEach((src, i) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.fetchPriority = i < 3 ? 'high' : 'low';
+    img.src = src;
+  });
 }
 
 function preloadAdjacentPages(currentIndex) {
@@ -3574,6 +3660,32 @@ function preloadAdjacentPages(currentIndex) {
       img.src = currentMangaPages[index];
     }
   });
+}
+
+function showMangaViewerLoader() {
+  const container = document.getElementById('mangaViewerImageContainer');
+  if (!container) return;
+  let loader = document.getElementById('mangaViewerLoader');
+  if (!loader) {
+    loader = document.createElement('div');
+    loader.id = 'mangaViewerLoader';
+    loader.className = 'manga-viewer-loader';
+    loader.innerHTML = `
+      <div class="manga-viewer-loader-dots">
+        <div class="manga-viewer-loader-dot"></div>
+        <div class="manga-viewer-loader-dot"></div>
+        <div class="manga-viewer-loader-dot"></div>
+      </div>
+      <span class="manga-viewer-loader-text">Loading...</span>
+    `;
+    container.appendChild(loader);
+  }
+  loader.classList.remove('hidden');
+}
+
+function hideMangaViewerLoader() {
+  const loader = document.getElementById('mangaViewerLoader');
+  if (loader) loader.classList.add('hidden');
 }
 
 function showBooksCards(button) {
@@ -5823,6 +5935,13 @@ function closeAICompanion() {
   // Show nav buttons again
   if (navButtons) navButtons.classList.remove('hidden');
 
+  // Show roadmap button since we're back on home
+  if (roadmapToggleBtn) roadmapToggleBtn.style.display = '';
+
+  // Clean up any AI overlays
+  hideMangaCoversForAI();
+  hidePopupImage();
+
   playSound('close', 0);
 }
 
@@ -5876,6 +5995,49 @@ function aiSpeak(text, callback) {
     }
   }
   typeChar();
+}
+
+let aiPopupOverlay = null;
+
+function showPopupImage(src, label, durationMs = 3000) {
+  if (aiPopupOverlay) {
+    aiPopupOverlay.remove();
+    aiPopupOverlay = null;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'ai-popup-overlay';
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.className = 'ai-popup-image';
+  img.alt = label || '';
+
+  overlay.appendChild(img);
+
+  if (label) {
+    const lbl = document.createElement('div');
+    lbl.className = 'ai-popup-label';
+    lbl.textContent = label;
+    overlay.appendChild(lbl);
+  }
+
+  document.body.appendChild(overlay);
+  aiPopupOverlay = overlay;
+
+  setTimeout(() => {
+    if (aiPopupOverlay === overlay) {
+      overlay.remove();
+      aiPopupOverlay = null;
+    }
+  }, durationMs);
+}
+
+function hidePopupImage() {
+  if (aiPopupOverlay) {
+    aiPopupOverlay.remove();
+    aiPopupOverlay = null;
+  }
 }
 
 function showCommissionPricing() {
@@ -5942,60 +6104,241 @@ function closeCommissionPricing() {
   }
 }
 
+let aiMangaCoversOverlay = null;
+
+function showMangaCoversForAI() {
+  if (aiMangaCoversOverlay) {
+    aiMangaCoversOverlay.remove();
+    aiMangaCoversOverlay = null;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'aiMangaCoversOverlay';
+
+  const viewportWidth = window.innerWidth;
+  const isMobile = viewportWidth <= 480;
+  const cardW = isMobile ? 90 : (viewportWidth <= 768 ? 130 : 170);
+  const cardH = isMobile ? 130 : (viewportWidth <= 768 ? 190 : 250);
+  const gap = isMobile ? 10 : 20;
+  const pad = isMobile ? 8 : 16;
+
+  overlay.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: ${gap}px;
+    z-index: 9999;
+    padding: ${pad}px;
+    background: rgba(10, 10, 25, 0.85);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    max-width: 95vw;
+    flex-wrap: wrap;
+    justify-content: center;
+  `;
+
+  const mangaData = [
+    { key: 'witchesEnd', title: "Witch's End" },
+    { key: 'showerThoughts', title: 'Shower Thoughts' },
+    { key: 'lastIllsins', title: 'Last 3 Sins' }
+  ];
+
+  mangaData.forEach(manga => {
+    const data = mangaGalleryData.find(m => m.coverKey === manga.key);
+    if (!data || !data.src) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = `
+      width: ${cardW}px;
+      height: ${cardH}px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 215, 0, 0.4);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      flex-shrink: 0;
+    `;
+
+    const img = document.createElement('img');
+    img.src = data.src;
+    img.alt = manga.title;
+    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; display: block;';
+
+    wrapper.appendChild(img);
+    overlay.appendChild(wrapper);
+  });
+
+  document.body.appendChild(overlay);
+  aiMangaCoversOverlay = overlay;
+
+  requestAnimationFrame(() => {
+    overlay.style.opacity = '1';
+  });
+}
+
+function hideMangaCoversForAI() {
+  if (aiMangaCoversOverlay) {
+    aiMangaCoversOverlay.style.opacity = '0';
+    setTimeout(() => {
+      if (aiMangaCoversOverlay) {
+        aiMangaCoversOverlay.remove();
+        aiMangaCoversOverlay = null;
+      }
+    }, 400);
+  }
+}
+
 function askAI(topic) {
   playSound('click', 0);
   clearAiIdleSmallTalk();
 
+  // Hide any manga covers or popups from previous dialog
+  hideMangaCoversForAI();
+  hidePopupImage();
+
   if (topic === 'roadmap') {
-    aiSpeak(
-      "I made a roadmap to organize my work so I don't try to do everything at once. I don't expect these projects to be finished in a day or a week - it may take years depending on my mood and pace. I'll keep sharing updates here on my website and on my Reddit.",
-      function() {
-        if (roadmapOverlay && !roadmapOverlay.classList.contains('show')) {
-          toggleRoadmapOverlay();
-        }
-        scheduleAiIdleSmallTalk(10000);
-      }
-    );
+    aiSpeak("I made a roadmap to organize my work!", function() {
+      aiSpeak("So I don't try to do everything at once.", function() {
+        aiSpeak("I don't expect these projects to be finished in a day or a week.", function() {
+          aiSpeak("It may take years depending on my mood and pace.", function() {
+            if (roadmapOverlay && !roadmapOverlay.classList.contains('show')) {
+              toggleRoadmapOverlay();
+            }
+            aiSpeak("I'll keep sharing updates here on my website and on my Reddit.", function() {
+              scheduleAiIdleSmallTalk(10000);
+            });
+          });
+        });
+      });
+    });
     return;
   }
 
-  const responses = {
-    'commissions': "Yes! I do art commissions! If you're interested in getting some artwork done, feel free to reach out! Check the Work section to see examples of my art style.",
-    'artworks': "I've created lots of artwork over the years! From digital illustrations to character designs. Head over to the Work section to browse through my gallery!",
-    'mangas': "Oh, the manga section! I've been working on some manga projects. There are stories, characters, and worlds I've built. Check the Manga button to dive into my creations!",
-    'who': "I'm Lazyman_XD! A creative soul who loves art, coding, and storytelling. I made this website to showcase my work and connect with people like you!",
-    'why': "Why am I here? Great question! I exist to create, express myself, and share my passion with the world. Every piece of art, every line of code - it's all part of my journey.",
-    'effort': "Haha, fair question! I put effort into this AI because I wanted something unique - a way to interact with visitors that feels personal and fun. Plus, I just really enjoy building cool stuff! Hope you like it!",
-    'characters': "They're just characters that might be future characters that get a cameo on my manga. You never know who might show up in the story!"
-  };
-
-  const response = responses[topic] || "Hmm, let me think about that...";
-
-  // Define callbacks for specific topics
-  let callback = null;
   if (topic === 'commissions') {
-    callback = function() {
-      aiSpeak("Here's my pricing info:", function() {
-        showCommissionPricing();
+    aiSpeak("Yes! I do art commissions!", function() {
+      aiSpeak("If you're interested, feel free to reach out! Check the Work section to see examples of my art style.", function() {
+        aiSpeak("Here's my pricing info:", function() {
+          showCommissionPricing();
+          scheduleAiIdleSmallTalk(10000);
+        });
+      });
+    });
+    return;
+
+  } else if (topic === 'artworks') {
+    aiSpeak("I've created lots of artwork over the years!", function() {
+      aiSpeak("From digital illustrations to character designs.", function() {
+        showPopupImage('./folder-icon.webp', 'Work / Artworks');
+        aiSpeak("Head over to the Work section to browse through my gallery!", function() {
+          scheduleAiIdleSmallTalk(10000);
+        });
+      });
+    });
+    return;
+
+  } else if (topic === 'mangas') {
+    aiSpeak("Oh, the manga section! I've been working on some manga projects.", function() {
+      aiSpeak("There are stories, characters, and worlds I've built. Check the Manga button to dive into my creations!", function() {
+        showMangaCoversForAI();
+        aiSpeak("Wondering why some pages look unfinished?", function() {
+          aiSpeak("I organized everything through a roadmap! Witch's End is a shorter story, so I finished it first.", function() {
+            aiSpeak("Shower Thoughts is a fun series with multiple random chapters.", function() {
+              aiSpeak("And Last 3 Sins is a huge epic with 3 main characters, each with their own storyline.", function() {
+                aiSpeak("So don't expect everything at once — though you can expect random creative bursts from time to time!", function() {
+                  hideMangaCoversForAI();
+                  scheduleAiIdleSmallTalk(10000);
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+    return;
+
+  } else if (topic === 'books') {
+    aiSpeak("I've been writing some stories too!", function() {
+      aiSpeak("From the history of magical empires to tales of order and collapse.", function() {
+        // Show book covers one by one
+        const showBook = (index) => {
+          if (index >= booksData.length) {
+            aiSpeak("Check the Books section to read what I've written so far!", function() {
+              scheduleAiIdleSmallTalk(10000);
+            });
+            return;
+          }
+          const book = booksData[index];
+          showPopupImage(book.cover, book.title, 2500);
+          aiSpeak(book.title, function() {
+            setTimeout(() => showBook(index + 1), 400);
+          });
+        };
+        showBook(0);
+      });
+    });
+    return;
+
+  } else if (topic === 'social') {
+    aiSpeak("You can find me on DeviantArt and Reddit!", function() {
+      aiSpeak("That's where I post updates about my projects.", function() {
+        aiSpeak("I also have Twitter/X and Instagram. Check the Q&A section for direct links if you want to follow along or reach out!", function() {
+          scheduleAiIdleSmallTalk(10000);
+        });
+      });
+    });
+    return;
+
+  } else if (topic === 'who') {
+    aiSpeak("I'm Lazyman_XD!", function() {
+      aiSpeak("A creative soul who loves art, coding, and storytelling.", function() {
+        aiSpeak("I made this website to showcase my work and connect with people like you!", function() {
+          scheduleAiIdleSmallTalk(10000);
+        });
+      });
+    });
+    return;
+
+  } else if (topic === 'why') {
+    aiSpeak("Why am I here? Great question!", function() {
+      aiSpeak("I exist to create, express myself, and share my passion with the world.", function() {
+        aiSpeak("Every piece of art, every line of code — it's all part of my journey.", function() {
+          scheduleAiIdleSmallTalk(10000);
+        });
+      });
+    });
+    return;
+
+  } else if (topic === 'effort') {
+    aiSpeak("Haha, fair question!", function() {
+      aiSpeak("I put effort into this AI because I wanted something unique.", function() {
+        aiSpeak("A way to interact with visitors that feels personal and fun.", function() {
+          aiSpeak("Plus, I just really enjoy building cool stuff! Hope you like it!", function() {
+            scheduleAiIdleSmallTalk(10000);
+          });
+        });
+      });
+    });
+    return;
+
+  } else if (topic === 'characters') {
+    aiSpeak("They're just characters that might be future cameos in my manga.", function() {
+      aiSpeak("You never know who might show up in the story!", function() {
         scheduleAiIdleSmallTalk(10000);
       });
-    };
-  } else if (topic === 'artworks') {
-    callback = function() {
-      // Close AI and show work page
-      closeAICompanion();
-      setTimeout(() => {
-        showPage('work');
-      }, 300);
-    };
-  } else {
-    // For all other topics, schedule idle small talk after responding
-    callback = function() {
-      scheduleAiIdleSmallTalk(10000);
-    };
-  }
+    });
+    return;
 
-  aiSpeak(response, callback);
+  } else {
+    aiSpeak("Hmm, let me think about that...", function() {
+      scheduleAiIdleSmallTalk(10000);
+    });
+    return;
+  }
 }
 
 // CSS protection

@@ -335,6 +335,10 @@
     .roadmap-overlay.show {
       display: flex;
     }
+    .roadmap-image-wrapper {
+      position: relative;
+      display: inline-block;
+    }
     .roadmap-modal-image {
       max-width: min(95vw, 1100px);
       max-height: 90vh;
@@ -343,6 +347,80 @@
       border-radius: 10px;
       border: 3px solid #ffd700;
       box-shadow: 0 0 18px #ffd700, 0 0 42px rgba(255, 215, 0, 0.9);
+      display: block;
+    }
+    .roadmap-close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #ffd700;
+      border-radius: 50%;
+      color: #ffd700;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10041;
+      transition: transform 0.2s ease, background 0.2s ease;
+      font-family: sans-serif;
+    }
+    .roadmap-close-btn:hover {
+      transform: scale(1.1);
+      background: rgba(255, 215, 0, 0.9);
+      color: #000;
+    }
+
+    /* AI Popup Image Animation */
+    .ai-popup-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      pointer-events: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .ai-popup-image {
+      max-width: min(80vw, 400px);
+      max-height: 60vh;
+      width: auto;
+      height: auto;
+      border-radius: 16px;
+      border: 3px solid rgba(255, 215, 0, 0.6);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+      opacity: 0;
+      transform: scale(0.2) rotate(0deg);
+      animation: aiPopupGrowSpin 3s forwards ease-out;
+      pointer-events: none;
+    }
+    .ai-popup-label {
+      color: #ffd700;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 12px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      opacity: 0;
+      animation: aiPopupFadeIn 0.5s 0.3s forwards ease-out;
+      text-align: center;
+      max-width: 90vw;
+      line-height: 1.6;
+    }
+    @keyframes aiPopupGrowSpin {
+      0% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+      20% { opacity: 1; transform: scale(1.1) rotate(72deg); }
+      40% { transform: scale(1) rotate(144deg); }
+      60% { transform: scale(1.05) rotate(216deg); }
+      80% { transform: scale(1) rotate(288deg); }
+      100% { opacity: 0; transform: scale(0.8) rotate(360deg); }
+    }
+    @keyframes aiPopupFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     
     /* Desktop - Make buttons closer (~1cm apart) */
@@ -3936,6 +4014,42 @@
         transform: scale(1.5);
         opacity: 0.7;
       }
+    }
+
+    /* Manga Viewer Loading Spinner */
+    .manga-viewer-loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .manga-viewer-loader.hidden {
+      display: none;
+    }
+    .manga-viewer-loader-dots {
+      display: flex;
+      gap: 8px;
+    }
+    .manga-viewer-loader-dot {
+      width: 10px;
+      height: 10px;
+      background: #ffd700;
+      border-radius: 50%;
+      animation: dotPulse 1.2s infinite ease-in-out;
+    }
+    .manga-viewer-loader-dot:nth-child(1) { animation-delay: 0s; }
+    .manga-viewer-loader-dot:nth-child(2) { animation-delay: 0.15s; }
+    .manga-viewer-loader-dot:nth-child(3) { animation-delay: 0.3s; }
+    .manga-viewer-loader-text {
+      color: rgba(255, 215, 0, 0.8);
+      font-size: 9px;
+      font-family: 'Press Start 2P', cursive;
     }
     
     .wiki-content {

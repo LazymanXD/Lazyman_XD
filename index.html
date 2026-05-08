@@ -9,6 +9,28 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Caveat:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <!-- Preload critical background and UI images -->
+  <link rel="preload" as="image" href="./background-back.webp">
+  <link rel="preload" as="image" href="./shine-1.webp">
+  <link rel="preload" as="image" href="./FORGROUND.webp">
+  <link rel="preload" as="image" href="./profile website.webp">
+  <link rel="preload" as="image" href="./roadmap.webp">
+  <link rel="preload" as="image" href="./icons8-infinite-50.webp">
+  <!-- Preload manga cover images -->
+  <link rel="preload" as="image" href="./SHOWERTHOUGHTS.webp">
+  <link rel="preload" as="image" href="./manga-card-2.webp">
+  <link rel="preload" as="image" href="./manga-card-3.webp">
+  <!-- Preload Last 3 Sins section 2 images -->
+  <link rel="preload" as="image" href="./1/one/1.webp">
+  <link rel="preload" as="image" href="./1/one/2.webp">
+  <link rel="preload" as="image" href="./1/one/3.webp">
+  <link rel="preload" as="image" href="./1/one/3.1.webp">
+  <link rel="preload" as="image" href="./1/one/4.webp">
+  <link rel="preload" as="image" href="./1/one/5.webp">
+  <link rel="preload" as="image" href="./1/one/6.webp">
+  <link rel="preload" as="image" href="./1/one/7.webp">
+  <link rel="preload" as="image" href="./1/one/8.webp">
+  <link rel="preload" as="image" href="./1/one/9.webp">
 </head>
 <body>
 
@@ -28,7 +50,10 @@
 </button>
 
 <div class="roadmap-overlay" id="roadmapOverlay">
-  <img src="./roadmap.webp" alt="Roadmap" class="roadmap-modal-image" loading="lazy" decoding="async">
+  <div class="roadmap-image-wrapper">
+    <button class="roadmap-close-btn" onclick="toggleRoadmapOverlay()" aria-label="Close roadmap">&#x2715;</button>
+    <img src="./roadmap.webp" alt="Roadmap" class="roadmap-modal-image" loading="lazy" decoding="async">
+  </div>
 </div>
 
 <div class="loading-screen" id="loadingScreen">
@@ -79,10 +104,12 @@
   <button class="ai-option-btn" onclick="askAI('commissions')">Commissions?</button>
   <button class="ai-option-btn" onclick="askAI('artworks')">Artworks</button>
   <button class="ai-option-btn" onclick="askAI('mangas')">Mangas</button>
+  <button class="ai-option-btn" onclick="askAI('books')">Books</button>
   <button class="ai-option-btn" onclick="askAI('roadmap')">Roadmap?</button>
   <button class="ai-option-btn" onclick="askAI('who')">Who am I?</button>
   <button class="ai-option-btn" onclick="askAI('why')">Why am I?</button>
   <button class="ai-option-btn" onclick="askAI('effort')">Why put the effort on this AI?</button>
+  <button class="ai-option-btn" onclick="askAI('social')">Social</button>
   <button class="ai-option-btn" onclick="askAI('characters')">Who are the characters on screen?</button>
 </div>
 
