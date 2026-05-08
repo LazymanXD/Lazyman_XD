@@ -4257,8 +4257,8 @@ async function openBookReader(book) {
         <button id="bookReaderClose" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:8px 10px;cursor:pointer;font-size:10px;">Close</button>
       </div>
       <div id="bookReaderLoading" style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;color:#e8d8ad;font-size:10px;padding:20px;">Loading book pages...</div>
-      <div id="bookReaderBody" style="display:none;flex:1;min-height:0;flex-direction:column;gap:10px;padding:12px;background:rgba(0,0,0,0.2);overflow:hidden;">
-        <div id="bookReaderSinglePage" style="flex:1;min-height:0;width:min(780px,100%);margin:0 auto;background:#f6efdf;border:1px solid #c8b48a;border-radius:8px;overflow-x:hidden;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;padding:10px 12px 14px;color:#222;font-family:Georgia,serif;font-size:14px;line-height:1.55;"></div>
+      <div id="bookReaderBody" style="display:none;flex:1;min-height:0;flex-direction:column;gap:0;padding:0;background:rgba(0,0,0,0.2);overflow:hidden;">
+        <div id="bookReaderSinglePage" style="flex:1;min-height:0;width:min(780px,100%);margin:0 auto;background:#f6efdf;border:1px solid #c8b48a;border-radius:0;overflow-x:hidden;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;padding:0;color:#222;font-family:Georgia,serif;font-size:14px;line-height:1.55;"></div>
       </div>
     </div>
   `;
