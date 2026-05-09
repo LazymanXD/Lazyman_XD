@@ -6,6 +6,13 @@ const tabContent = document.getElementById('tabContent');
 const roadmapToggleBtn = document.getElementById('roadmapToggleBtn');
 const roadmapOverlay = document.getElementById('roadmapOverlay');
 
+// Performance helpers
+const isMobileDevice = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
+let pageVisible = !document.hidden;
+document.addEventListener('visibilitychange', () => {
+  pageVisible = !document.hidden;
+});
+
 function createAudioWithFallback(fileName) {
   const audio = new Audio(fileName);
   audio.preload = 'auto';
@@ -154,45 +161,30 @@ document.addEventListener('keydown', (e) => {
 });
 
 // --- Wallpaper Mouse Movement (Smooth) ---
-let wallpaperX = 50;
-let wallpaperY = 50;
-let targetX = 50;
-let targetY = 50;
-
-document.addEventListener('mousemove', (e) => {
-  const mouseX = e.clientX;
-  const windowWidth = window.innerWidth;
-  const mouseY = e.clientY;
-  const windowHeight = window.innerHeight;
-  
-  // Calculate target position (-10% to +10% for subtle effect)
-  targetX = 50 + ((mouseX / windowWidth) - 0.5) * 20;
-  targetY = 50 + ((mouseY / windowHeight) - 0.5) * 10;
-  
-  // Calculate wallpaper target position (inverted for parallax)
-  wallpaperTargetX = ((mouseX / windowWidth) - 0.5) * -40;
-});
-
-let wallpaperCurrentX = 0;
 let wallpaperTargetX = 0;
+let wallpaperCurrentX = 0;
 
 // Smooth animation loop for wallpaper
+let wallpaperRafId = null;
 function animateWallpaper() {
-  // Smooth easing towards target position
-  wallpaperX += (targetX - wallpaperX) * 0.1;
-  wallpaperY += (targetY - wallpaperY) * 0.1;
-  
-  // Apply smooth background position
-  document.body.style.backgroundPosition = `${wallpaperX}% ${wallpaperY}%`;
-  
-  // Smooth wallpaper parallax movement
+  if (!pageVisible) {
+    wallpaperRafId = requestAnimationFrame(animateWallpaper);
+    return;
+  }
+  // On mobile, update once per 2 frames to save GPU
+  if (isMobileDevice && wallpaperRafId) {
+    wallpaperRafId = null;
+    setTimeout(() => { wallpaperRafId = requestAnimationFrame(animateWallpaper); }, 33);
+  } else {
+    wallpaperRafId = requestAnimationFrame(animateWallpaper);
+  }
+
+  // Smooth wallpaper parallax movement using GPU-accelerated transform only
   wallpaperCurrentX += (wallpaperTargetX - wallpaperCurrentX) * 0.05;
   const wallpaper = document.querySelector('.wallpaper');
   if (wallpaper) {
-    wallpaper.style.transform = `translateX(${wallpaperCurrentX}px)`;
+    wallpaper.style.transform = `translate3d(${wallpaperCurrentX}px, 0, 0)`;
   }
-  
-  requestAnimationFrame(animateWallpaper);
 }
 
 // Start the smooth animation
@@ -202,9 +194,8 @@ animateWallpaper();
 const particleCanvas = document.getElementById('particle-canvas');
 let particleCtx = null;
 let particles = [];
-// Reduce particles on mobile/low-power devices
-const isMobile = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
-const PARTICLE_COUNT = isMobile ? 200 : 400;
+// Drastically reduce particles on mobile; high count kills frame rate on phones
+const PARTICLE_COUNT = isMobileDevice ? 40 : 400;
 
 // Mouse tracking for particle interaction
 let mouseX = -1000;
@@ -214,18 +205,19 @@ if (particleCanvas) {
   particleCtx = particleCanvas.getContext('2d');
   particleCanvas.width = window.innerWidth;
   particleCanvas.height = window.innerHeight;
-  
-  // Track mouse position
-  particleCanvas.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-  
-  particleCanvas.addEventListener('mouseleave', () => {
-    mouseX = -1000;
-    mouseY = -1000;
-  });
-  
+
+  // Track mouse position (only on desktop; skip on mobile for performance)
+  if (!isMobileDevice) {
+    particleCanvas.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+    particleCanvas.addEventListener('mouseleave', () => {
+      mouseX = -1000;
+      mouseY = -1000;
+    });
+  }
+
   // Create atmospheric dust particles scattered everywhere
   for (let i = 0; i < PARTICLE_COUNT; i++) {
     particles.push({
@@ -242,49 +234,62 @@ if (particleCanvas) {
   }
 }
 
+let particlesVisible = true;
+
+if (particleCanvas && 'IntersectionObserver' in window) {
+  const particleObserver = new IntersectionObserver((entries) => {
+    particlesVisible = entries[0].isIntersecting;
+  }, { threshold: 0 });
+  particleObserver.observe(particleCanvas);
+}
+
 function updateParticles() {
-  if (!particleCtx || !particleCanvas) return;
-  
+  if (!particleCtx || !particleCanvas || !pageVisible || !particlesVisible) return;
+
   particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-  
+
+  // Skip heavy glow on mobile to save GPU fill rate
+  const drawGlow = !isMobileDevice;
+
   for (let p of particles) {
-    // Check if mouse is near particle (sweep effect)
-    const dx = p.x - mouseX;
-    const dy = p.y - mouseY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    const sweepRadius = 60; // pixels
-    
-    if (dist < sweepRadius && dist > 0) {
-      // Push particle away from mouse
-      const force = (sweepRadius - dist) / sweepRadius * 3;
-      p.sweptSpeedX += (dx / dist) * force;
-      p.sweptSpeedY += (dy / dist) * force;
+    // Check if mouse is near particle (sweep effect) - desktop only
+    if (!isMobileDevice) {
+      const dx = p.x - mouseX;
+      const dy = p.y - mouseY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const sweepRadius = 60; // pixels
+
+      if (dist < sweepRadius && dist > 0) {
+        const force = (sweepRadius - dist) / sweepRadius * 3;
+        p.sweptSpeedX += (dx / dist) * force;
+        p.sweptSpeedY += (dy / dist) * force;
+      }
     }
-    
+
     // Apply normal movement + swept momentum
     p.x += p.speedX + p.sweptSpeedX;
     p.y += p.speedY + p.sweptSpeedY;
     p.pulse += 0.02;
-    
+
     // Decay swept momentum (lasts about a second)
     p.sweptSpeedX *= 0.92;
     p.sweptSpeedY *= 0.92;
-    
+
     // Wrap around edges
     if (p.x < 0) p.x = particleCanvas.width;
     if (p.x > particleCanvas.width) p.x = 0;
     if (p.y < 0) p.y = particleCanvas.height;
     if (p.y > particleCanvas.height) p.y = 0;
-    
+
     // Pulsing opacity for atmospheric effect
     const pulseOpacity = p.opacity * (0.7 + 0.3 * Math.sin(p.pulse));
-    
+
     // Triangle boundary check - red zone (top-left triangle = invisible)
     const triangleWidth = particleCanvas.width * 0.90;
     const triangleHeight = particleCanvas.height * 0.40;
     const inTriangle = p.x < triangleWidth && p.y < triangleHeight * (1 - p.x / triangleWidth);
     if (inTriangle) continue; // In red zone, skip this particle only
-    
+
     // Draw glowing dust particle with parallax offset matching background layer 3
     const parallaxX = layerPositions[3].x;
     const parallaxY = layerPositions[3].y;
@@ -292,40 +297,47 @@ function updateParticles() {
     particleCtx.arc(p.x + parallaxX, p.y + parallaxY, p.size, 0, Math.PI * 2);
     particleCtx.fillStyle = `rgba(255, 250, 220, ${pulseOpacity})`;
     particleCtx.fill();
-    
-    // Add subtle glow
-    particleCtx.beginPath();
-    particleCtx.arc(p.x + parallaxX, p.y + parallaxY, p.size * 2, 0, Math.PI * 2);
-    particleCtx.fillStyle = `rgba(255, 250, 220, ${pulseOpacity * 0.3})`;
-    particleCtx.fill();
+
+    // Add subtle glow (skip on mobile)
+    if (drawGlow) {
+      particleCtx.beginPath();
+      particleCtx.arc(p.x + parallaxX, p.y + parallaxY, p.size * 2, 0, Math.PI * 2);
+      particleCtx.fillStyle = `rgba(255, 250, 220, ${pulseOpacity * 0.3})`;
+      particleCtx.fill();
+    }
   }
 }
 
+// Debounced resize to avoid recreating particles on every scroll/resize event
+let resizeDebounceTimer = null;
 window.addEventListener('resize', () => {
-  if (particleCanvas) {
-    const newWidth = window.innerWidth;
-    const newHeight = window.innerHeight;
-    
-    // Resize canvas
-    particleCanvas.width = newWidth;
-    particleCanvas.height = newHeight;
-    
-    // Regenerate particles to fill entire new canvas area
-    particles = [];
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      particles.push({
-        x: Math.random() * newWidth,
-        y: Math.random() * newHeight,
-        size: Math.random() * 0.8 + 0.2,
-        speedX: (Math.random() - 0.5) * 0.3,
-        speedY: (Math.random() - 0.5) * 0.2 - 0.1,
-        opacity: Math.random() * 0.10 + 0.9,
-        pulse: Math.random() * Math.PI * 2,
-        sweptSpeedX: 0,
-        sweptSpeedY: 0
-      });
+  if (resizeDebounceTimer) clearTimeout(resizeDebounceTimer);
+  resizeDebounceTimer = setTimeout(() => {
+    if (particleCanvas) {
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
+
+      // Resize canvas
+      particleCanvas.width = newWidth;
+      particleCanvas.height = newHeight;
+
+      // Regenerate particles to fill entire new canvas area
+      particles = [];
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+          x: Math.random() * newWidth,
+          y: Math.random() * newHeight,
+          size: Math.random() * 0.8 + 0.2,
+          speedX: (Math.random() - 0.5) * 0.3,
+          speedY: (Math.random() - 0.5) * 0.2 - 0.1,
+          opacity: Math.random() * 0.10 + 0.9,
+          pulse: Math.random() * Math.PI * 2,
+          sweptSpeedX: 0,
+          sweptSpeedY: 0
+        });
+      }
     }
-  }
+  }, 250);
 });
 
 // --- Nested Parallax Effect for Layers 1-5 ---
@@ -370,52 +382,70 @@ const layerMaxRadius = {
   5: 30
 };
 
-// Throttled mouse tracking for performance
+// Throttled mouse tracking for performance (single listener updates all systems)
 let mouseNormX = 0;
 let mouseNormY = 0;
 
-// Simple mouse tracking - no expensive calculations here
+// Single unified mousemove listener to avoid duplicate event overhead
 document.addEventListener('mousemove', (e) => {
   const windowWidth = window.innerWidth;
   const windowHeight = window.innerHeight;
-  
-  // Just store normalized values (-1 to 1)
-  mouseNormX = (e.clientX / windowWidth) * 2 - 1;
-  mouseNormY = (e.clientY / windowHeight) * 2 - 1;
+  const mouseX = e.clientX;
+  const mouseY = e.clientY;
+
+  // Update wallpaper target
+  wallpaperTargetX = ((mouseX / windowWidth) - 0.5) * -40;
+
+  // Update normalized values for parallax (-1 to 1)
+  mouseNormX = (mouseX / windowWidth) * 2 - 1;
+  mouseNormY = (mouseY / windowHeight) * 2 - 1;
 });
 
 // Smooth animation loop - all calculations happen here
+let parallaxRafId = null;
 function animateNestedParallax() {
+  if (!pageVisible) {
+    parallaxRafId = requestAnimationFrame(animateNestedParallax);
+    return;
+  }
+  // On mobile, throttle to every 2nd frame to save battery
+  if (isMobileDevice && parallaxRafId) {
+    parallaxRafId = null;
+    setTimeout(() => { parallaxRafId = requestAnimationFrame(animateNestedParallax); }, 33);
+  } else {
+    parallaxRafId = requestAnimationFrame(animateNestedParallax);
+  }
+
   // Simple parallax for layers 2-5
   const smoothing = 0.08;
-  
+
   // Animate shine layer - move left/right with mouse
   const shine = document.querySelector('.bg-layer-shine');
   if (shine) {
     const shineMove = mouseNormX * 20; // Move 20px left/right
     shine.style.transform = `translateX(${shineMove}px) translateZ(0)`;
   }
-  
+
   // Animate FORGROUND - very slow movement
   const foreground = document.querySelector('.bg-layer-foreground');
   if (foreground) {
     const foregroundMove = mouseNormX * 2; // Very slow - only 2px
     foreground.style.transform = `translateX(${foregroundMove}px) translateZ(0)`;
   }
-  
+
   // Update dust particles drifting through sunlight
   updateParticles();
-  
+
   for (let i = 2; i <= 5; i++) {
     if (!layerElements[i]) continue;
-    
+
     const maxRadius = layerMaxRadius[i];
     const speed = layerSpeeds[i];
-    
+
     // Calculate target based on mouse with circular constraint
     let targetX = mouseNormX * speed * 2;
     let targetY = mouseNormY * speed * 2;
-    
+
     // Clamp to circular boundary
     const dist = Math.sqrt(targetX * targetX + targetY * targetY);
     if (dist > maxRadius) {
@@ -423,16 +453,14 @@ function animateNestedParallax() {
       targetX *= ratio;
       targetY *= ratio;
     }
-    
+
     // Smooth easing
     layerPositions[i].x += (targetX - layerPositions[i].x) * smoothing;
     layerPositions[i].y += (targetY - layerPositions[i].y) * smoothing;
-    
+
     // Apply transform
     layerElements[i].style.transform = `translate(calc(-50% + ${layerPositions[i].x}px), ${layerPositions[i].y}px)`;
   }
-  
-  requestAnimationFrame(animateNestedParallax);
 }
 
 // Start nested parallax animation
@@ -2871,7 +2899,8 @@ window.__showWorkCardsImpl = function showWorkCards(button) {
       opacity: 0;
       z-index: 3000;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      will-change: transform;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 8px 32px rgba(0,0,0,0.6);
@@ -3059,7 +3088,8 @@ function showMangaCards(button) {
       opacity: 0;
       z-index: 3000;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      will-change: transform;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 8px 32px rgba(0,0,0,0.6);
@@ -3867,7 +3897,8 @@ function showBooksCards(button) {
       opacity: 0;
       z-index: 3000;
       cursor: pointer;
-      transition: all 0.35s ease;
+      transition: transform 0.35s ease, opacity 0.35s ease;
+      will-change: transform;
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 10px 34px rgba(0,0,0,0.65);

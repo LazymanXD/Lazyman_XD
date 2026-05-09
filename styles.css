@@ -4822,3 +4822,125 @@
         font-size: 10px;
       }
     }
+
+    /* ============================================================
+       MOBILE PERFORMANCE OPTIMIZATIONS
+       Disable expensive GPU/CPU effects on touch devices
+       ============================================================ */
+    @media (pointer: coarse) {
+      /* Disable backdrop-filter blur (extremely expensive on mobile GPUs) */
+      .artwork-overlay,
+      .artwork-viewer,
+      .manga-creation-tab,
+      .manga-modal-overlay,
+      .books-overlay,
+      .middle-tab {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      /* Reduce or disable continuous box-shadow animations */
+      .ai-orb,
+      .ai-core,
+      .ai-avatar-img {
+        animation: none !important;
+        box-shadow: 0 0 15px rgba(255, 200, 0, 0.4) !important;
+      }
+
+      /* Disable heavy will-change hints that cause compositing overhead */
+      .bg-layer-shine,
+      .bg-layer-foreground,
+      .bg-layer-frontyard,
+      .manga-panel,
+      .manga-reader-container,
+      .manga-page-viewer {
+        will-change: auto !important;
+      }
+
+      /* Simplify transitions on mobile for snappier interactions */
+      .nav-btn,
+      .roadmap-toggle-btn,
+      .win-btn,
+      .middle-tab {
+        transition: none !important;
+      }
+
+      /* Reduce particle canvas impact by making it invisible on very low-end devices */
+      #particle-canvas {
+        opacity: 0.5;
+      }
+
+      /* Disable continuous glowing text shadow animations */
+      .middle-tab-title {
+        animation: none !important;
+      }
+
+      /* Disable AI orb ring spin animations */
+      .ai-orb::before,
+      .ai-orb::after {
+        animation: none !important;
+      }
+
+      /* Disable wave bar animations */
+      .ai-wave-bar {
+        animation: none !important;
+        box-shadow: none !important;
+      }
+
+      /* Disable roadmap glow pulse */
+      .roadmap-toggle-btn {
+        animation: none !important;
+        box-shadow: 0 0 12px rgba(255, 215, 0, 0.35) !important;
+      }
+
+      /* Disable middle open button glow */
+      .middle-open-btn img {
+        animation: none !important;
+        filter: brightness(1.6) saturate(1.4) drop-shadow(0 0 15px rgba(255,215,0,0.8)) !important;
+      }
+
+      /* Disable floating dot animations */
+      .dot1, .dot2, .dot3 {
+        animation: none !important;
+      }
+
+      /* Disable loading dot pulses */
+      .wiki-loading-dot,
+      .manga-viewer-loader-dot {
+        animation: none !important;
+      }
+
+      /* Simplify nav button hover effects */
+      .nav-btn:hover {
+        filter: none !important;
+        transform: translateY(-2px) scale(1.02) !important;
+      }
+
+      /* Disable expensive transition:all on common interactive elements */
+      .artwork-item,
+      .manga-panel,
+      .work-card,
+      .books-card,
+      .wiki-manga-card,
+      .wiki-character-card,
+      .wiki-location-item,
+      .wiki-story-list li,
+      .wiki-trivia-item,
+      .wiki-guidelines-list li,
+      .wiki-references-list li,
+      .wiki-category-links a,
+      .chapter-nav-btn,
+      .manga-nav-btn,
+      .manga-selection-btn,
+      .manga-modal-btn,
+      .manga-editor-close,
+      .editor-btn,
+      .chapter-btn,
+      .page-btn,
+      .chapter-card-btn,
+      .artwork-delete-btn,
+      .fandom-page-tabs .tab,
+      .category-tag {
+        transition: none !important;
+      }
+    }
