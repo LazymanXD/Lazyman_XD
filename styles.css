@@ -105,6 +105,15 @@
       opacity: 0;
       pointer-events: none;
     }
+
+    /* CSS fallback: if JS fails to hide the loading screen, force-hide after 5s */
+    .loading-screen:not(.hidden) {
+      animation: autoHideLoading 5s forwards;
+    }
+    @keyframes autoHideLoading {
+      0%, 90% { opacity: 1; }
+      100% { opacity: 0; pointer-events: none; }
+    }
     
     .desktop {
       padding: 20px;
@@ -4841,14 +4850,7 @@
         -webkit-backdrop-filter: none !important;
       }
 
-      /* 2) background-attachment:fixed forces a full viewport repaint on every
-         compositing frame. The .wallpaper div is already position:fixed, so
-         removing this has zero visual impact but huge performance gain. */
-      .bg-layer {
-        background-attachment: scroll !important;
-      }
-
-      /* 3) Reduce wallpaper compositing layer from 120vw to 100vw.
+      /* 2) Reduce wallpaper compositing layer from 120vw to 100vw.
          The extra 20vw was for parallax range — on mobile the range is tiny
          so this is pure overhead with no visual benefit. */
       .wallpaper {
