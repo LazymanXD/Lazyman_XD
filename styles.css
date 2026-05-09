@@ -4840,7 +4840,22 @@
         -webkit-backdrop-filter: none !important;
       }
 
-      /* 2) Remove heavy will-change compositing hints */
+      /* 2) background-attachment:fixed forces a full viewport repaint on every
+         compositing frame. The .wallpaper div is already position:fixed, so
+         removing this has zero visual impact but huge performance gain. */
+      .bg-layer {
+        background-attachment: scroll !important;
+      }
+
+      /* 3) Reduce wallpaper compositing layer from 120vw to 100vw.
+         The extra 20vw was for parallax range — on mobile the range is tiny
+         so this is pure overhead with no visual benefit. */
+      .wallpaper {
+        width: 100vw !important;
+        margin-left: 0 !important;
+      }
+
+      /* 4) Remove heavy will-change compositing hints */
       .bg-layer-shine,
       .bg-layer-foreground,
       .bg-layer-frontyard,
@@ -4850,21 +4865,50 @@
         will-change: auto !important;
       }
 
-      /* 3) Reduce (not kill) particle canvas opacity */
+      /* 5) Hide particle canvas entirely on mobile — 40 particles still cost
+         GPU fill-rate and JS CPU even at reduced opacity. */
       #particle-canvas {
-        opacity: 0.5;
+        display: none !important;
       }
 
-      /* 4) Reduce heavy drop-shadow filter on middle button —
+      /* 6) Reduce heavy drop-shadow filter on middle button —
          filter animations are CPU-bound, so keep a cheaper static version */
       .middle-open-btn img {
         filter: brightness(1.6) saturate(1.4) drop-shadow(0 0 15px rgba(255,215,0,0.8)) !important;
       }
 
-      /* 5) Keep nav button hover but drop the expensive drop-shadow filter */
+      /* 7) Reduce middle button pseudo-element blur from 18px to 8px.
+         This pseudo covers 220% of the button and blurs the entire area. */
+      .middle-open-btn::before {
+        filter: blur(8px) saturate(1.2) brightness(1.1) !important;
+        opacity: 0.6 !important;
+      }
+
+      /* 8) Keep nav button hover but drop the expensive drop-shadow filter */
       .nav-btn:hover {
         filter: brightness(1.2) !important;
         transform: translateY(-4px) scale(1.05) !important;
+      }
+
+      /* 9) Replace expensive animated box-shadows with cheaper mobile versions.
+         Large spread shadows (40-120px) eat GPU fill-rate on every frame. */
+      .ai-orb {
+        animation: orbPulseMobile 3s ease-in-out infinite !important;
+      }
+      .ai-core,
+      .ai-orb .ai-avatar-img + .ai-core {
+        box-shadow: 0 0 8px rgba(255, 200, 0, 0.6), 0 0 16px rgba(255, 180, 0, 0.3) !important;
+      }
+      .roadmap-toggle-btn {
+        animation: roadmapGlowMobile 2s ease-in-out infinite !important;
+      }
+      @keyframes orbPulseMobile {
+        0%, 100% { box-shadow: 0 0 8px rgba(255, 180, 0, 0.4), 0 0 16px rgba(255, 160, 0, 0.2), inset 0 0 12px rgba(255, 215, 0, 0.1); }
+        50% { box-shadow: 0 0 12px rgba(255, 200, 0, 0.5), 0 0 24px rgba(255, 180, 0, 0.3), inset 0 0 18px rgba(255, 215, 0, 0.15); }
+      }
+      @keyframes roadmapGlowMobile {
+        0%, 100% { box-shadow: 0 0 12px rgba(255, 215, 0, 0.6), 0 0 24px rgba(255, 215, 0, 0.3); }
+        50% { box-shadow: 0 0 16px rgba(255, 215, 0, 0.8), 0 0 32px rgba(255, 215, 0, 0.5); }
       }
 
       /* Everything else (transform/opacity animations, transitions, pulses,

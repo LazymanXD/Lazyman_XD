@@ -166,24 +166,19 @@ let wallpaperCurrentX = 0;
 
 // Smooth animation loop for wallpaper
 let wallpaperRafId = null;
+let prevWallpaperX = 0;
 function animateWallpaper() {
-  if (!pageVisible) {
-    wallpaperRafId = requestAnimationFrame(animateWallpaper);
-    return;
-  }
-  // On mobile, update once per 2 frames to save GPU
-  if (isMobileDevice && wallpaperRafId) {
-    wallpaperRafId = null;
-    setTimeout(() => { wallpaperRafId = requestAnimationFrame(animateWallpaper); }, 33);
-  } else {
-    wallpaperRafId = requestAnimationFrame(animateWallpaper);
-  }
+  wallpaperRafId = requestAnimationFrame(animateWallpaper);
+  if (!pageVisible) return;
 
-  // Smooth wallpaper parallax movement using GPU-accelerated transform only
+  // On mobile, skip work when user hasn't interacted recently
+  if (isMobileDevice && Date.now() - lastInputTime > INPUT_IDLE_MS) return;
+
   wallpaperCurrentX += (wallpaperTargetX - wallpaperCurrentX) * 0.05;
   const wallpaper = document.querySelector('.wallpaper');
-  if (wallpaper) {
+  if (wallpaper && Math.abs(wallpaperCurrentX - prevWallpaperX) > 0.1) {
     wallpaper.style.transform = `translate3d(${wallpaperCurrentX}px, 0, 0)`;
+    prevWallpaperX = wallpaperCurrentX;
   }
 }
 
@@ -385,55 +380,65 @@ const layerMaxRadius = {
 // Throttled mouse tracking for performance (single listener updates all systems)
 let mouseNormX = 0;
 let mouseNormY = 0;
+let lastInputTime = Date.now();
+const INPUT_IDLE_MS = 800; // pause parallax DOM writes after 800ms of no input
 
-// Single unified mousemove listener to avoid duplicate event overhead
-document.addEventListener('mousemove', (e) => {
-  const windowWidth = window.innerWidth;
-  const windowHeight = window.innerHeight;
-  const mouseX = e.clientX;
-  const mouseY = e.clientY;
-
-  // Update wallpaper target
+function updateParallaxInput(mouseX, mouseY, windowWidth, windowHeight) {
+  lastInputTime = Date.now();
   wallpaperTargetX = ((mouseX / windowWidth) - 0.5) * -40;
-
-  // Update normalized values for parallax (-1 to 1)
   mouseNormX = (mouseX / windowWidth) * 2 - 1;
   mouseNormY = (mouseY / windowHeight) * 2 - 1;
-});
+}
+
+// Single unified listener for both mouse and touch
+document.addEventListener('mousemove', (e) => {
+  updateParallaxInput(e.clientX, e.clientY, window.innerWidth, window.innerHeight);
+}, { passive: true });
+document.addEventListener('touchmove', (e) => {
+  if (e.touches.length) {
+    updateParallaxInput(e.touches[0].clientX, e.touches[0].clientY, window.innerWidth, window.innerHeight);
+  }
+}, { passive: true });
+
+// Dirty-tracking: skip DOM writes when transform hasn't changed by > 0.1px
+const prevLayerPos = { 2: { x: 0, y: 0 }, 3: { x: 0, y: 0 }, 4: { x: 0, y: 0 }, 5: { x: 0, y: 0 } };
+let prevShineMove = 0;
+let prevForegroundMove = 0;
 
 // Smooth animation loop - all calculations happen here
 let parallaxRafId = null;
 function animateNestedParallax() {
-  if (!pageVisible) {
-    parallaxRafId = requestAnimationFrame(animateNestedParallax);
-    return;
-  }
-  // On mobile, throttle to every 2nd frame to save battery
-  if (isMobileDevice && parallaxRafId) {
-    parallaxRafId = null;
-    setTimeout(() => { parallaxRafId = requestAnimationFrame(animateNestedParallax); }, 33);
-  } else {
-    parallaxRafId = requestAnimationFrame(animateNestedParallax);
-  }
+  parallaxRafId = requestAnimationFrame(animateNestedParallax);
+  if (!pageVisible) return;
+
+  // On mobile, skip DOM writes if user hasn't touched/moved recently
+  const idle = Date.now() - lastInputTime > INPUT_IDLE_MS;
+  if (isMobileDevice && idle) return;
 
   // Simple parallax for layers 2-5
   const smoothing = 0.08;
 
-  // Animate shine layer - move left/right with mouse
+  // Animate shine layer - only write if moved > 0.1px
   const shine = document.querySelector('.bg-layer-shine');
   if (shine) {
-    const shineMove = mouseNormX * 20; // Move 20px left/right
-    shine.style.transform = `translateX(${shineMove}px) translateZ(0)`;
+    const shineMove = mouseNormX * 20;
+    if (Math.abs(shineMove - prevShineMove) > 0.1) {
+      shine.style.transform = `translateX(${shineMove}px) translateZ(0)`;
+      prevShineMove = shineMove;
+    }
   }
 
-  // Animate FORGROUND - very slow movement
+  // Animate foreground - only write if moved > 0.1px
   const foreground = document.querySelector('.bg-layer-foreground');
   if (foreground) {
-    const foregroundMove = mouseNormX * 2; // Very slow - only 2px
-    foreground.style.transform = `translateX(${foregroundMove}px) translateZ(0)`;
+    const foregroundMove = mouseNormX * 2;
+    if (Math.abs(foregroundMove - prevForegroundMove) > 0.1) {
+      foreground.style.transform = `translateX(${foregroundMove}px) translateZ(0)`;
+      prevForegroundMove = foregroundMove;
+    }
   }
 
-  // Update dust particles drifting through sunlight
+  // Update dust particles
   updateParticles();
 
   for (let i = 2; i <= 5; i++) {
@@ -442,11 +447,9 @@ function animateNestedParallax() {
     const maxRadius = layerMaxRadius[i];
     const speed = layerSpeeds[i];
 
-    // Calculate target based on mouse with circular constraint
     let targetX = mouseNormX * speed * 2;
     let targetY = mouseNormY * speed * 2;
 
-    // Clamp to circular boundary
     const dist = Math.sqrt(targetX * targetX + targetY * targetY);
     if (dist > maxRadius) {
       const ratio = maxRadius / dist;
@@ -458,8 +461,13 @@ function animateNestedParallax() {
     layerPositions[i].x += (targetX - layerPositions[i].x) * smoothing;
     layerPositions[i].y += (targetY - layerPositions[i].y) * smoothing;
 
-    // Apply transform
-    layerElements[i].style.transform = `translate(calc(-50% + ${layerPositions[i].x}px), ${layerPositions[i].y}px)`;
+    // Only write transform if position changed meaningfully
+    if (Math.abs(layerPositions[i].x - prevLayerPos[i].x) > 0.1 ||
+        Math.abs(layerPositions[i].y - prevLayerPos[i].y) > 0.1) {
+      layerElements[i].style.transform = `translate(calc(-50% + ${layerPositions[i].x}px), ${layerPositions[i].y}px)`;
+      prevLayerPos[i].x = layerPositions[i].x;
+      prevLayerPos[i].y = layerPositions[i].y;
+    }
   }
 }
 
