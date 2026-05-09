@@ -4825,10 +4825,11 @@
 
     /* ============================================================
        MOBILE PERFORMANCE OPTIMIZATIONS
-       Disable expensive GPU/CPU effects on touch devices
+       Surgical: only disable the truly expensive effects.
+       Transform/opacity animations are GPU-fast and stay enabled.
        ============================================================ */
     @media (pointer: coarse) {
-      /* Disable backdrop-filter blur (extremely expensive on mobile GPUs) */
+      /* 1) backdrop-filter blur is the #1 GPU killer on mobile */
       .artwork-overlay,
       .artwork-viewer,
       .manga-creation-tab,
@@ -4839,15 +4840,7 @@
         -webkit-backdrop-filter: none !important;
       }
 
-      /* Reduce or disable continuous box-shadow animations */
-      .ai-orb,
-      .ai-core,
-      .ai-avatar-img {
-        animation: none !important;
-        box-shadow: 0 0 15px rgba(255, 200, 0, 0.4) !important;
-      }
-
-      /* Disable heavy will-change hints that cause compositing overhead */
+      /* 2) Remove heavy will-change compositing hints */
       .bg-layer-shine,
       .bg-layer-foreground,
       .bg-layer-frontyard,
@@ -4857,90 +4850,23 @@
         will-change: auto !important;
       }
 
-      /* Simplify transitions on mobile for snappier interactions */
-      .nav-btn,
-      .roadmap-toggle-btn,
-      .win-btn,
-      .middle-tab {
-        transition: none !important;
-      }
-
-      /* Reduce particle canvas impact by making it invisible on very low-end devices */
+      /* 3) Reduce (not kill) particle canvas opacity */
       #particle-canvas {
         opacity: 0.5;
       }
 
-      /* Disable continuous glowing text shadow animations */
-      .middle-tab-title {
-        animation: none !important;
-      }
-
-      /* Disable AI orb ring spin animations */
-      .ai-orb::before,
-      .ai-orb::after {
-        animation: none !important;
-      }
-
-      /* Disable wave bar animations */
-      .ai-wave-bar {
-        animation: none !important;
-        box-shadow: none !important;
-      }
-
-      /* Disable roadmap glow pulse */
-      .roadmap-toggle-btn {
-        animation: none !important;
-        box-shadow: 0 0 12px rgba(255, 215, 0, 0.35) !important;
-      }
-
-      /* Disable middle open button glow */
+      /* 4) Reduce heavy drop-shadow filter on middle button —
+         filter animations are CPU-bound, so keep a cheaper static version */
       .middle-open-btn img {
-        animation: none !important;
         filter: brightness(1.6) saturate(1.4) drop-shadow(0 0 15px rgba(255,215,0,0.8)) !important;
       }
 
-      /* Disable floating dot animations */
-      .dot1, .dot2, .dot3 {
-        animation: none !important;
-      }
-
-      /* Disable loading dot pulses */
-      .wiki-loading-dot,
-      .manga-viewer-loader-dot {
-        animation: none !important;
-      }
-
-      /* Simplify nav button hover effects */
+      /* 5) Keep nav button hover but drop the expensive drop-shadow filter */
       .nav-btn:hover {
-        filter: none !important;
-        transform: translateY(-2px) scale(1.02) !important;
+        filter: brightness(1.2) !important;
+        transform: translateY(-4px) scale(1.05) !important;
       }
 
-      /* Disable expensive transition:all on common interactive elements */
-      .artwork-item,
-      .manga-panel,
-      .work-card,
-      .books-card,
-      .wiki-manga-card,
-      .wiki-character-card,
-      .wiki-location-item,
-      .wiki-story-list li,
-      .wiki-trivia-item,
-      .wiki-guidelines-list li,
-      .wiki-references-list li,
-      .wiki-category-links a,
-      .chapter-nav-btn,
-      .manga-nav-btn,
-      .manga-selection-btn,
-      .manga-modal-btn,
-      .manga-editor-close,
-      .editor-btn,
-      .chapter-btn,
-      .page-btn,
-      .chapter-card-btn,
-      .artwork-delete-btn,
-      .fandom-page-tabs .tab,
-      .category-tag {
-        transition: none !important;
-      }
+      /* Everything else (transform/opacity animations, transitions, pulses,
+         wave bars, orb spins, loading dots, etc.) stays active. */
     }
