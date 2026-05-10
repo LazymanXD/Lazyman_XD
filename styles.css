@@ -4848,6 +4848,13 @@
         -webkit-backdrop-filter: none !important;
       }
 
+      /* background-attachment:fixed causes rendering bugs on mobile browsers
+         when combined with transform animations (wallpaper appears "cut").
+         Switching to scroll makes backgrounds follow their containers. */
+      .bg-layer {
+        background-attachment: scroll !important;
+      }
+
       /* Reduce or disable continuous box-shadow animations */
       .ai-orb,
       .ai-core,
