@@ -100,6 +100,10 @@ const loadingSafetyTimeout = setTimeout(() => {
     loadingScreen.classList.add('hidden');
     if (desktop) desktop.classList.add('loaded');
   }
+  // If load event never fired (hung resource), home page won't exist yet
+  if (!document.getElementById('homeContentOutside')) {
+    showPage('home');
+  }
 }, 3000);
 
 // --- Slow Reveal Loading ---

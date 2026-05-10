@@ -285,7 +285,7 @@
 
     /* Keep title/subtitle in fixed position regardless of screen size */
     #homeContentOutside {
-      transform: translate(-50%, -105%) !important;
+      transform: translate(-50%, -55%) !important;
     }
 
     /* Responsive adjustments for title and subtitle */
