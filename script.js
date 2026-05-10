@@ -6021,8 +6021,12 @@ const AI_VISIT_KEY = 'aiVisitCount_v1';
 
 function getAIGreeting() {
   const count = parseInt(localStorage.getItem(AI_VISIT_KEY) || '0', 10);
-  const idx = Math.min(count, AI_GREETINGS.length - 1);
-  return AI_GREETINGS[idx];
+  if (count === 0) {
+    return AI_GREETINGS[0]; // First time greeting
+  }
+  // For return visits, pick a random greeting from the rest of the list
+  const returnGreetings = AI_GREETINGS.slice(1);
+  return returnGreetings[Math.floor(Math.random() * returnGreetings.length)];
 }
 
 function bumpAIVistCount() {

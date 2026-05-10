@@ -20,6 +20,8 @@
       height: 100vh;
       z-index: -1;
       margin-left: -10vw;
+      overflow: hidden;
+      pointer-events: none;
     }
 
     .bg-layer {
@@ -31,7 +33,6 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      background-attachment: fixed;
     }
 
     .bg-layer-0 { background-image: url("./background-back.webp"); z-index: 0; }
