@@ -3705,31 +3705,11 @@ function switchMangaSection(sectionIndex, section) {
   const counter = document.getElementById('mangaPageCounter');
 
   if (img && counter && newPages.length > 0) {
-    showMangaViewerLoader();
-    img.style.opacity = '0.7';
-
     // Preload all pages in this section immediately
     preloadAllPages(newPages);
 
-    const preloadImg = new Image();
-    preloadImg.decoding = 'async';
-    preloadImg.fetchPriority = 'high';
-
-    preloadImg.onload = () => {
-      img.src = newPages[0];
-      counter.textContent = `Page 1 of ${newPages.length}`;
-      img.style.opacity = '1';
-      hideMangaViewerLoader();
-    };
-
-    preloadImg.onerror = () => {
-      img.src = newPages[0];
-      counter.textContent = `Page 1 of ${newPages.length}`;
-      img.style.opacity = '1';
-      hideMangaViewerLoader();
-    };
-
-    preloadImg.src = newPages[0];
+    img.src = newPages[0];
+    counter.textContent = `Page 1 of ${newPages.length}`;
   }
 }
 
@@ -3741,40 +3721,18 @@ function navigateMangaPage(direction) {
     const counter = document.getElementById('mangaPageCounter');
 
     if (img && counter) {
-      showMangaViewerLoader();
-      // Use requestAnimationFrame for smooth image transition
-      requestAnimationFrame(() => {
-        img.style.opacity = '0.7';
+      // Preload the new image first in background
+      const preloadImg = new Image();
+      preloadImg.src = currentMangaPages[newIndex];
 
-        // Preload the new image first
-        const preloadImg = new Image();
-        preloadImg.decoding = 'async';
-        preloadImg.fetchPriority = 'high';
+      // Update counter immediately for responsiveness
+      counter.textContent = `Page ${newIndex + 1} of ${currentMangaPages.length}`;
+      
+      // Update the main image source immediately (browser will use cached preloaded version)
+      img.src = currentMangaPages[newIndex];
 
-        preloadImg.onload = () => {
-          requestAnimationFrame(() => {
-            img.src = currentMangaPages[newIndex];
-            counter.textContent = `Page ${newIndex + 1} of ${currentMangaPages.length}`;
-            img.style.opacity = '1';
-            hideMangaViewerLoader();
-          });
-        };
-
-        preloadImg.onerror = () => {
-          // Fallback: load anyway
-          requestAnimationFrame(() => {
-            img.src = currentMangaPages[newIndex];
-            counter.textContent = `Page ${newIndex + 1} of ${currentMangaPages.length}`;
-            img.style.opacity = '1';
-            hideMangaViewerLoader();
-          });
-        };
-
-        preloadImg.src = currentMangaPages[newIndex];
-
-        // Preload adjacent pages in background
-        setTimeout(() => preloadAdjacentPages(newIndex), 100);
-      });
+      // Preload adjacent pages in background
+      setTimeout(() => preloadAdjacentPages(newIndex), 100);
     }
   }
 }
