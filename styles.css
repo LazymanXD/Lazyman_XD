@@ -105,6 +105,15 @@
       opacity: 0;
       pointer-events: none;
     }
+
+    /* CSS fallback: if JS fails to hide the loading screen, force-hide after 5s */
+    .loading-screen:not(.hidden) {
+      animation: autoHideLoading 5s forwards;
+    }
+    @keyframes autoHideLoading {
+      0%, 90% { opacity: 1; }
+      100% { opacity: 0; pointer-events: none; }
+    }
     
     .desktop {
       padding: 20px;

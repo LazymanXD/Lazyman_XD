@@ -91,6 +91,17 @@ if (roadmapToggleBtn) {
   roadmapToggleBtn.addEventListener('click', toggleRoadmapOverlay);
 }
 
+// Safety fallback - always hide loading screen after max 3 seconds
+// This runs immediately, NOT inside load, so a hung resource can't block it
+const loadingSafetyTimeout = setTimeout(() => {
+  const loadingScreen = document.getElementById('loadingScreen');
+  const desktop = document.getElementById('desktop');
+  if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+    loadingScreen.classList.add('hidden');
+    if (desktop) desktop.classList.add('loaded');
+  }
+}, 3000);
+
 // --- Slow Reveal Loading ---
 window.addEventListener('load', () => {
   // Clear any stale book cards from previous session
@@ -98,16 +109,6 @@ window.addEventListener('load', () => {
   booksCardElements = [];
   booksCardsShowing = false;
 
-  // Safety fallback - always hide loading screen after max 3 seconds
-  const safetyTimeout = setTimeout(() => {
-    const loadingScreen = document.getElementById('loadingScreen');
-    const desktop = document.getElementById('desktop');
-    if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
-      loadingScreen.classList.add('hidden');
-      if (desktop) desktop.classList.add('loaded');
-    }
-  }, 3000);
-  
   try {
     // Load saved data from localStorage first
     loadSavedData();
@@ -123,7 +124,7 @@ window.addEventListener('load', () => {
       if (desktop) desktop.classList.add('loaded');
       showPage('home'); // Always start with home page
       // Note: Welcome sound will play on first user interaction
-      clearTimeout(safetyTimeout); // Cancel safety timeout since we succeeded
+      clearTimeout(loadingSafetyTimeout); // Cancel safety timeout since we succeeded
     }, 100); // Start reveal after 0.1 seconds
 
     // Defer non-critical optimizations
@@ -140,7 +141,7 @@ window.addEventListener('load', () => {
     if (loadingScreen) loadingScreen.classList.add('hidden');
     if (desktop) desktop.classList.add('loaded');
     showPage('home');
-    clearTimeout(safetyTimeout);
+    clearTimeout(loadingSafetyTimeout);
   }
 });
 
