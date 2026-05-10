@@ -105,15 +105,6 @@
       opacity: 0;
       pointer-events: none;
     }
-
-    /* CSS fallback: if JS fails to hide the loading screen, force-hide after 5s */
-    .loading-screen:not(.hidden) {
-      animation: autoHideLoading 5s forwards;
-    }
-    @keyframes autoHideLoading {
-      0%, 90% { opacity: 1; }
-      100% { opacity: 0; pointer-events: none; }
-    }
     
     .desktop {
       padding: 20px;
@@ -285,7 +276,7 @@
 
     /* Keep title/subtitle in fixed position regardless of screen size */
     #homeContentOutside {
-      transform: translate(-50%, -55%) !important;
+      transform: translate(-50%, -105%) !important;
     }
 
     /* Responsive adjustments for title and subtitle */
@@ -2959,6 +2950,18 @@
       opacity: 0;
       pointer-events: none;
     }
+
+    /* CSS fallback: auto-hide loading screen after 5s even if JS is blocked */
+    @keyframes autoHideLoading {
+      0%, 90% { opacity: 1; }
+      100% { opacity: 0; pointer-events: none; }
+    }
+    .loading-screen {
+      animation: autoHideLoading 5s ease-in-out forwards;
+    }
+    .loading-screen.hidden {
+      animation: none;
+    }
     
     .desktop {
       opacity: 0;
@@ -4834,8 +4837,7 @@
 
     /* ============================================================
        MOBILE PERFORMANCE OPTIMIZATIONS
-       Keep animations visible but use only GPU-friendly properties
-       (transform + opacity). Disable genuinely expensive effects.
+       Disable expensive GPU/CPU effects on touch devices
        ============================================================ */
     @media (pointer: coarse) {
       /* Disable backdrop-filter blur (extremely expensive on mobile GPUs) */
@@ -4847,13 +4849,6 @@
       .middle-tab {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
-      }
-
-      /* background-attachment:fixed causes rendering bugs on mobile browsers
-         when combined with transform animations (wallpaper appears "cut").
-         Switching to scroll makes backgrounds follow their containers. */
-      .bg-layer {
-        background-attachment: scroll !important;
       }
 
       /* AI orb: static glow + transform pulse instead of box-shadow animation */

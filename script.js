@@ -99,9 +99,6 @@ const loadingSafetyTimeout = setTimeout(() => {
   if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
     loadingScreen.classList.add('hidden');
     if (desktop) desktop.classList.add('loaded');
-  }
-  // If load event never fired (hung resource), home page won't exist yet
-  if (!document.getElementById('homeContentOutside')) {
     showPage('home');
   }
 }, 3000);
@@ -112,7 +109,7 @@ window.addEventListener('load', () => {
   document.querySelectorAll('.book-card').forEach(card => card.remove());
   booksCardElements = [];
   booksCardsShowing = false;
-
+  
   try {
     // Load saved data from localStorage first
     loadSavedData();
@@ -128,7 +125,7 @@ window.addEventListener('load', () => {
       if (desktop) desktop.classList.add('loaded');
       showPage('home'); // Always start with home page
       // Note: Welcome sound will play on first user interaction
-      clearTimeout(loadingSafetyTimeout); // Cancel safety timeout since we succeeded
+      clearTimeout(safetyTimeout); // Cancel safety timeout since we succeeded
     }, 100); // Start reveal after 0.1 seconds
 
     // Defer non-critical optimizations
@@ -145,7 +142,7 @@ window.addEventListener('load', () => {
     if (loadingScreen) loadingScreen.classList.add('hidden');
     if (desktop) desktop.classList.add('loaded');
     showPage('home');
-    clearTimeout(loadingSafetyTimeout);
+    clearTimeout(safetyTimeout);
   }
 });
 
@@ -6563,4 +6560,3 @@ function askAI(topic) {
   s.innerHTML = '*{-webkit-user-drag:none;-moz-user-drag:none;-o-user-drag:none;user-drag:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;font-family:"Press Start 2P",cursive !important;-webkit-font-smoothing:none;-moz-osx-font-smoothing:grayscale;}img{pointer-events:none;}';
   document.head.appendChild(s);
 })();
-
