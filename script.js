@@ -297,11 +297,13 @@ function updateParticles() {
     // Pulsing opacity for atmospheric effect
     const pulseOpacity = p.opacity * (0.7 + 0.3 * Math.sin(p.pulse));
 
-    // Triangle boundary check - red zone (top-left triangle = invisible)
-    const triangleWidth = particleCanvas.width * 0.90;
-    const triangleHeight = particleCanvas.height * 0.40;
-    const inTriangle = p.x < triangleWidth && p.y < triangleHeight * (1 - p.x / triangleWidth);
-    if (inTriangle) continue; // In red zone, skip this particle only
+    // Triangle boundary check - only on desktop; skip on mobile for consistency
+    if (!isMobileDevice) {
+      const triangleWidth = particleCanvas.width * 0.90;
+      const triangleHeight = particleCanvas.height * 0.40;
+      const inTriangle = p.x < triangleWidth && p.y < triangleHeight * (1 - p.x / triangleWidth);
+      if (inTriangle) continue;
+    }
 
     // Draw glowing dust particle with parallax offset matching background layer 3
     const parallaxX = layerPositions[3].x;
