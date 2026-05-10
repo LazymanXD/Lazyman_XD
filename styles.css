@@ -272,6 +272,24 @@
     .middle-tab-title { font-size: 60px; margin-top: 30px; margin-bottom: 10px; color: #333; font-family: 'Press Start 2P', cursive; animation: amberGlowPulse 3s ease-in-out infinite; }
     @keyframes amberGlowPulse { 0%,100% { color: #333; text-shadow: 0 0 5px #ff980088, 0 0 10px #ff980044; transform: scale(1); } 50% { color: #ff9800; text-shadow: 0 0 20px #ff9800bb, 0 0 40px #ff9800aa; transform: scale(1.05); } }
 
+    /* Unified GPU-friendly keyframes for all devices - MATCH PC EXACTLY */
+    @keyframes orbPulseMobile {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 180, 0, 0.5), 0 0 40px rgba(255, 160, 0, 0.3); }
+      50% { transform: scale(1.06); box-shadow: 0 0 35px rgba(255, 200, 0, 0.7), 0 0 70px rgba(255, 180, 0, 0.4); }
+    }
+    @keyframes amberGlowPulseMobile {
+      0%, 100% { color: #333; text-shadow: 0 0 5px #ff980088, 0 0 10px #ff980044; transform: scale(1); opacity: 1; }
+      50% { color: #ff9800; text-shadow: 0 0 20px #ff9800bb, 0 0 40px #ff9800aa; transform: scale(1.05); opacity: 1; }
+    }
+    @keyframes roadmapGlowMobile {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.06); opacity: 0.92; }
+    }
+    @keyframes iconGlowMobile {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
     .middle-tab-subtitle { font-size: 12px; margin-bottom: 40px; color: #444; font-family: 'Press Start 2P', cursive; }
 
     /* Keep title/subtitle in fixed position regardless of screen size */
@@ -870,33 +888,79 @@
 
     /* Mobile styles for AI companion */
     @media (max-width: 768px) {
+      .ai-companion {
+        width: 100px;
+        height: 100px;
+        position: fixed !important; /* Ensure it stays fixed */
+      }
       .ai-orb {
         width: 80px;
         height: 80px;
+        position: relative;
+        margin: 0 auto;
       }
       .ai-orb .ai-avatar-img {
         width: 55px;
         height: 55px;
+        position: absolute;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+      }
+      .ai-orb::before {
+        top: -6px !important;
+        left: -6px !important;
+        width: calc(100% + 12px) !important;
+        height: calc(100% + 12px) !important;
+        position: absolute;
+      }
+      .ai-orb::after {
+        top: -12px !important;
+        left: -12px !important;
+        width: calc(100% + 24px) !important;
+        height: calc(100% + 24px) !important;
+        position: absolute;
       }
       .ai-companion.top-left {
         top: 70px;
         left: 10px;
       }
       .ai-speech-bubble {
-        max-width: 200px;
         font-size: 10px;
         padding: 10px 15px;
+        width: 180px;
       }
       .ai-companion.top-left .ai-speech-bubble {
         left: 90px;
+        top: 0;
+      }
+      .ai-close-btn {
+        top: -10px;
+        right: -10px;
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        display: flex !important; /* Force visibility for closing on mobile */
       }
       .ai-options {
-        bottom: 20px;
-        gap: 6px;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        transform: none !important;
+        max-width: 100vw !important;
+        width: 100vw !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        background: rgba(0,0,0,0.4);
+        padding: 10px 5px 15px 5px !important; /* Bottom padding for safe area */
+        border-radius: 15px 15px 0 0;
+        box-sizing: border-box !important;
       }
       .ai-option-btn {
-        font-size: 8px;
-        padding: 6px 12px;
+        padding: 6px 10px;
+        font-size: 8px !important;
+        margin: 2px !important;
       }
     }
 
@@ -4854,8 +4918,19 @@
       /* background-attachment:fixed causes rendering bugs on mobile browsers
          when combined with transform animations (wallpaper appears "cut").
          Switching to scroll makes backgrounds follow their containers. */
-      .bg-layer {
+      .bg-layer,
+      .bg-layer-0,
+      .bg-layer-shine,
+      .bg-layer-foreground,
+      .bg-layer-frontyard,
+      .bg-layer-frontest {
         background-attachment: scroll !important;
+      }
+
+      /* Ensure the wallpaper container is wide enough on mobile to prevent edges from showing */
+      .wallpaper {
+        width: 140vw !important;
+        margin-left: -20vw !important;
       }
 
       /* Keep title visible on small screens (default -105% pushes it off-screen) */
@@ -4863,27 +4938,20 @@
         transform: translate(-50%, -55%) !important;
       }
 
-      /* AI orb: static glow + transform pulse instead of box-shadow animation */
-      .ai-orb,
-      .ai-core,
-      .ai-avatar-img {
-        box-shadow: 0 0 15px rgba(255, 200, 0, 0.4) !important;
-        animation: orbPulseMobile 3s ease-in-out infinite !important;
-      }
-      @keyframes orbPulseMobile {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.06); }
-      }
+    /* AI orb: full glow + pulse exactly like PC */
+    .ai-orb,
+    .ai-core,
+    .ai-avatar-img {
+      box-shadow: 0 0 30px rgba(255, 180, 0, 0.6) !important;
+      animation: orbPulseMobile 3s ease-in-out infinite !important;
+    }
 
-      /* Disable heavy will-change hints that cause compositing overhead */
-      .bg-layer-shine,
-      .bg-layer-foreground,
-      .bg-layer-frontyard,
-      .manga-panel,
-      .manga-reader-container,
-      .manga-page-viewer {
-        will-change: auto !important;
-      }
+    /* Keep all effects: filter, shadows, will-change */
+    .bg-layer-shine,
+    .bg-layer-foreground,
+    .bg-layer-frontyard {
+      will-change: transform !important;
+    }
 
       /* Keep GPU-friendly transitions (transform + opacity only) */
       .nav-btn,
@@ -4898,13 +4966,11 @@
         opacity: 1;
       }
 
-      /* Title: GPU-friendly pulse (transform + opacity, no text-shadow animation) */
+      /* Title: MATCH PC GLOW EXACTLY */
       .middle-tab-title {
         animation: amberGlowPulseMobile 3s ease-in-out infinite !important;
-      }
-      @keyframes amberGlowPulseMobile {
-        0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.05); opacity: 0.85; }
+        opacity: 1 !important;
+        font-family: 'Press Start 2P', cursive !important;
       }
 
       /* AI orb rings: transform:rotate is 100% GPU-friendly */
@@ -4915,10 +4981,14 @@
         animation: jarvisRing2 2s linear infinite !important;
       }
 
-      /* Wave bars: re-enabled, only 8 elements */
+      /* Wave bars: same speed as PC for better visual energy */
       .ai-wave-bar {
-        animation: waveBar 1.2s infinite ease-in-out !important;
-        box-shadow: 0 0 5px rgba(255, 200, 0, 0.8) !important;
+        animation-name: waveBar !important;
+        animation-duration: 0.4s !important;
+        animation-iteration-count: infinite !important;
+        animation-timing-function: ease-in-out !important;
+        box-shadow: 0 0 10px rgba(255, 200, 0, 0.9) !important;
+        background: rgba(255, 220, 0, 1) !important;
       }
 
       /* Roadmap: GPU-friendly scale pulse instead of box-shadow animation */
@@ -4926,19 +4996,11 @@
         animation: roadmapGlowMobile 2s ease-in-out infinite !important;
         box-shadow: 0 0 12px rgba(255, 215, 0, 0.35) !important;
       }
-      @keyframes roadmapGlowMobile {
-        0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.06); opacity: 0.92; }
-      }
 
       /* Middle open button: static glow + simple scale animation */
       .middle-open-btn img {
         filter: brightness(1.6) saturate(1.4) drop-shadow(0 0 15px rgba(255,215,0,0.8)) !important;
         animation: iconGlowMobile 1.6s infinite ease-in-out !important;
-      }
-      @keyframes iconGlowMobile {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.08); }
       }
 
       /* Floating dots: already GPU-friendly (transform + opacity) */

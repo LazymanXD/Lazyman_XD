@@ -14,15 +14,23 @@ document.addEventListener('visibilitychange', () => {
 });
 
 function createAudioWithFallback(fileName) {
-  const audio = new Audio(fileName);
-  audio.preload = 'auto';
-  audio.addEventListener('error', function tryParentFolder() {
-    if (audio.dataset.usedFallback === '1') return;
-    audio.dataset.usedFallback = '1';
-    audio.src = '../' + fileName;
-    audio.load();
-  });
-  return audio;
+  try {
+    // Add a simple version query to avoid some cache issues on mobile
+    const audio = new Audio(fileName + '?v=3');
+    audio.preload = 'auto';
+    
+    audio.addEventListener('error', function tryParentFolder() {
+      if (audio.dataset.usedFallback === '1') return;
+      audio.dataset.usedFallback = '1';
+      // If root load fails, try parent folder with versioning
+      audio.src = '../' + fileName + '?v=3';
+      audio.load();
+    });
+    return audio;
+  } catch (e) {
+    console.warn('Audio creation failed:', e);
+    return { play: () => Promise.resolve(), load: () => {}, addEventListener: () => {} };
+  }
 }
 
 // ðŸŽµ UI SOUNDS - Click sounds for buttons
@@ -70,10 +78,18 @@ function playSound(soundKey, delay = 0) {
   }
   const sound = sounds[soundKey];
   if (!sound) return;
+  
+  // Throttle play calls to handle 3G/Slow network
+  if (sound.dataset.playing === 'true') return;
+  
   sound.volume = soundKey === 'typing' ? 0.12 : 0.3;
   sound.currentTime = 0;
   setTimeout(() => {
-    sound.play().catch(err => {
+    sound.dataset.playing = 'true';
+    sound.play().then(() => {
+      sound.dataset.playing = 'false';
+    }).catch(err => {
+      sound.dataset.playing = 'false';
       console.warn('Sound play failed:', err.message);
     });
   }, delay);
@@ -1518,6 +1534,12 @@ function showPage(pageKey) {
     // Hide the entire tab window
     middleTab.style.display = 'none';
     
+    // Remove existing home content and nav buttons if they exist
+    const oldHomeContent = document.getElementById('homeContentOutside');
+    if (oldHomeContent) oldHomeContent.remove();
+    const oldNavButtons = document.getElementById('navButtonsContainer');
+    if (oldNavButtons) oldNavButtons.remove();
+    
     // Create title at center
     const homeContent = document.createElement('div');
     homeContent.id = 'homeContentOutside';
@@ -2657,50 +2679,25 @@ function preloadImages(imageList) {
 function preloadMangaImages() {
   mangaGalleryData.forEach(manga => {
     if (manga.src) {
-      const img = new Image();
-      img.src = manga.src;
+      new Image().src = manga.src;
     }
-    if (manga.pageKeys) {
-      manga.pageKeys.forEach(key => {
-        if (mangaImagePool[key]) {
-          const img = new Image();
-          img.src = mangaImagePool[key];
-        }
-      });
-    }
-    if (manga.sections) {
-      manga.sections.forEach(section => {
-        if (section.pageKeys) {
-          section.pageKeys.forEach(key => {
-            if (mangaImagePool[key]) {
-              const img = new Image();
-              img.src = mangaImagePool[key];
-            }
-          });
-        }
-      });
-    }
-    if (manga.illustrations) {
-      manga.illustrations.forEach(key => {
-        if (mangaImagePool[key]) {
-          const img = new Image();
-          img.src = mangaImagePool[key];
-        }
-      });
-    }
+    const keys = [
+      ...(manga.pageKeys || []),
+      ...(manga.sections ? manga.sections.flatMap(s => s.pageKeys || []) : []),
+      ...(manga.illustrations || [])
+    ];
+    keys.forEach(key => {
+      if (mangaImagePool[key]) {
+        new Image().src = mangaImagePool[key];
+      }
+    });
   });
-  // Also preload concept manga images
+  
   conceptMangaGalleryData.forEach(manga => {
-    if (manga.src) {
-      const img = new Image();
-      img.src = manga.src;
-    }
+    if (manga.src) new Image().src = manga.src;
     if (manga.pageKeys) {
       manga.pageKeys.forEach(key => {
-        if (mangaImagePool[key]) {
-          const img = new Image();
-          img.src = mangaImagePool[key];
-        }
+        if (mangaImagePool[key]) new Image().src = mangaImagePool[key];
       });
     }
   });
@@ -2708,26 +2705,13 @@ function preloadMangaImages() {
 
 // Preload CSS background images and other critical UI assets
 function preloadCriticalAssets() {
-  const criticalImages = [
-    './background-back.webp',
-    './shine-1.webp',
-    './FORGROUND.webp',
-    './profile website.webp',
-    './roadmap.webp',
-    './manga-card-2.webp',
-    './manga-card-3.webp',
-    './SHOWERTHOUGHTS.webp',
-    './folder-icon.webp',
-    './CA.webp',
-    './girl 1.webp',
-    './wiki-logog.webp',
-    './3/0.webp',
+  [
+    './background-back.webp', './shine-1.webp', './FORGROUND.webp',
+    './profile website.webp', './roadmap.webp', './manga-card-2.webp',
+    './manga-card-3.webp', './SHOWERTHOUGHTS.webp', './folder-icon.webp',
+    './CA.webp', './girl 1.webp', './wiki-logog.webp', './3/0.webp',
     './016826d6-1d68-409f-b770-a8ea4a3a289d.webp'
-  ];
-  criticalImages.forEach(src => {
-    const img = new Image();
-    img.src = src;
-  });
+  ].forEach(src => { new Image().src = src; });
 }
 
 // Preload all images as early as possible
@@ -2994,21 +2978,24 @@ window.__hideWorkCardsImpl = function hideWorkCards(button) {
     targetY = window.innerHeight / 2;
   }
   
-  workCardElements.forEach((card, index) => {
+  // Reverse the array to animate back in LIFO order
+  const cardsToAnimate = [...workCardElements].reverse();
+  
+  cardsToAnimate.forEach((card, index) => {
     // Animate back to button
     setTimeout(() => {
       card.style.transform = `translate(-50%, -50%) scale(0.1) rotate(0deg)`;
       card.style.left = `${targetX}px`;
       card.style.top = `${targetY}px`;
       card.style.opacity = '0';
-    }, index * 50);
+    }, index * 40);
     
     // Remove after animation
     setTimeout(() => {
       if (card.parentNode) {
         card.remove();
       }
-    }, 600 + (index * 50));
+    }, 550 + (index * 40));
   });
   
   workCardElements = [];
@@ -3279,17 +3266,20 @@ function hideMangaCards(button) {
     targetY = window.innerHeight / 2;
   }
 
-  mangaCardElements.forEach((card, index) => {
+  // Reverse the array to animate back in LIFO order
+  const cardsToAnimate = [...mangaCardElements].reverse();
+
+  cardsToAnimate.forEach((card, index) => {
     setTimeout(() => {
       card.style.transform = 'translate(-50%, -50%) scale(0.1)';
       card.style.left = `${targetX}px`;
       card.style.top = `${targetY}px`;
       card.style.opacity = '0';
-    }, index * 50);
+    }, index * 40);
 
     setTimeout(() => {
       if (card.parentNode) card.remove();
-    }, 520 + (index * 50));
+    }, 500 + (index * 40));
   });
 
   mangaCardElements = [];
@@ -3995,17 +3985,20 @@ function hideBooksCards(button) {
     targetY = window.innerHeight / 2;
   }
 
-  booksCardElements.forEach((card, index) => {
+  // Reverse the array to animate back in LIFO order
+  const cardsToAnimate = [...booksCardElements].reverse();
+
+  cardsToAnimate.forEach((card, index) => {
     setTimeout(() => {
       card.style.transform = 'translate(-50%, -50%) scale(0.1) rotate(0deg)';
       card.style.left = `${targetX}px`;
       card.style.top = `${targetY}px`;
       card.style.opacity = '0';
-    }, index * 45);
+    }, index * 40);
 
     setTimeout(() => {
       if (card.parentNode) card.remove();
-    }, 560 + (index * 45));
+    }, 550 + (index * 40));
   });
 
   booksCardElements = [];
@@ -4076,9 +4069,9 @@ function ensureDocxPreviewAssets() {
   if (docxPreviewAssetsPromise) return docxPreviewAssetsPromise;
 
   docxPreviewAssetsPromise = new Promise((resolve, reject) => {
-    const cssHref = 'https://unpkg.com/docx-preview@0.3.6/dist/docx-preview.min.css';
+    const cssHref = 'https://cdn.jsdelivr.net/npm/docx-preview@0.3.6/dist/docx-preview.min.css';
     const jszipSrc = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
-    const docxSrc = 'https://unpkg.com/docx-preview@0.3.6/dist/docx-preview.min.js';
+    const docxSrc = 'https://cdn.jsdelivr.net/npm/docx-preview@0.3.6/dist/docx-preview.min.js';
 
     if (!document.querySelector(`link[href="${cssHref}"]`)) {
       const link = document.createElement('link');
@@ -6299,10 +6292,11 @@ function showMangaCoversForAI() {
 
   overlay.style.cssText = `
     position: fixed;
-    top: 50%;
+    top: 35%; /* Move it up to avoid overlapping with speech bubble */
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
+    flex-direction: row; /* Ensure horizontal order */
     gap: ${gap}px;
     z-index: 9999;
     padding: ${pad}px;
@@ -6314,8 +6308,9 @@ function showMangaCoversForAI() {
     transition: opacity 0.4s ease;
     pointer-events: none;
     max-width: 95vw;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* Prevent vertical stacking on small screens */
     justify-content: center;
+    overflow-x: auto; /* Allow scrolling if too wide */
   `;
 
   const mangaData = [
