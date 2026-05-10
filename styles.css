@@ -4839,7 +4839,7 @@
        MOBILE PERFORMANCE OPTIMIZATIONS
        Disable expensive GPU/CPU effects on touch devices
        ============================================================ */
-    @media (pointer: coarse) {
+    @media (pointer: coarse), (max-width: 768px) {
       /* Disable backdrop-filter blur (extremely expensive on mobile GPUs) */
       .artwork-overlay,
       .artwork-viewer,
@@ -4849,6 +4849,18 @@
       .middle-tab {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
+      }
+
+      /* background-attachment:fixed causes rendering bugs on mobile browsers
+         when combined with transform animations (wallpaper appears "cut").
+         Switching to scroll makes backgrounds follow their containers. */
+      .bg-layer {
+        background-attachment: scroll !important;
+      }
+
+      /* Keep title visible on small screens (default -105% pushes it off-screen) */
+      #homeContentOutside {
+        transform: translate(-50%, -55%) !important;
       }
 
       /* AI orb: static glow + transform pulse instead of box-shadow animation */

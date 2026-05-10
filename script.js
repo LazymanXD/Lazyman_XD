@@ -125,7 +125,7 @@ window.addEventListener('load', () => {
       if (desktop) desktop.classList.add('loaded');
       showPage('home'); // Always start with home page
       // Note: Welcome sound will play on first user interaction
-      clearTimeout(safetyTimeout); // Cancel safety timeout since we succeeded
+      clearTimeout(loadingSafetyTimeout); // Cancel safety timeout since we succeeded
     }, 100); // Start reveal after 0.1 seconds
 
     // Defer non-critical optimizations
@@ -142,7 +142,7 @@ window.addEventListener('load', () => {
     if (loadingScreen) loadingScreen.classList.add('hidden');
     if (desktop) desktop.classList.add('loaded');
     showPage('home');
-    clearTimeout(safetyTimeout);
+    clearTimeout(loadingSafetyTimeout);
   }
 });
 
