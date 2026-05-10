@@ -1491,6 +1491,7 @@ function showPage(pageKey) {
       hideBooksCards(booksBtn || undefined);
     } else {
       closeBookReader();
+      if (aiCompanionActive) closeAICompanion();
       if (booksBtn) showBooksCards(booksBtn);
     }
     return;
@@ -1505,6 +1506,7 @@ function showPage(pageKey) {
     if (mangaCardsShowing) {
       hideMangaCards(mangaBtn || undefined);
     } else if (mangaBtn) {
+      if (aiCompanionActive) closeAICompanion();
       showMangaCards(mangaBtn);
     }
     return;
@@ -2494,6 +2496,14 @@ function attachNavListeners() {
       proceedWithPageOpen(pageKey);
     };
   });
+}
+
+function proceedWithPageOpen(pageKey) {
+  // If user clicks a tab, play sound
+  playSound('open', 0);
+  
+  // Show page
+  showPage(pageKey);
 }
 
 // Artwork data
@@ -4071,7 +4081,7 @@ function ensureDocxPreviewAssets() {
   if (docxPreviewAssetsPromise) return docxPreviewAssetsPromise;
 
   docxPreviewAssetsPromise = new Promise((resolve, reject) => {
-    const cssHref = 'https://cdn.jsdelivr.net/npm/docx-preview@0.3.6/dist/docx-preview.min.css';
+    const cssHref = 'https://unpkg.com/docx-preview@0.1.15/dist/docx-preview.min.css';
     const jszipSrc = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
     const docxSrc = 'https://cdn.jsdelivr.net/npm/docx-preview@0.3.6/dist/docx-preview.min.js';
 
@@ -4336,574 +4346,44 @@ window.addEventListener('resize', () => {
   }
 });
 
-function openWorkCardFullscreen(card, src, title) {
-  // Store the card's current position for return
-  const rect = card.getBoundingClientRect();
-  card.dataset.returnX = rect.left;
-  card.dataset.returnY = rect.top;
-  card.dataset.returnTransform = card.style.transform;
+function styleChapterHeadings() {
+  const container = document.getElementById('bookReaderSinglePage');
+  if (!container) return;
   
-  // Create fullscreen viewer
-  const viewer = document.createElement('div');
-  viewer.id = 'workCardViewer';
-  viewer.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.95);
-    z-index: 5000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: zoom-out;
-  `;
+  const chapterPattern = /^(Chapter\s+(One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten|Eleven|Twelve|Thirteen|Fourteen|Fifteen|Sixteen|Seventeen|Eighteen|Nineteen|Twenty|\d+)|Preface)/i;
   
-  const img = document.createElement('img');
-  img.src = src;
-  img.alt = title;
-  img.style.cssText = `
-    max-width: 90vw;
-    max-height: 90vh;
-    object-fit: contain;
-    border-radius: 8px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-  `;
+  // Find where the actual content starts (after Table of Contents)
+  const paragraphs = Array.from(container.querySelectorAll('p, span, div'));
+  let tocEnded = false;
   
-  const closeBtn = document.createElement('button');
-  closeBtn.innerHTML = '✕';
-  closeBtn.style.cssText = `
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 30px;
-    cursor: pointer;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `;
+  // Look for "Contents" or "Table of Contents"
+  const contentsHeaderIdx = paragraphs.findIndex(el => /Contents|Table of Contents/i.test(el.textContent.trim()));
   
-  viewer.appendChild(img);
-  viewer.appendChild(closeBtn);
-  document.body.appendChild(viewer);
-  
-  // Close function
-  const closeViewer = () => {
-    viewer.remove();
-    playSound('tabClick', 0);
-  };
-  
-  closeBtn.onclick = closeViewer;
-  viewer.onclick = (e) => {
-    if (e.target === viewer) closeViewer();
-  };
-  
-  // Escape key
-  const escapeHandler = (e) => {
-    if (e.key === 'Escape') {
-      closeViewer();
-      document.removeEventListener('keydown', escapeHandler);
-    }
-  };
-  document.addEventListener('keydown', escapeHandler);
-}
+  paragraphs.forEach((el, idx) => {
+    const text = el.textContent.trim();
+    if (!text) return;
 
-function proceedWithPageOpen(pageKey) {
-  // Auto-maximize only wiki tab (not manga, about, faq, home)
-  if (pageKey === "wiki") {
-    setTimeout(() => {
-      if (!middleTab.classList.contains('maximized')) {
-        // New smooth animation only for wiki tab
-        middleTab.classList.add('slow-maximize');
+    // Detect if we are past the TOC
+    // Usually TOC ends after a list of chapters or a specific marker
+    if (idx > contentsHeaderIdx + 15) { // Simple heuristic: TOC is usually the first few items
+       tocEnded = true;
+    }
+
+    if (chapterPattern.test(text) && text.length < 100) {
+      // If we've seen "Contents" and this is far down, or it's a known body chapter
+      if (idx > 20 || tocEnded) { 
+        if (text.toLowerCase().includes('preface')) {
+          el.classList.add('preface-heading');
+        } else {
+          el.classList.add('chapter-heading');
+        }
         
-        // Set final maximized state after animation
-        setTimeout(() => {
-          middleTab.classList.remove('slow-maximize');
-          middleTab.classList.add('maximized');
-          document.body.classList.add('window-maximized');
-        }, 600);
+        if (el.parentElement && el.parentElement.tagName === 'P') {
+          el.parentElement.classList.add(text.toLowerCase().includes('preface') ? 'preface-heading' : 'chapter-heading');
+        }
       }
-    }, 100);
-  }
-  
-  // NEVER maximize these tabs - keep them normal size PERMANENTLY
-  if (pageKey === "manga" || pageKey === "home" || pageKey === "books" || pageKey === "faq") {
-    // Force ensure these tabs are NEVER maximized
-    middleTab.classList.remove('maximized');
-    document.body.classList.remove('window-maximized');
-  }
-  
-  showPage(pageKey);
-}
-
-// ðŸ“– DIARY FUNCTIONS
-let diaryData = {
-  pages: [
-    {
-      id: 1,
-      title: "Lazyman_XD",
-      content: `
-        <h2>Who is Lazyman_XD?</h2>
-        <p>Lazyman_XD is a passionate manga artist and illustrator dedicated to creating captivating visual stories. With a unique artistic style that blends traditional manga aesthetics with modern digital techniques, Lazyman brings characters and worlds to life.</p>
-
-        <h2>What I Do</h2>
-        <p>I specialize in creating manga, character illustrations, and concept art. My work spans various genres from fantasy and adventure to slice-of-life and emotional dramas. Each piece is crafted with attention to detail and a deep love for storytelling.</p>
-
-        <h2>My Work</h2>
-        <p>Over the years, I've created illustrations, manga on progress. Some of my notable works, character-driven dramas, and experimental art pieces. Every project is a new adventure in creativity.</p>
-
-        <h2>Get In Touch</h2>
-        <p>I'm always open to collaborations, commissions, and connecting with fellow artists. Feel free to explore my work and reach out if you'd like to work together!</p>
-
-        <h2>My Journey</h2>
-        <p>My artistic journey began at a young age, doodling characters from my favorite anime and manga. Over time, those doodles evolved into original characters and stories of my own. Each drawing taught me something new about anatomy, perspective, and storytelling.</p>
-
-        <h2>Inspiration</h2>
-        <p>I draw inspiration from various sources - nature, music, other artists, and everyday life. The way light filters through leaves, the emotion in a song, the story in a stranger's eyes - all these moments fuel my creativity and find their way into my art.</p>
-
-        <h2>Future Goals</h2>
-        <p>My dream is to publish my own manga series and share my stories with the world. I want to create characters that resonate with readers, worlds they can get lost in, and stories that stay with them long after they've finished reading.</p>
-
-        <h2>Thank You</h2>
-        <p>Thank you for visiting my website and taking the time to learn about me. Your support means the world to me. Keep creating, keep dreaming, and never give up on your passions!</p>
-      `
-    }
-  ],
-  currentPage: 0
-};
-
-let isDiaryEditing = false;
-let diaryOverlay = null;
-
-// Load diary data from localStorage
-function loadDiaryData() {
-  const saved = localStorage.getItem('diaryData');
-  if (saved) {
-    diaryData = JSON.parse(saved);
-  }
-}
-
-// Save diary data to localStorage
-function saveDiaryData() {
-  localStorage.setItem('diaryData', JSON.stringify(diaryData));
-}
-
-// Show diary with effects
-function showDiary() {
-  createDiaryOverlay();
-}
-
-// Create diary overlay
-function createDiaryOverlay() {
-  // Remove existing if any
-  if (diaryOverlay) {
-    diaryOverlay.remove();
-  }
-  
-  diaryOverlay = document.createElement('div');
-  diaryOverlay.className = 'diary-overlay';
-  diaryOverlay.innerHTML = `
-    <div class="diary-book-3d" id="diaryBook3d">
-      <!-- Back Cover -->
-      <div class="diary-back-cover"></div>
-      
-      <!-- Pages Stack -->
-      <div class="diary-pages-container">
-        <div class="diary-page-layer"></div>
-        <div class="diary-page-layer"></div>
-        <div class="diary-page-layer"></div>
-        <div class="diary-page-layer"></div>
-        <div class="diary-page-layer"></div>
-      </div>
-      
-      <!-- Spine -->
-      <div class="diary-spine-3d">
-        <div class="diary-spine-text-3d">Lazyman_XD</div>
-      </div>
-      
-      <!-- Front Cover -->
-      <div class="diary-front-cover">
-        <div class="diary-cover-title">LAZYMAN_XD<br>DIARY</div>
-      </div>
-      
-      <!-- Content Page (visible when open) -->
-      <div class="diary-content-page" id="diaryContentPage">
-        <div class="diary-content-3d" id="diaryContent"></div>
-      </div>
-      
-      <!-- Close Button -->
-      <button class="diary-close-btn-3d" onclick="closeDiary()">✕</button>
-      
-      <!-- Page Indicator -->
-      <div class="diary-page-indicator-3d" id="pageIndicator">1 / ${diaryData.pages.length}</div>
-      
-      <!-- Navigation -->
-      <div class="diary-navigation-3d" id="diaryNav">
-        <button class="diary-nav-btn-3d" onclick="prevDiaryPage()" id="prevBtn">Previous</button>
-        <button class="diary-nav-btn-3d" onclick="nextDiaryPage()" id="nextBtn">Next</button>
-      </div>
-    </div>
-  `;
-  
-  document.body.appendChild(diaryOverlay);
-  
-  // Trigger animation sequence
-  setTimeout(() => {
-    const book = document.getElementById('diaryBook3d');
-    
-    // Phase 1: Appear (fade-in + scale-up + rotate to show angle)
-    book.classList.add('animating');
-    
-    // Phase 2: Rotate to show front cover straight on
-    setTimeout(() => {
-      book.classList.remove('animating');
-      book.classList.add('phase-rotate');
-      
-      // Phase 3: Open the book
-      setTimeout(() => {
-        book.classList.remove('phase-rotate');
-        book.classList.add('phase-open');
-        
-        // Phase 4: Reading mode (cover fades, page faces user)
-        setTimeout(() => {
-          book.classList.remove('phase-open');
-          book.classList.add('phase-reading');
-          
-          // Load content after book opens
-          loadDiaryPage(diaryData.currentPage);
-        }, 800);
-      }, 800);
-    }, 600);
-  }, 100);
-  
-  // Close on escape key
-  const escapeHandler = (e) => {
-    if (e.key === 'Escape') {
-      closeDiary();
-      document.removeEventListener('keydown', escapeHandler);
-    }
-  };
-  document.addEventListener('keydown', escapeHandler);
-}
-
-// Load diary page content
-function loadDiaryPage(pageIndex) {
-  const contentDiv = document.getElementById('diaryContent');
-  const pageIndicator = document.getElementById('pageIndicator');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-
-  if (pageIndex >= 0 && pageIndex < diaryData.pages.length) {
-    const page = diaryData.pages[pageIndex];
-    contentDiv.innerHTML = `<h1 class="diary-title">${page.title}</h1>${page.content}`;
-    pageIndicator.textContent = `${pageIndex + 1} / ${diaryData.pages.length}`;
-
-    // Update button states
-    prevBtn.disabled = pageIndex === 0;
-    nextBtn.disabled = pageIndex === diaryData.pages.length - 1;
-
-    diaryData.currentPage = pageIndex;
-
-    // Reset scroll to top when changing pages
-    contentDiv.scrollTop = 0;
-  }
-}
-
-// Navigate to previous page
-function prevDiaryPage() {
-  if (diaryData.currentPage > 0) {
-    loadDiaryPage(diaryData.currentPage - 1);
-  }
-}
-
-// Navigate to next page
-function nextDiaryPage() {
-  if (diaryData.currentPage < diaryData.pages.length - 1) {
-    loadDiaryPage(diaryData.currentPage + 1);
-  }
-}
-
-// Scroll to top of diary page
-function scrollDiaryToTop() {
-  const contentPage = document.getElementById('diaryContentPage');
-  if (contentPage) {
-    contentPage.scrollTop = 0;
-    contentPage.classList.remove('scrolled');
-  }
-}
-
-// Scroll to bottom of diary page
-function scrollDiaryToBottom() {
-  const contentPage = document.getElementById('diaryContentPage');
-  if (contentPage) {
-    contentPage.scrollTop = contentPage.scrollHeight;
-    contentPage.classList.add('scrolled');
-  }
-}
-
-// Close diary
-function closeDiary() {
-  if (diaryOverlay) {
-    const book = document.getElementById('diaryBook3d');
-    
-    if (book) {
-      // Remove reading mode and add closing animation
-      book.classList.remove('phase-reading');
-      book.classList.add('closing');
-      
-      // Wait for close animation to complete then remove overlay
-      setTimeout(() => {
-        if (diaryOverlay && diaryOverlay.parentNode) {
-          diaryOverlay.remove();
-        }
-        diaryOverlay = null;
-        isDiaryEditing = false;
-      }, 1500); // Match the CSS animation duration
-    } else {
-      // Fallback if book element not found
-      diaryOverlay.style.opacity = '0';
-      diaryOverlay.style.transition = 'opacity 0.5s ease';
-      
-      setTimeout(() => {
-        if (diaryOverlay && diaryOverlay.parentNode) {
-          diaryOverlay.remove();
-        }
-        diaryOverlay = null;
-        isDiaryEditing = false;
-      }, 500);
-    }
-  }
-  playSound('tabClick', 0);
-}
-
-// Enable diary editing mode
-function enableDiaryEditing() {
-  if (!diaryOverlay) {
-    // Create diary if not open
-    createDiaryOverlay();
-  }
-  
-  isDiaryEditing = true;
-  
-  const pagesDiv = document.getElementById('diaryPages');
-  const contentDiv = document.getElementById('diaryContent');
-  
-  pagesDiv.classList.add('editing');
-  contentDiv.contentEditable = true;
-  
-  // Create editing toolbar
-  let toolbar = document.getElementById('diaryEditToolbar');
-  if (!toolbar) {
-    toolbar = document.createElement('div');
-    toolbar.id = 'diaryEditToolbar';
-    toolbar.className = 'diary-edit-toolbar';
-    toolbar.innerHTML = `
-      <button onclick="diaryFormat('bold')">Bold</button>
-      <button onclick="diaryFormat('italic')">Italic</button>
-      <button onclick="diaryFormat('underline')">Underline</button>
-      <select onchange="diaryChangeFont(this.value)">
-        <option value="Georgia">Georgia</option>
-        <option value="Arial">Arial</option>
-        <option value="Times New Roman">Times New Roman</option>
-        <option value="Courier New">Courier New</option>
-        <option value="Verdana">Verdana</option>
-        <option value="'Press Start 2P'">Press Start 2P</option>
-      </select>
-      <select onchange="diaryChangeSize(this.value)">
-        <option value="12px">Small</option>
-        <option value="16px" selected>Normal</option>
-        <option value="20px">Large</option>
-        <option value="24px">X-Large</option>
-      </select>
-      <input type="color" onchange="diaryChangeColor(this.value)" value="#333333">
-      <button onclick="diaryAddImage()">Add Image</button>
-      <button onclick="diaryAddPage()">+ Page</button>
-      <button onclick="diaryDeletePage()">Delete Page</button>
-      <button onclick="saveDiary()" style="background: #4CAF50; color: white;">Save</button>
-      <button onclick="closeDiaryEditToolbar()">Close Edit</button>
-    `;
-    document.body.appendChild(toolbar);
-  }
-  
-  // Setup image drag and resize
-  setupDiaryImageEditing();
-}
-
-// Close diary edit toolbar
-function closeDiaryEditToolbar() {
-  isDiaryEditing = false;
-  
-  const pagesDiv = document.getElementById('diaryPages');
-  const contentDiv = document.getElementById('diaryContent');
-  
-  if (pagesDiv) pagesDiv.classList.remove('editing');
-  if (contentDiv) contentDiv.contentEditable = false;
-  
-  const toolbar = document.getElementById('diaryEditToolbar');
-  if (toolbar) toolbar.remove();
-}
-
-// Format text in diary
-function diaryFormat(command) {
-  document.execCommand(command, false, null);
-}
-
-// Change font in diary
-function diaryChangeFont(font) {
-  document.execCommand('fontName', false, font);
-}
-
-// Change font size in diary
-function diaryChangeSize(size) {
-  document.execCommand('fontSize', false, '7');
-  // Apply custom size via CSS
-  const selection = window.getSelection();
-  if (selection.rangeCount > 0) {
-    const range = selection.getRangeAt(0);
-    const span = document.createElement('span');
-    span.style.fontSize = size;
-    range.surroundContents(span);
-  }
-}
-
-// Change text color in diary
-function diaryChangeColor(color) {
-  document.execCommand('foreColor', false, color);
-}
-
-// Add image to diary
-function diaryAddImage() {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-  input.onchange = function(e) {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        const img = document.createElement('img');
-        img.src = event.target.result;
-        img.style.maxWidth = '100%';
-        img.style.cursor = 'move';
-        img.style.border = '2px dashed #8B4513';
-        img.style.margin = '15px 0';
-        img.style.borderRadius = '8px';
-        img.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-        
-        document.execCommand('insertHTML', false, img.outerHTML);
-        setupDiaryImageEditing();
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-  input.click();
-}
-
-// Setup image drag and resize in diary
-function setupDiaryImageEditing() {
-  const images = document.querySelectorAll('#diaryContent img');
-  images.forEach(img => {
-    if (isDiaryEditing) {
-      img.style.cursor = 'move';
-      img.draggable = true;
-      
-      // Simple drag handling
-      img.ondragstart = function(e) {
-        e.dataTransfer.setData('text/plain', 'dragging');
-      };
-      
-      // Double click to resize
-      img.ondblclick = function() {
-        const newWidth = prompt('Enter width (px or %):', '100%');
-        if (newWidth) {
-          this.style.width = newWidth;
-          this.style.height = 'auto';
-        }
-      };
     }
   });
-}
-
-// Add new page to diary
-function diaryAddPage() {
-  if (!isDiaryEditing) {
-    alert('Please enable editing mode first!');
-    return;
-  }
-  
-  const title = prompt('Enter page title:', 'New Page');
-  if (title) {
-    const newPage = {
-      id: Date.now(),
-      title: title,
-      content: '<p>Start writing here...</p>'
-    };
-    diaryData.pages.push(newPage);
-    
-    // Navigate to new page
-    loadDiaryPage(diaryData.pages.length - 1);
-    saveDiaryData();
-  }
-}
-
-// Delete current page
-function diaryDeletePage() {
-  if (!isDiaryEditing) {
-    alert('Please enable editing mode first!');
-    return;
-  }
-  
-  if (diaryData.pages.length <= 1) {
-    alert('Cannot delete the last page!');
-    return;
-  }
-  
-  if (confirm('Delete this page? This cannot be undone.')) {
-    diaryData.pages.splice(diaryData.currentPage, 1);
-    
-    // Adjust current page if needed
-    if (diaryData.currentPage >= diaryData.pages.length) {
-      diaryData.currentPage = diaryData.pages.length - 1;
-    }
-    
-    loadDiaryPage(diaryData.currentPage);
-    saveDiaryData();
-  }
-}
-
-// Save diary changes
-function saveDiary() {
-  const contentDiv = document.getElementById('diaryContent');
-  if (contentDiv) {
-    // Clone the content to work with it
-    const tempDiv = contentDiv.cloneNode(true);
-    
-    // Get the title from the h1 element
-    const titleElement = tempDiv.querySelector('h1.diary-title');
-    let title = "Untitled";
-    if (titleElement) {
-      title = titleElement.textContent || titleElement.innerText || "Untitled";
-      // Remove the title element from the clone
-      titleElement.remove();
-    }
-    
-    // Update the data
-    diaryData.pages[diaryData.currentPage].title = title.trim();
-    diaryData.pages[diaryData.currentPage].content = tempDiv.innerHTML;
-    
-    saveDiaryData();
-    
-    // Reload the page to show the saved title
-    loadDiaryPage(diaryData.currentPage);
-    
-    alert('Diary saved successfully!');
-  }
 }
 
 // Open diary from admin panel
@@ -5898,6 +5378,8 @@ let aiCompanionActive = false;
 let aiTypingTimeout = null;
 let aiBubbleHideTimeout = null;
 let aiTypingSoundTimeout = null;
+let aiMoveToTopLeftTimeout = null;
+let aiSpeakInitialTimeout = null;
 let aiIdleSmallTalkTimeout = null;
 let aiIdleSpeakAbortToken = 0;
 let aiUsedIdleScripts = new Set();
@@ -6043,6 +5525,10 @@ function openAICompanion() {
   const optionsContainer = document.getElementById('aiOptions');
   const navButtons = document.querySelector('.nav-buttons');
 
+  // Cancel any pending open sequences
+  if (aiSpeakInitialTimeout) clearTimeout(aiSpeakInitialTimeout);
+  if (aiMoveToTopLeftTimeout) clearTimeout(aiMoveToTopLeftTimeout);
+
   // Show companion in center
   companion.classList.add('active', 'center');
   companion.classList.remove('top-left');
@@ -6061,14 +5547,14 @@ function openAICompanion() {
   const greeting = getAIGreeting();
 
   // After greeting, move to top-left
-  setTimeout(() => {
+  aiSpeakInitialTimeout = setTimeout(() => {
     aiSpeak(greeting, () => {
       scheduleAiIdleSmallTalk(10000);
     });
   }, 500);
 
   // Move to top-left after speaking and show options
-  setTimeout(() => {
+  aiMoveToTopLeftTimeout = setTimeout(() => {
     companion.classList.remove('center');
     companion.classList.add('top-left');
     if (optionsContainer) optionsContainer.classList.add('show');
@@ -6081,6 +5567,16 @@ function closeAICompanion() {
   const speechBubble = document.getElementById('aiSpeechBubble');
   const optionsContainer = document.getElementById('aiOptions');
   const navButtons = document.querySelector('.nav-buttons');
+
+  // Cancel any pending open sequences
+  if (aiSpeakInitialTimeout) {
+    clearTimeout(aiSpeakInitialTimeout);
+    aiSpeakInitialTimeout = null;
+  }
+  if (aiMoveToTopLeftTimeout) {
+    clearTimeout(aiMoveToTopLeftTimeout);
+    aiMoveToTopLeftTimeout = null;
+  }
 
   companion.classList.remove('active', 'center', 'top-left');
   speechBubble.classList.remove('show');
