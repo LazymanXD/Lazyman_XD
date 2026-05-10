@@ -385,8 +385,8 @@ const layerMaxRadius = {
 // Throttled mouse tracking for performance (single listener updates all systems)
 let mouseNormX = 0;
 let mouseNormY = 0;
-let lastInputTime = Date.now();
-const INPUT_IDLE_MS = 800; // pause parallax DOM writes after 800ms of no input
+var lastInputTime = Date.now();
+var INPUT_IDLE_MS = 800; // pause parallax DOM writes after 800ms of no input
 
 function updateParallaxInput(mouseX, mouseY, windowWidth, windowHeight) {
   lastInputTime = Date.now();
@@ -587,7 +587,7 @@ function dragStart(e, element){
 }
 
 // --- Pages ---
-const pages = {
+var pages = {
   home: {
     title: "Lazyman_XD",
     subtitle: "manga artist and illustrator",
@@ -1638,20 +1638,20 @@ function showPage(pageKey) {
 
 // --- Nav buttons ---
 // Track last opened page for session restore
-let lastOpenedPage = 'home';
+var lastOpenedPage = 'home';
 
 // Track if work cards are currently showing
-let workCardsShowing = false;
-let workCardElements = [];
+var workCardsShowing = false;
+var workCardElements = [];
 let workCardsShowTimeoutId = null;
 let lastWorkCardsButton = null;
-let mangaCardsShowing = false;
-let mangaCardElements = [];
+var mangaCardsShowing = false;
+var mangaCardElements = [];
 let mangaCardsShowTimeoutId = null;
 let lastMangaCardsButton = null;
 let mangaShowingConcept = false;
-let booksCardsShowing = false;
-let booksCardElements = [];
+var booksCardsShowing = false;
+var booksCardElements = [];
 let lastBooksCardsButton = null;
 let bookReaderPages = [];
 const bookPagesCache = new Map();
@@ -2476,7 +2476,7 @@ function attachNavListeners() {
 }
 
 // Artwork data
-const artworkData = [
+var artworkData = [
   {src: "./3.1 (2).webp", title: "Artwork 1"},
   {src: "./marry.webp", title: "Artwork 2"},
   {src: "./angelist.webp", title: "Artwork 3"},

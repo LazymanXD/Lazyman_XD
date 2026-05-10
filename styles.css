@@ -4834,7 +4834,8 @@
 
     /* ============================================================
        MOBILE PERFORMANCE OPTIMIZATIONS
-       Disable expensive GPU/CPU effects on touch devices
+       Keep animations visible but use only GPU-friendly properties
+       (transform + opacity). Disable genuinely expensive effects.
        ============================================================ */
     @media (pointer: coarse) {
       /* Disable backdrop-filter blur (extremely expensive on mobile GPUs) */
@@ -4855,12 +4856,16 @@
         background-attachment: scroll !important;
       }
 
-      /* Reduce or disable continuous box-shadow animations */
+      /* AI orb: static glow + transform pulse instead of box-shadow animation */
       .ai-orb,
       .ai-core,
       .ai-avatar-img {
-        animation: none !important;
         box-shadow: 0 0 15px rgba(255, 200, 0, 0.4) !important;
+        animation: orbPulseMobile 3s ease-in-out infinite !important;
+      }
+      @keyframes orbPulseMobile {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.06); }
       }
 
       /* Disable heavy will-change hints that cause compositing overhead */
@@ -4873,60 +4878,74 @@
         will-change: auto !important;
       }
 
-      /* Simplify transitions on mobile for snappier interactions */
+      /* Keep GPU-friendly transitions (transform + opacity only) */
       .nav-btn,
       .roadmap-toggle-btn,
       .win-btn,
       .middle-tab {
-        transition: none !important;
+        transition: transform 0.2s ease, opacity 0.2s ease !important;
       }
 
-      /* Reduce particle canvas impact by making it invisible on very low-end devices */
+      /* Particles: JS already reduces count to 40 and skips glow on mobile */
       #particle-canvas {
-        opacity: 0.5;
+        opacity: 1;
       }
 
-      /* Disable continuous glowing text shadow animations */
+      /* Title: GPU-friendly pulse (transform + opacity, no text-shadow animation) */
       .middle-tab-title {
-        animation: none !important;
+        animation: amberGlowPulseMobile 3s ease-in-out infinite !important;
+      }
+      @keyframes amberGlowPulseMobile {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.85; }
       }
 
-      /* Disable AI orb ring spin animations */
-      .ai-orb::before,
+      /* AI orb rings: transform:rotate is 100% GPU-friendly */
+      .ai-orb::before {
+        animation: jarvisRing1 2s linear infinite !important;
+      }
       .ai-orb::after {
-        animation: none !important;
+        animation: jarvisRing2 2s linear infinite !important;
       }
 
-      /* Disable wave bar animations */
+      /* Wave bars: re-enabled, only 8 elements */
       .ai-wave-bar {
-        animation: none !important;
-        box-shadow: none !important;
+        animation: waveBar 1.2s infinite ease-in-out !important;
+        box-shadow: 0 0 5px rgba(255, 200, 0, 0.8) !important;
       }
 
-      /* Disable roadmap glow pulse */
+      /* Roadmap: GPU-friendly scale pulse instead of box-shadow animation */
       .roadmap-toggle-btn {
-        animation: none !important;
+        animation: roadmapGlowMobile 2s ease-in-out infinite !important;
         box-shadow: 0 0 12px rgba(255, 215, 0, 0.35) !important;
       }
+      @keyframes roadmapGlowMobile {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.06); opacity: 0.92; }
+      }
 
-      /* Disable middle open button glow */
+      /* Middle open button: static glow + simple scale animation */
       .middle-open-btn img {
-        animation: none !important;
         filter: brightness(1.6) saturate(1.4) drop-shadow(0 0 15px rgba(255,215,0,0.8)) !important;
+        animation: iconGlowMobile 1.6s infinite ease-in-out !important;
+      }
+      @keyframes iconGlowMobile {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); }
       }
 
-      /* Disable floating dot animations */
-      .dot1, .dot2, .dot3 {
-        animation: none !important;
-      }
+      /* Floating dots: already GPU-friendly (transform + opacity) */
+      .dot1 { animation: dotFloat 2s ease-in-out infinite 0s !important; }
+      .dot2 { animation: dotFloat 2s ease-in-out infinite 0.3s !important; }
+      .dot3 { animation: dotFloat 2s ease-in-out infinite 0.6s !important; }
 
-      /* Disable loading dot pulses */
+      /* Loading dots: already GPU-friendly */
       .wiki-loading-dot,
       .manga-viewer-loader-dot {
-        animation: none !important;
+        animation: dotPulse 1.5s infinite ease-in-out !important;
       }
 
-      /* Simplify nav button hover effects */
+      /* Nav button hover: GPU-friendly transform only */
       .nav-btn:hover {
         filter: none !important;
         transform: translateY(-2px) scale(1.02) !important;
