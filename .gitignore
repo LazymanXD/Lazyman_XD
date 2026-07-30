@@ -1,7 +1,0 @@
-# Only ignore specific files
-temp_docx_extract/
-libwebp.zip
-temp.js
-book-history-data.js
-# Auto detect text files and perform LF normalization
-* text=auto
