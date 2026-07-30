@@ -84,7 +84,7 @@
             height: 100%;
             display: flex;
             z-index: 8000;
-            pointer-events: auto;
+            pointer-events: none;
         }
         body.is-mobile .click-layer {
             left: 0;
@@ -96,6 +96,7 @@
             height: 100%;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
+            pointer-events: auto;
         }
 
         .front, .back {
@@ -326,9 +327,9 @@
         .bookmark-anchor {
             position: absolute;
             top: 0;
-            right: 60px;
+            right: 0;
             width: 60px;
-            height: 0;
+            height: 200px;
             z-index: 99999;
             pointer-events: auto;
         }
@@ -350,6 +351,8 @@
             justify-content: flex-end;
             padding-bottom: 30px;
             transform-origin: top center;
+            pointer-events: auto;
+            z-index: 99999;
         }
 
         /* Ribbon V-Cut Bottom */
@@ -629,6 +632,12 @@
             book.appendChild(clickLayer);
             sheetsMap.clear();
 
+            // Remove existing bookmark if present
+            const existingBookmark = document.getElementById('bookmark-exit');
+            if (existingBookmark) {
+                existingBookmark.closest('.bookmark-anchor').remove();
+            }
+
             const bookmarkHTML = `
                 <div class="bookmark-anchor">
                     <div class="bookmark-ribbon" id="bookmark-exit" title="Exit Book">
@@ -636,6 +645,9 @@
                     </div>
                 </div>
             `;
+
+            // Add bookmark to book element so it moves with the book
+            book.insertAdjacentHTML('beforeend', bookmarkHTML);
 
             if (isMobileDevice) {
                 totalSheets = dynamicPages.length;
@@ -656,7 +668,6 @@
 
                     pageEl.innerHTML = `
                         <div class="${frontClass}">
-                            ${isBack ? bookmarkHTML : ''}
                             <div class="content">${contentHtml}</div>
                             <div class="page-number">${pageLabel}</div>
                         </div>
@@ -697,12 +708,10 @@
 
                     pageEl.innerHTML = `
                         <div class="${frontClass}">
-                            ${isFrontBackCover ? bookmarkHTML : ''}
                             <div class="content">${frontContent}</div>
                             <div class="page-number" style="text-align:right;">${frontNum}</div>
                         </div>
                         <div class="${backClass}">
-                            ${isBackBackCover ? bookmarkHTML : ''}
                             <div class="content">${backContent}</div>
                             <div class="page-number" style="text-align:left;">${backNum}</div>
                         </div>
@@ -725,10 +734,37 @@
         function attachBookmarkListener() {
             const bookmarkExit = document.getElementById('bookmark-exit');
             if (bookmarkExit) {
-                bookmarkExit.addEventListener('click', (e) => {
+                console.log('Bookmark found, attaching listener');
+                
+                // Remove any existing listeners to prevent duplicates
+                const newBookmarkExit = bookmarkExit.cloneNode(true);
+                bookmarkExit.parentNode.replaceChild(newBookmarkExit, bookmarkExit);
+                
+                newBookmarkExit.addEventListener('click', (e) => {
+                    console.log('Bookmark clicked');
+                    e.preventDefault();
                     e.stopPropagation();
+                    e.stopImmediatePropagation();
                     exitBook();
                 });
+                
+                // Also handle touch events for mobile
+                newBookmarkExit.addEventListener('touchend', (e) => {
+                    console.log('Bookmark touched');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    exitBook();
+                });
+                
+                // Also handle mousedown to prevent any other interactions
+                newBookmarkExit.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                });
+            } else {
+                console.log('Bookmark not found');
             }
         }
 
