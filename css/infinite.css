@@ -20,7 +20,8 @@ body {
 
 /* Mobile-specific perspective reduction */
 body.is-mobile {
-    perspective: 800px;
+    perspective: 600px;
+    -webkit-transform: translateZ(0);
 }
 
 /* Scale Container */
@@ -54,10 +55,11 @@ body.is-mobile .book-scaler {
 
 /* Mobile-optimized book transitions */
 body.is-mobile .book {
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 
 /* Desktop Shifts for 2-page spreads */
@@ -74,6 +76,8 @@ body.is-mobile .book {
 /* MOBILE SINGLE PAGE MODE OVERRIDES */
 body.is-mobile .book {
     transform: translateX(0) !important;
+    transform-style: flat;
+    -webkit-transform-style: flat;
 }
 
 /* Mobile text size adjustments */
@@ -130,12 +134,13 @@ body.is-mobile .page-number {
     will-change: transform;
 }
 
-/* Mobile-optimized transitions */
+/* Mobile-optimized transitions - disable 3D for performance */
 body.is-mobile .page {
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.15s ease-out;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    transform: translateZ(0);
+    transform-style: flat;
+    -webkit-transform-style: flat;
 }
 
 /* Click Layer Controls */
