@@ -5,449 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>THE GOD ⟂ NOUMENON</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-        html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background-color: #0b0b0c;
-            overflow: hidden;
-            font-family: 'Calibri', 'Arial', sans-serif;
-        }
-
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            perspective: 3000px;
-        }
-
-        /* Scale Container */
-        .book-scaler {
-            position: relative;
-            width: 1240px;
-            height: 1754px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transform-origin: center center;
-            transition: transform 0.2s ease, opacity 0.5s ease;
-        }
-
-        /* BASE BOOK (1240 x 1754) */
-        .book {
-            position: relative;
-            width: 1240px;
-            height: 1754px;
-            transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
-            transform-style: preserve-3d;
-        }
-
-        /* Desktop Shifts for 2-page spreads */
-        .book.closed-front {
-            transform: translateX(0);
-        }
-        .book.open-spread {
-            transform: translateX(50%);
-        }
-        .book.closed-back {
-            transform: translateX(100%);
-        }
-
-        /* MOBILE SINGLE PAGE MODE OVERRIDES */
-        body.is-mobile .book {
-            transform: translateX(0) !important;
-        }
-
-        .page {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            transform-origin: left center;
-            transform-style: preserve-3d;
-            transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        /* Click Layer Controls */
-        .click-layer {
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 200%;
-            height: 100%;
-            display: flex;
-            z-index: 8000;
-            pointer-events: none;
-        }
-        body.is-mobile .click-layer {
-            left: 0;
-            width: 100%;
-        }
-        
-        .zone-left, .zone-right {
-            width: 50%;
-            height: 100%;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            pointer-events: auto;
-        }
-
-        .front, .back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 80px; 
-            border-radius: 0;
-            border: none;
-            overflow: visible;
-        }
-
-        .front {
-            background: #fcf6eb; 
-            color: #1c1a17;
-            box-shadow: inset -20px 0 40px rgba(0,0,0,0.05), 0 8px 20px rgba(0,0,0,0.2);
-        }
-
-        .back {
-            background: #faefdf;
-            color: #1c1a17;
-            transform: rotateY(180deg); 
-            box-shadow: inset 20px 0 40px rgba(0,0,0,0.05), 0 8px 20px rgba(0,0,0,0.2);
-        }
-
-        .front.hardcover {
-            background: linear-gradient(135deg, #161513 0%, #24221f 100%);
-            color: #e5d1b3;
-            box-shadow: inset -30px 0 60px rgba(0,0,0,0.6), 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        .back.hardcover {
-            background: linear-gradient(135deg, #24221f 0%, #161513 100%);
-            color: #e5d1b3;
-            box-shadow: inset 30px 0 60px rgba(0,0,0,0.6), 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        .content {
-            font-size: 24px;
-            line-height: 1.65;
-            text-align: justify;
-            height: 100%;
-            width: 100%;
-            overflow-y: auto; 
-            display: flex;
-            flex-direction: column;
-            scrollbar-width: none;
-        }
-        .content::-webkit-scrollbar {
-            display: none;
-        }
-
-        .title-container {
-            margin: auto 0;
-            text-align: center;
-            width: 100%;
-        }
-        .title-large {
-            font-size: 4rem;
-            font-weight: 900;
-            margin: 0;
-            letter-spacing: 4px;
-            line-height: 1.2;
-        }
-        .title-combined {
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            margin-top: 10px;
-            margin-bottom: 5px;
-        }
-        .drop-n {
-            font-size: 8rem;
-            font-weight: 900;
-            line-height: 0.8;
-            margin-right: 4px;
-        }
-        .title-sub-text {
-            font-size: 3rem;
-            font-weight: 900;
-            letter-spacing: 4px;
-            line-height: 0.9;
-            margin-top: 12px;
-        }
-        .tagline {
-            font-size: 1.4rem;
-            letter-spacing: 3px;
-            margin-top: 40px;
-            font-weight: bold;
-            color: #a3927e;
-            line-height: 1.5;
-        }
-        .credits {
-            font-size: 1.3rem;
-            color: #8a7c6c;
-            text-align: center;
-            line-height: 1.8;
-            font-weight: bold;
-            letter-spacing: 2px;
-            margin-top: auto;
-            margin-bottom: 20px;
-        }
-
-        .blurb-container {
-            margin: auto 0;
-            text-align: center;
-            width: 100%;
-        }
-        .blurb-title {
-            font-size: 2.2rem;
-            letter-spacing: 2px;
-            font-weight: bold;
-            margin-bottom: 30px;
-            color: #d1be8a;
-            line-height: 1.3;
-        }
-        .blurb-text {
-            font-style: italic;
-            font-size: 1.5rem;
-            line-height: 1.6;
-            color: #cccccc;
-            text-align: justify;
-            margin-bottom: 25px;
-        }
-        .back-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-top: auto;
-            width: 100%;
-        }
-        .barcode {
-            width: 180px;
-            height: 90px;
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            padding: 8px;
-            border-radius: 0;
-            opacity: 0.75;
-            flex-shrink: 0;
-        }
-        .barcode-lines {
-            height: 60px;
-            background: repeating-linear-gradient(90deg, #000, #000 4px, #fff 4px, #fff 12px);
-        }
-        .barcode-text {
-            font-family: monospace;
-            font-size: 12px;
-            color: #000;
-            text-align: center;
-        }
-        .publisher-info {
-            font-size: 1.2rem;
-            color: #8a7c6c;
-            letter-spacing: 1px;
-            text-align: left;
-            line-height: 1.5;
-        }
-
-        .content p {
-            margin: 0 0 22px 0;
-            text-indent: 40px;
-        }
-
-        .page-number {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #8c8273;
-            border-top: 2px solid rgba(0,0,0,0.06);
-            padding-top: 12px;
-            margin-top: 16px;
-            width: 100%;
-            flex-shrink: 0;
-            text-align: right;
-        }
-
-        .page.flipped { transform: rotateY(-180deg); }
-
-        /* ARROW CONTROLS BELOW PAGE */
-        .nav-arrows {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-            z-index: 10000;
-            transition: opacity 0.5s ease;
-        }
-
-        .arrow-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #e5d1b3;
-            font-size: 22px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            transition: all 0.2s ease;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .arrow-btn:active {
-            transform: scale(0.92);
-            background: rgba(255, 255, 255, 0.25);
-        }
-
-        .arrow-btn.disabled {
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
-        /* GUARANTEED VISIBLE BOOKMARK RIBBON */
-        .bookmark-anchor {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 60px;
-            height: 200px;
-            z-index: 99999;
-            pointer-events: auto;
-        }
-
-        .bookmark-ribbon {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 60px;
-            height: 200px;
-            background: linear-gradient(135deg, #b81d1d 0%, #7a1010 100%);
-            border-radius: 0 0 4px 4px;
-            box-shadow: -4px 10px 18px rgba(0, 0, 0, 0.6);
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            padding-bottom: 30px;
-            transform-origin: top center;
-            pointer-events: auto;
-            z-index: 99999;
-        }
-
-        /* Ribbon V-Cut Bottom */
-        .bookmark-ribbon::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 0;
-            border-left: 30px solid transparent;
-            border-right: 30px solid transparent;
-            border-bottom: 20px solid #24221f;
-        }
-
-        .bookmark-ribbon:hover {
-            transform: translateY(12px) scale(1.04);
-            filter: brightness(1.2);
-        }
-
-        .bookmark-ribbon:active {
-            transform: translateY(4px) scale(0.98);
-        }
-
-        .bookmark-text {
-            color: #f7e0b5;
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-            user-select: none;
-        }
-
-        /* EXIT / OVERLAY SCREEN */
-        .exit-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #0b0b0c;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 20000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.6s ease;
-            color: #e5d1b3;
-            text-align: center;
-        }
-
-        .exit-screen.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .exit-title {
-            font-size: 2.5rem;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
-            font-weight: 900;
-        }
-
-        .exit-subtitle {
-            font-size: 1.2rem;
-            color: #8a7c6c;
-            margin-bottom: 40px;
-            letter-spacing: 2px;
-        }
-
-        .reopen-btn {
-            padding: 14px 32px;
-            background: transparent;
-            border: 1px solid #e5d1b3;
-            color: #e5d1b3;
-            font-size: 1rem;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-        }
-
-        .reopen-btn:hover {
-            background: #e5d1b3;
-            color: #0b0b0c;
-        }
+        *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;padding:0;background-color:#0b0b0c;overflow:hidden;font-family:'Calibri','Arial',sans-serif}body{display:flex;justify-content:center;align-items:center;perspective:3000px}
+        .book-scaler{position:relative;width:1240px;height:1754px;display:flex;justify-content:center;align-items:center;transform-origin:center center;transition:transform .2s ease,opacity .5s ease}
+        .book{position:relative;width:1240px;height:1754px;transition:transform .7s cubic-bezier(.645,.045,.355,1);transform-style:preserve-3d}
+        .book.closed-front{transform:translateX(0)}.book.open-spread{transform:translateX(50%)}.book.closed-back{transform:translateX(100%)}
+        body.is-mobile .book{transform:translateX(0)!important}
+        .page{position:absolute;width:100%;height:100%;top:0;left:0;transform-origin:left center;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.645,.045,.355,1);user-select:none;-webkit-user-select:none}
+        .click-layer{position:absolute;top:0;left:-100%;width:200%;height:100%;display:flex;z-index:8000;pointer-events:none}
+        body.is-mobile .click-layer{left:0;width:100%}
+        .zone-left,.zone-right{width:50%;height:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;pointer-events:auto}
+        .front,.back{position:absolute;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:80px;border-radius:0;border:none;overflow:visible}
+        .front{background:#fcf6eb;color:#1c1a17;box-shadow:inset -20px 0 40px rgba(0,0,0,.05),0 8px 20px rgba(0,0,0,.2)}
+        .back{background:#faefdf;color:#1c1a17;transform:rotateY(180deg);box-shadow:inset 20px 0 40px rgba(0,0,0,.05),0 8px 20px rgba(0,0,0,.2)}
+        .front.hardcover{background:linear-gradient(135deg,#161513 0%,#24221f 100%);color:#e5d1b3;box-shadow:inset -30px 0 60px rgba(0,0,0,.6),0 20px 50px rgba(0,0,0,.5)}
+        .back.hardcover{background:linear-gradient(135deg,#24221f 0%,#161513 100%);color:#e5d1b3;box-shadow:inset 30px 0 60px rgba(0,0,0,.6),0 20px 50px rgba(0,0,0,.5)}
+        .content{font-size:24px;line-height:1.65;text-align:justify;height:100%;width:100%;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:none}
+        .content::-webkit-scrollbar{display:none}
+        .title-container{margin:auto 0;text-align:center;width:100%}
+        .title-large{font-size:4rem;font-weight:900;margin:0;letter-spacing:4px;line-height:1.2}
+        .title-combined{display:flex;align-items:flex-start;justify-content:center;margin-top:10px;margin-bottom:5px}
+        .drop-n{font-size:8rem;font-weight:900;line-height:.8;margin-right:4px}
+        .title-sub-text{font-size:3rem;font-weight:900;letter-spacing:4px;line-height:.9;margin-top:12px}
+        .tagline{font-size:1.4rem;letter-spacing:3px;margin-top:40px;font-weight:700;color:#a3927e;line-height:1.5}
+        .credits{font-size:1.3rem;color:#8a7c6c;text-align:center;line-height:1.8;font-weight:700;letter-spacing:2px;margin-top:auto;margin-bottom:20px}
+        .blurb-container{margin:auto 0;text-align:center;width:100%}
+        .blurb-title{font-size:2.2rem;letter-spacing:2px;font-weight:700;margin-bottom:30px;color:#d1be8a;line-height:1.3}
+        .blurb-text{font-style:italic;font-size:1.5rem;line-height:1.6;color:#ccc;text-align:justify;margin-bottom:25px}
+        .back-footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;width:100%}
+        .barcode{width:180px;height:90px;background:#fff;display:flex;flex-direction:column;justify-content:space-around;padding:8px;border-radius:0;opacity:.75;flex-shrink:0}
+        .barcode-lines{height:60px;background:repeating-linear-gradient(90deg,#000,#000 4px,#fff 4px,#fff 12px)}
+        .barcode-text{font-family:monospace;font-size:12px;color:#000;text-align:center}
+        .publisher-info{font-size:1.2rem;color:#8a7c6c;letter-spacing:1px;text-align:left;line-height:1.5}
+        .content p{margin:0 0 22px 0;text-indent:40px}
+        .page-number{font-size:1.4rem;font-weight:700;color:#8c8273;border-top:2px solid rgba(0,0,0,.06);padding-top:12px;margin-top:16px;width:100%;flex-shrink:0;text-align:right}
+        .page.flipped{transform:rotateY(-180deg)}
+        .nav-arrows{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:20px;z-index:10000;transition:opacity .5s ease}
+        .arrow-btn{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#e5d1b3;font-size:22px;display:flex;justify-content:center;align-items:center;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .2s ease;user-select:none;-webkit-tap-highlight-color:transparent}
+        .arrow-btn:active{transform:scale(.92);background:rgba(255,255,255,.25)}
+        .arrow-btn.disabled{opacity:.3;pointer-events:none}
+        .bookmark-anchor{position:absolute;top:0;right:0;width:60px;height:200px;z-index:99999;pointer-events:auto}
+        .bookmark-ribbon{position:absolute;top:0;right:0;width:60px;height:200px;background:linear-gradient(135deg,#b81d1d 0%,#7a1010 100%);border-radius:0 0 4px 4px;box-shadow:-4px 10px 18px rgba(0,0,0,.6);cursor:pointer;transition:transform .3s cubic-bezier(.175,.885,.32,1.275),filter .2s ease;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:30px;transform-origin:top center;pointer-events:auto;z-index:99999}
+        .bookmark-ribbon::after{content:'';position:absolute;bottom:0;left:0;width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:20px solid #24221f}
+        .bookmark-ribbon:hover{transform:translateY(12px) scale(1.04);filter:brightness(1.2)}
+        .bookmark-ribbon:active{transform:translateY(4px) scale(.98)}
+        .bookmark-text{color:#f7e0b5;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;writing-mode:vertical-rl;text-orientation:mixed;text-shadow:0 1px 4px rgba(0,0,0,.8);user-select:none}
+        .exit-screen{position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0b0b0c;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:20000;opacity:0;pointer-events:none;transition:opacity .6s ease;color:#e5d1b3;text-align:center}
+        .exit-screen.active{opacity:1;pointer-events:auto}
+        .exit-title{font-size:2.5rem;letter-spacing:4px;margin-bottom:10px;font-weight:900}
+        .exit-subtitle{font-size:1.2rem;color:#8a7c6c;margin-bottom:40px;letter-spacing:2px}
+        .reopen-btn{padding:14px 32px;background:transparent;border:1px solid #e5d1b3;color:#e5d1b3;font-size:1rem;letter-spacing:2px;cursor:pointer;transition:all .3s ease;text-transform:uppercase}
+        .reopen-btn:hover{background:#e5d1b3;color:#0b0b0c}
     </style>
 </head>
 <body>
-
     <div class="book-scaler" id="book-scaler">
         <div class="book closed-front" id="book">
             <div class="click-layer">
@@ -456,430 +66,108 @@
             </div>
         </div>
     </div>
-
-    <!-- Navigation Arrow Buttons -->
     <div class="nav-arrows" id="nav-arrows">
         <div class="arrow-btn" id="btn-prev" title="Previous Page">&#10094;</div>
         <div class="arrow-btn" id="btn-next" title="Next Page">&#10095;</div>
     </div>
-
-    <!-- Exit Overlay Screen -->
     <div class="exit-screen" id="exit-screen">
         <div class="exit-title">THE GOD ⟂ NOUMENON</div>
         <div class="exit-subtitle">You have exited the book.</div>
         <button class="reopen-btn" id="reopen-btn">Re-open Book</button>
     </div>
-
     <script>
-        const dynamicPages = [
-            // COVER / TITLE (Index 0)
-            `<div class="title-container">
-                 <div class="title-large">THE GOD ⟂</div>
-                 <div class="title-combined">
-                     <div class="drop-n">N</div>
-                     <div class="title-sub-text">OUMENON</div>
-                 </div>
-                 <div class="tagline">BEYOND THE CONCEPT OF EXISTENCE ITSELF</div>
-             </div>
-             <div class="credits">
-                 CONFRONTING THE UNKNOWABLE<br>
-                 NATURE OF THE NOUMENON<br><br>
-                 <span style="color:#e5d1b3; font-size:1.2rem;">BY Lazymna_XD</span>
-             </div>`,
-
-            // PAGE 1 (Index 1)
-            `<div class="title-container" style="margin: 0 0 20px 0; text-align:left;">
-                 <div class="title-large" style="font-size: 2.2rem; letter-spacing:1px;">THE GOD ⟂</div>
-                 <div class="title-combined" style="justify-content:flex-start;">
-                     <div class="drop-n" style="font-size: 3.8rem;">N</div>
-                     <div class="title-sub-text" style="font-size: 2rem; margin-top: 4px; letter-spacing:1px;">OUMENON</div>
-                 </div>
-             </div>
-             <p>The observer existed even before the very concept of observation came to mind—one God. A nameless god, for a god has no concept of names, but is a keeper of structures. For three thousand years, he had worn the skin of countless travelers, wandering the ridges of the valleys simply to watch the mortals build. He took no pleasure in their wars or their loves, but he was endlessly fascinated by their hands—their endless knowledge of both the known and the unknown.</p>
-             <p>It was curiosity, cold and small, that made him approach the mason.</p>
-             <p>High on the mountain side, a man named John was building his new house. The stone foundations were halfway raised, cutting a straight, neat rectangle into the rugged slope. As the evening chill rolled over the ridge, John sat tight against his unfinished timber frame, stirring a pot of simple broth over a cooking fire.</p>
-             <p>Out of the dark tree line, a figure appeared.</p>
-             <p>John instantly went rigid, his hand tightening around the heavy wooden handle of his spade. He watched the man approach—a weary-looking traveler wrapped in a heavy, dust-laden woolen coat.</p>`,
-
-            // PAGE 2 (Index 2)
-            `<p>The stranger stopped just at the edge of the firelight, raising his hands slightly to show they were empty. "The wind is turning sharp on the ridge," the stranger said. His voice was unusually quiet, carrying a flat, hollow resonance. "May I camp near your fire for the night?"</p>
-             <p>John hesitated. He looked the man up and down, to see if the man was armed. his eyes darting to the dark trail behind him. It was a lonely place to meet anyone after dark. But the stranger looked exhausted, and the mountain winds were unforgiving.</p>
-             <p>John nodded slowly, though his posture remained guarded. "There's a flat log across from me. You can stay till dawn."</p>
-             <p>The stranger sat down, keeping his eyes fixed on the works of the mason.</p>
-             <p>To break the heavy, tense silence, John kept his eyes on his cooking pot and struck up a conversation, still trying to figure out who this man was. "A bit late to be trekking through the high woods, stranger. What brings a man up the mountain track overnight?"</p>
-             <p>The stranger didn't answer right away. He stared past the flames, his unblinking eyes locked onto the half-finished masonry cutting into the slope. "I was following the ridge," he said softly, his voice matching the low hum of the wind. "I wanted to see what was being built out here in the dark."</p>
-             <p>John let out a short, rough laugh, the tension in his shoulders easing just a bit. "Well, you found the right spot for it. I'm John, a mason by trade." He gestured with his wooden spoon toward the half-raised stone foundations behind them. "Building a new homestead right here. It’s a brutal climb, but my wife... she fell in love with this ridge. She wanted a little farm up here, away from the crowded village square. Said she wanted a place where she could sit on the porch and watch the sunset over the valley every single evening without a wall blocking her view."</p>
-             <p>John smiled faintly at the thought, his mind completely insulated by the simple, beautiful future he was constructing with his hands. "So, I’m building it for her, simple heavy timber. A straight wall to keep the winter out."</p>
-             <p>"Have you ever experienced what the world is like outside of the walls, John?" the stranger asked. He leaned forward, his voice steady, rhythmic, and perfectly normal against the backdrop of the crackling fire.</p>
-             <p>John blinked, his smile faltering at the unexpected question from the stranger. "Outside the walls? Uhm—sure. I'm under the sky right now. I work under it every day."</p>
-             <p>"No," the stranger murmured, his voice dropping into a flat, rhythmic hum. "You John are inside a box made of blue air and sunlight,"</p>`,
-
-            // PAGE 3 (Index 3)
-            `<p>"You have never touched the outside. Your skin is too thick. Your eyes are too narrow to see the grain of reality."</p>
-             <p>John chuckled, though it was a nervous, hollow sound that died quickly in his throat. He shifted uncomfortably on his log, looking at the stranger's unblinking eyes, then down at his own calloused palms.</p>
-             <p>"The grain of... what?" John asked, his brow furrowing as a cold prickle of unease washed over his neck. "Look, friend, you’re talking in riddles. My skin is thick because I handle rough granite all day. My eyes are just fine. I see the timber, I see the valley, and I see you sitting across from my fire eating my food."</p>
-             <p>The stranger didn't blink. He didn't even seem to breathe.</p>
-             <p>John’s irritation began to override his confusion. He gripped the wooden handle of his spade a little tighter. "Are you drunk, or just trying to spook a man on his own land? If you're looking to mock my house or preach some eccentric philosophy, you can take your coat and march right back down the trail."</p>
-             <p>The stranger remained perfectly still, his silhouette bleeding into the shadows of the pines.</p>
-             <p>"Alright, stranger," John muttered, his voice dropping an octave as he began to rise. "I think it's about time you—"</p>
-             <p>He stopped. The warmth of the fire abruptly vanished from his skin. He reached up, his calloused hand brushing his nose, but he couldn't feel the texture of his flesh; it felt like sliding a hand over cold, smooth glass.</p>
-             <p>"Uhm... what's happening to me..." John stammered, his voice losing its edge, melting into a numb, confused whisper as his fingers scrambled over his own jaw.</p>
-             <p>"It is a quiet place," the stranger mused. "There is no weight there. No gravity to hold a house to the ground. Just the absolute foundation of the world."</p>
-             <p>John’s heart hammered. He tried to stand, but his legs didn't register the pressure of the earth. He was becoming weightless. He looked down, but the world was graying at the edges, losing its color and depth, turning into a flat, washed-out sketch.</p>
-             <p>"The smell of the pines," the stranger continued, his voice sounding slightly more distant now, as if he were walking away. "The scent of the damp earth after a rain. Those are just creations, Elements, meant to keep you from noticing that you are standing on a void."</p>
-             <p>John tried to shout, but he couldn't feel his tongue or his throat. He clawed at his own face, his fingers sliding over a featureless expanse of skin where his mouth and nose should have been."</p>`,
-
-            // PAGE 4 (Index 4)
-            `<p>"No, no, no... Help me! Someone help me! I—"</p>
-             <p>The sound cut off. His fingers slid over smooth, unbroken skin. The world was shrinking to a tiny, pinpoint circle of vision.</p>
-             <p>"I envy you, in a way John," the stranger said. His voice was becoming thin, metallic, and faint, as if it were traveling through a long, vacuum-sealed pipe. "You get to believe the paint is the wall. You get to think the sunrise is a beginning, rather than just a shift in the light."</p>
-             <p>The last of John’s sight winked out. The world collapsed into absolute, crushing blackness. He was a disembodied consciousness floating in a void, his own body nothing more than a memory.</p>
-             <p>"Listen, John," the stranger’s voice whispered, so faint now it was barely a vibration in the dark. "The wind will continue to blow. But it has no sound. It is just... movement."</p>
-             <p>Then, the sound cut out. The stranger’s voice vanished. The universe became a dead, silent absolute.</p>
-             <p>Seconds passed—or perhaps eons.</p>
-             <p>Then, the tide began to turn, but the return was broken. Through the heavy, suffocating dark, John's dead senses began to spark back to life one by one, Hitch and fractured.</p>
-             <p>First came a faint, rhythmic vibration. It was the stranger’s voice, a low, mechanical mumble cutting through the void before John could even hear the wind or the fire. The stranger was still talking, his words bubbling up through the static of John's reviving mind, low and unbothered.</p>
-             <p>"...the iron beneath the soil... the lines that never cross... you build your boxes..."</p>
-             <p>With a violent, sickening lurch, the rest of the sensory world slammed back into place. The heat of the fire seared John’s face. The smell of burning broth flooded his nostrils. The wind roared back into his ears like a physical blow.</p>
-             <p>John gasped, his hands flying to his face. He felt eyes, a nose, a mouth. He was back. The stranger was still mumbling across the hearth, his lips moving in that flat, rhythmic drone, completely detached from the horror unfolding inches away.</p>
-             <p>"...but there is no thickness to the paper, John. You live your entire life on the edge of a blade, thinking it is a wide road..."</p>
-             <p>John scrambled backward in a blind panic, his heavy boot catching the tripod. With a loud, clattering crash, the cooking pot tipped directly into the fire, dumping the broth into the flames with a violent hiss of steam.</p>`,
-
-            // PAGE 5 (Index 5)
-            `<p>Through the blinding white cloud of vapor, John saw the stranger. The moment the pot crashed; the god finally stopped talking. He went perfectly quiet, his hands resting on his knees, watching John through the smoke with a look of detached, terrifying curiosity.</p>
-             <p>"Monster," John choked out, his voice raw, shaking so hard his teeth clicked. "You're a monster!"</p>
-             <p>The stranger didn't pull away. He didn't blink. He just stared at the ruined hearth, his hollow voice cutting through the rising steam.</p>
-             <p>"I was only showing you what is outside, John."</p>
-             <p>The stranger didn't chase him. But as John scrambled to his feet and turned to flee, a final line from the stranger echoed down the path, clear and unbothered by the wind:</p>
-             <p>"You are blinded by the lies, John."</p>
-             <p>John sprinted down the mountain track, his boots sliding wildly on the loose rocks. Terrified, he cast one frantic look back over his shoulder.</p>
-             <p>He couldn't see the house.</p>
-             <p>John plunged headfirst into the pitch-black darkness of the valley below, running blindly down the mountain track. His boots slid wildly on the loose stones, the twigs snapping against his face like sharp needles. He ran so fast his lungs screamed for air, his heart hammering against his ribs in a sheer, unadulterated panic.</p>
-             <p>Suddenly, his foot caught on a thick, twisted root.</p>
-             <p>With a hard, violent lurch, John went flying forward, crashing brutally onto the cold earth. The impact knocked the wind right out of him. Scrambling in the dirt, gasping for air, he stared back up into the absolute blackness of the ridges, terrified that the stranger was right behind him.</p>
-             <p>"Help!" John shrieked, his voice raw and cracking. "Someone help me! Please!"</p>
-             <p>But there was no response. The high woods were dead silent at night, offering nothing but the indifferent whistling of the wind.</p>
-             <p>Scrambling back to his feet, crying out in frustration, John kept running. He pushed through the thick briars until the trees finally began to thin, and the distant, familiar lanterns of his village flickered into view. The village. His home. Where his wife and children were safe,</p>
-             <p>He sprinted down the main dirt path, his breath coming in ragged, frantic gasps. Up ahead, he saw the shapes of a few late-night villagers walking past the town square. Relief washed over him for a fraction of a second, and he sprinted toward them. "Help me! There's something up on the ridge—"</p>`,
-
-            // PAGE 6 (Index 6)
-            `<p>John stopped dead in his tracks, his voice dying in his throat.</p>
-             <p>It wasn't right. As he got closer, the people turning to look at him did not look human. They carried lanterns, and he could distinctly hear the worried, familiar cadence of their voices asking if he was alright, but their faces lacked any human texture. There was no skin, no wrinkles, no soft curves of flesh—just a terrifying, flat arrangement of shifting geometry. Their heads looked like multi-sided blocks carved out of absolute math, their featureless eyes tracking him through impossible angles.</p>
-             <p>John shrieked, stumbling backward away from them. "Get away from me! Stay back! Don't touch me!"</p>
-             <p>The villagers paused, entirely confused and deeply unsettled by the mason's sudden madness, but John didn't wait. He spun around and ran in a blind, sobbing panic, shielding his eyes from the impossible shapes of the town around him.</p>
-             <p>He bolted down the familiar lane until he slammed his weight against the wooden door of his own house. He burst inside, throwing his back against the door and sliding the iron bolt into place, chest heaving.</p>
-             <p>"John?"</p>
-             <p>From the kitchen, his wife emerged, holding a dim candle. From the doorway of the bedroom, his two young children peeked out, rubbing their eyes, awakened by the violent entrance.</p>
-             <p>But the moment John looked at them, a fresh wave of terror struck him like a physical blow. His wife was speaking, her voice dripping with immediate concern—"John, what's wrong? What happened to your clothes?"—but his mind could no longer stitch her together. Her face was splitting into too many sides, her form vibrating with a multi-layered mass that threatened to turn his stomach inside out. The children's faces looked like jagged, calcified charcoal sketches, shifting unnaturally in the candlelight.</p>
-             <p>"No! No, stay back!" John screamed, covering his eyes with his trembling hands as he dropped heavily to his knees on the floorboards. "Don't look at me! Stay away from me!"</p>
-             <p>The children broke into loud, frightened cries, shrinking back into the doorway at the sight of their father sobbing and thrashing on the floor.</p>
-             <p>His wife, deeply confused and terrified for him, didn't back down. "John, please! Look at me! It's me!" She rushed forward, dropping to her knees right in front of him.</p>
-             <p>"Don't touch me! Please, don't look at me!" John wailed, his head pressed against the floor, his mind drowning in the cold, heavy truth of the void.</p>`,
-
-            // PAGE 7 (Index 7)
-            `<p>But she didn't listen. Desperate to comfort him, his wife reached out and firmly grabbed his face, her warm, calloused palms pressing tightly against his cheeks. "John, stop it! Listen to my voice! It's alright, it's alright... we're right here. You're home."</p>
-             <p>The moment the physical warmth of her hands pressed into his skin, the violent vertigo in John’s mind suddenly shuddered. The impossible angles began to recede, snapping backward like a rubber band.</p>
-             <p>Slowly, hesitatingly, John opened his eyes.</p>
-             <p>The multi-sided horror was gone. Standing over him in the warm candle-glow was his wife—her face completely normal, soft, and filled with deep, tearful concern. The children were just children, crying and pulling at her apron.</p>
-             <p>A choked sob tore out of John's throat. The filters had slammed back into place. He lunged forward, throwing his arms around his wife's neck, pulling his crying children tightly into the embrace. He buried his face in her shoulder, weeping uncontrollably.</p>
-             <p>"I'm sorry... I'm so sorry," John mumbled repeatedly, his hands gripping their clothes as if they were the only solid objects left in the entire universe. "I'm sorry..."</p>
-             <p>His wife held him tightly, rocking him gently on the floorboards while the children buried their faces into his chest. After his breathing finally began to slow, she pulled back just enough to look into his bloodshot eyes, her voice trembling.</p>
-             <p>"John... what is happening?" she questioned softly, wiping a tear from his cheek. "Did something happen on the ridge? Did someone attack you?"</p>
-             <p>John's body went rigid again. Slowly, his gaze drifted away from her, turning toward the dark glass of the window pane. He stared through the reflection, looking past the village lanterns, up toward the pitch-black silhouette of the lonely mountain ridge.</p>
-             <p>"There's a stranger in the mountains..." John whispered, his voice completely hollow, his fingers tightening around his wife's hand. "He's up on my land. He... he did something to me."</p>`,
-
-            // BACK COVER (Index 8)
-            `<div class="blurb-container">
-                 <div class="blurb-title">WHAT LIES BEYOND THE AIR WE BREATHE?</div>
-                 <div class="blurb-text">
-                     John was a simple stone mason, building a quiet home for his family on a rugged mountain ridge. But a late-night traveler brings a cold, terrifying perspective to his hearth. 
-                 </div>
-                 <div class="blurb-text">
-                     When the veil of human perception is peeled back, what remains is not a sanctuary under the sky, but an unforgiving void of absolute mathematics and shifting shapes. Once you glimpse the noumenon, can you ever truly feel at home inside the box again?
-                 </div>
-             </div>
-             <div class="back-footer">
-                 <div class="publisher-info">
-                     <strong>VOIDWEAVER PRESS</strong><br>
-                     Fiction / Philosophical Horror
-                 </div>
-                 <div class="barcode">
-                     <div class="barcode-lines"></div>
-                     <div class="barcode-text">978-0-1234-5678-9</div>
-                 </div>
-             </div>`
+        const dynamicPages=[
+            `<div class="title-container"><div class="title-large">THE GOD ⟂</div><div class="title-combined"><div class="drop-n">N</div><div class="title-sub-text">OUMENON</div></div><div class="tagline">BEYOND THE CONCEPT OF EXISTENCE ITSELF</div></div><div class="credits">CONFRONTING THE UNKNOWABLE<br>NATURE OF THE NOUMENON<br><br><span style="color:#e5d1b3;font-size:1.2rem;">BY Lazymna_XD</span></div>`,
+            `<div class="title-container" style="margin:0 0 20px 0;text-align:left;"><div class="title-large" style="font-size:2.2rem;letter-spacing:1px;">THE GOD ⟂</div><div class="title-combined" style="justify-content:flex-start;"><div class="drop-n" style="font-size:3.8rem;">N</div><div class="title-sub-text" style="font-size:2rem;margin-top:4px;letter-spacing:1px;">OUMENON</div></div></div><p>The observer existed even before the very concept of observation came to mind—one God. A nameless god, for a god has no concept of names, but is a keeper of structures. For three thousand years, he had worn the skin of countless travelers, wandering the ridges of the valleys simply to watch the mortals build. He took no pleasure in their wars or their loves, but he was endlessly fascinated by their hands—their endless knowledge of both the known and the unknown.</p><p>It was curiosity, cold and small, that made him approach the mason.</p><p>High on the mountain side, a man named John was building his new house. The stone foundations were halfway raised, cutting a straight, neat rectangle into the rugged slope. As the evening chill rolled over the ridge, John sat tight against his unfinished timber frame, stirring a pot of simple broth over a cooking fire.</p><p>Out of the dark tree line, a figure appeared.</p><p>John instantly went rigid, his hand tightening around the heavy wooden handle of his spade. He watched the man approach—a weary-looking traveler wrapped in a heavy, dust-laden woolen coat.</p>`,
+            `<p>The stranger stopped just at the edge of the firelight, raising his hands slightly to show they were empty. "The wind is turning sharp on the ridge," the stranger said. His voice was unusually quiet, carrying a flat, hollow resonance. "May I camp near your fire for the night?"</p><p>John hesitated. He looked the man up and down, to see if the man was armed. his eyes darting to the dark trail behind him. It was a lonely place to meet anyone after dark. But the stranger looked exhausted, and the mountain winds were unforgiving.</p><p>John nodded slowly, though his posture remained guarded. "There's a flat log across from me. You can stay till dawn."</p><p>The stranger sat down, keeping his eyes fixed on the works of the mason.</p><p>To break the heavy, tense silence, John kept his eyes on his cooking pot and struck up a conversation, still trying to figure out who this man was. "A bit late to be trekking through the high woods, stranger. What brings a man up the mountain track overnight?"</p><p>The stranger didn't answer right away. He stared past the flames, his unblinking eyes locked onto the half-finished masonry cutting into the slope. "I was following the ridge," he said softly, his voice matching the low hum of the wind. "I wanted to see what was being built out here in the dark."</p><p>John let out a short, rough laugh, the tension in his shoulders easing just a bit. "Well, you found the right spot for it. I'm John, a mason by trade." He gestured with his wooden spoon toward the half-raised stone foundations behind them. "Building a new homestead right here. It’s a brutal climb, but my wife... she fell in love with this ridge. She wanted a little farm up here, away from the crowded village square. Said she wanted a place where she could sit on the porch and watch the sunset over the valley every single evening without a wall blocking her view."</p><p>John smiled faintly at the thought, his mind completely insulated by the simple, beautiful future he was constructing with his hands. "So, I’m building it for her, simple heavy timber. A straight wall to keep the winter out."</p><p>"Have you ever experienced what the world is like outside of the walls, John?" the stranger asked. He leaned forward, his voice steady, rhythmic, and perfectly normal against the backdrop of the crackling fire.</p><p>John blinked, his smile faltering at the unexpected question from the stranger. "Outside the walls? Uhm—sure. I'm under the sky right now. I work under it every day."</p><p>"No," the stranger murmured, his voice dropping into a flat, rhythmic hum. "You John are inside a box made of blue air and sunlight,"</p>`,
+            `<p>"You have never touched the outside. Your skin is too thick. Your eyes are too narrow to see the grain of reality."</p><p>John chuckled, though it was a nervous, hollow sound that died quickly in his throat. He shifted uncomfortably on his log, looking at the stranger's unblinking eyes, then down at his own calloused palms.</p><p>"The grain of... what?" John asked, his brow furrowing as a cold prickle of unease washed over his neck. "Look, friend, you’re talking in riddles. My skin is thick because I handle rough granite all day. My eyes are just fine. I see the timber, I see the valley, and I see you sitting across from my fire eating my food."</p><p>The stranger didn't blink. He didn't even seem to breathe.</p><p>John’s irritation began to override his confusion. He gripped the wooden handle of his spade a little tighter. "Are you drunk, or just trying to spook a man on his own land? If you're looking to mock my house or preach some eccentric philosophy, you can take your coat and march right back down the trail."</p><p>The stranger remained perfectly still, his silhouette bleeding into the shadows of the pines.</p><p>"Alright, stranger," John muttered, his voice dropping an octave as he began to rise. "I think it's about time you—"</p><p>He stopped. The warmth of the fire abruptly vanished from his skin. He reached up, his calloused hand brushing his nose, but he couldn't feel the texture of his flesh; it felt like sliding a hand over cold, smooth glass.</p><p>"Uhm... what's happening to me..." John stammered, his voice losing its edge, melting into a numb, confused whisper as his fingers scrambled over his own jaw.</p><p>"It is a quiet place," the stranger mused. "There is no weight there. No gravity to hold a house to the ground. Just the absolute foundation of the world."</p><p>John’s heart hammered. He tried to stand, but his legs didn't register the pressure of the earth. He was becoming weightless. He looked down, but the world was graying at the edges, losing its color and depth, turning into a flat, washed-out sketch.</p><p>"The smell of the pines," the stranger continued, his voice sounding slightly more distant now, as if he were walking away. "The scent of the damp earth after a rain. Those are just creations, Elements, meant to keep you from noticing that you are standing on a void."</p><p>John tried to shout, but he couldn't feel his tongue or his throat. He clawed at his own face, his fingers sliding over a featureless expanse of skin where his mouth and nose should have been."</p>`,
+            `<p>"No, no, no... Help me! Someone help me! I—"</p><p>The sound cut off. His fingers slid over smooth, unbroken skin. The world was shrinking to a tiny, pinpoint circle of vision.</p><p>"I envy you, in a way John," the stranger said. His voice was becoming thin, metallic, and faint, as if it were traveling through a long, vacuum-sealed pipe. "You get to believe the paint is the wall. You get to think the sunrise is a beginning, rather than just a shift in the light."</p><p>The last of John’s sight winked out. The world collapsed into absolute, crushing blackness. He was a disembodied consciousness floating in a void, his own body nothing more than a memory.</p><p>"Listen, John," the stranger’s voice whispered, so faint now it was barely a vibration in the dark. "The wind will continue to blow. But it has no sound. It is just... movement."</p><p>Then, the sound cut out. The stranger’s voice vanished. The universe became a dead, silent absolute.</p><p>Seconds passed—or perhaps eons.</p><p>Then, the tide began to turn, but the return was broken. Through the heavy, suffocating dark, John's dead senses began to spark back to life one by one, Hitch and fractured.</p><p>First came a faint, rhythmic vibration. It was the stranger’s voice, a low, mechanical mumble cutting through the void before John could even hear the wind or the fire. The stranger was still talking, his words bubbling up through the static of John's reviving mind, low and unbothered.</p><p>"...the iron beneath the soil... the lines that never cross... you build your boxes..."</p><p>With a violent, sickening lurch, the rest of the sensory world slammed back into place. The heat of the fire seared John’s face. The smell of burning broth flooded his nostrils. The wind roared back into his ears like a physical blow.</p><p>John gasped, his hands flying to his face. He felt eyes, a nose, a mouth. He was back. The stranger was still mumbling across the hearth, his lips moving in that flat, rhythmic drone, completely detached from the horror unfolding inches away.</p><p>"...but there is no thickness to the paper, John. You live your entire life on the edge of a blade, thinking it is a wide road..."</p><p>John scrambled backward in a blind panic, his heavy boot catching the tripod. With a loud, clattering crash, the cooking pot tipped directly into the fire, dumping the broth into the flames with a violent hiss of steam.</p>`,
+            `<p>Through the blinding white cloud of vapor, John saw the stranger. The moment the pot crashed; the god finally stopped talking. He went perfectly quiet, his hands resting on his knees, watching John through the smoke with a look of detached, terrifying curiosity.</p><p>"Monster," John choked out, his voice raw, shaking so hard his teeth clicked. "You're a monster!"</p><p>The stranger didn't pull away. He didn't blink. He just stared at the ruined hearth, his hollow voice cutting through the rising steam.</p><p>"I was only showing you what is outside, John."</p><p>The stranger didn't chase him. But as John scrambled to his feet and turned to flee, a final line from the stranger echoed down the path, clear and unbothered by the wind:</p><p>"You are blinded by the lies, John."</p><p>John sprinted down the mountain track, his boots sliding wildly on the loose rocks. Terrified, he cast one frantic look back over his shoulder.</p><p>He couldn't see the house.</p><p>John plunged headfirst into the pitch-black darkness of the valley below, running blindly down the mountain track. His boots slid wildly on the loose stones, the twigs snapping against his face like sharp needles. He ran so fast his lungs screamed for air, his heart hammering against his ribs in a sheer, unadulterated panic.</p><p>Suddenly, his foot caught on a thick, twisted root.</p><p>With a hard, violent lurch, John went flying forward, crashing brutally onto the cold earth. The impact knocked the wind right out of him. Scrambling in the dirt, gasping for air, he stared back up into the absolute blackness of the ridges, terrified that the stranger was right behind him.</p><p>"Help!" John shrieked, his voice raw and cracking. "Someone help me! Please!"</p><p>But there was no response. The high woods were dead silent at night, offering nothing but the indifferent whistling of the wind.</p><p>Scrambling back to his feet, crying out in frustration, John kept running. He pushed through the thick briars until the trees finally began to thin, and the distant, familiar lanterns of his village flickered into view. The village. His home. Where his wife and children were safe,</p><p>He sprinted down the main dirt path, his breath coming in ragged, frantic gasps. Up ahead, he saw the shapes of a few late-night villagers walking past the town square. Relief washed over him for a fraction of a second, and he sprinted toward them. "Help me! There's something up on the ridge—"</p>`,
+            `<p>John stopped dead in his tracks, his voice dying in his throat.</p><p>It wasn't right. As he got closer, the people turning to look at him did not look human. They carried lanterns, and he could distinctly hear the worried, familiar cadence of their voices asking if he was alright, but their faces lacked any human texture. There was no skin, no wrinkles, no soft curves of flesh—just a terrifying, flat arrangement of shifting geometry. Their heads looked like multi-sided blocks carved out of absolute math, their featureless eyes tracking him through impossible angles.</p><p>John shrieked, stumbling backward away from them. "Get away from me! Stay back! Don't touch me!"</p><p>The villagers paused, entirely confused and deeply unsettled by the mason's sudden madness, but John didn't wait. He spun around and ran in a blind, sobbing panic, shielding his eyes from the impossible shapes of the town around him.</p><p>He bolted down the familiar lane until he slammed his weight against the wooden door of his own house. He burst inside, throwing his back against the door and sliding the iron bolt into place, chest heaving.</p><p>"John?"</p><p>From the kitchen, his wife emerged, holding a dim candle. From the doorway of the bedroom, his two young children peeked out, rubbing their eyes, awakened by the violent entrance.</p><p>But the moment John looked at them, a fresh wave of terror struck him like a physical blow. His wife was speaking, her voice dripping with immediate concern—"John, what's wrong? What happened to your clothes?"—but his mind could no longer stitch her together. Her face was splitting into too many sides, her form vibrating with a multi-layered mass that threatened to turn his stomach inside out. The children's faces looked like jagged, calcified charcoal sketches, shifting unnaturally in the candlelight.</p><p>"No! No, stay back!" John screamed, covering his eyes with his trembling hands as he dropped heavily to his knees on the floorboards. "Don't look at me! Stay away from me!"</p><p>The children broke into loud, frightened cries, shrinking back into the doorway at the sight of their father sobbing and thrashing on the floor.</p><p>His wife, deeply confused and terrified for him, didn't back down. "John, please! Look at me! It's me!" She rushed forward, dropping to her knees right in front of him.</p><p>"Don't touch me! Please, don't look at me!" John wailed, his head pressed against the floor, his mind drowning in the cold, heavy truth of the void.</p>`,
+            `<p>But she didn't listen. Desperate to comfort him, his wife reached out and firmly grabbed his face, her warm, calloused palms pressing tightly against his cheeks. "John, stop it! Listen to my voice! It's alright, it's alright... we're right here. You're home."</p><p>The moment the physical warmth of her hands pressed into his skin, the violent vertigo in John’s mind suddenly shuddered. The impossible angles began to recede, snapping backward like a rubber band.</p><p>Slowly, hesitatingly, John opened his eyes.</p><p>The multi-sided horror was gone. Standing over him in the warm candle-glow was his wife—her face completely normal, soft, and filled with deep, tearful concern. The children were just children, crying and pulling at her apron.</p><p>A choked sob tore out of John's throat. The filters had slammed back into place. He lunged forward, throwing his arms around his wife's neck, pulling his crying children tightly into the embrace. He buried his face in her shoulder, weeping uncontrollably.</p><p>"I'm sorry... I'm so sorry," John mumbled repeatedly, his hands gripping their clothes as if they were the only solid objects left in the entire universe. "I'm sorry..."</p><p>His wife held him tightly, rocking him gently on the floorboards while the children buried their faces into his chest. After his breathing finally began to slow, she pulled back just enough to look into his bloodshot eyes, her voice trembling.</p><p>"John... what is happening?" she questioned softly, wiping a tear from his cheek. "Did something happen on the ridge? Did someone attack you?"</p><p>John's body went rigid again. Slowly, his gaze drifted away from her, turning toward the dark glass of the window pane. He stared through the reflection, looking past the village lanterns, up toward the pitch-black silhouette of the lonely mountain ridge.</p><p>"There's a stranger in the mountains..." John whispered, his voice completely hollow, his fingers tightening around his wife's hand. "He's up on my land. He... he did something to me."</p>`,
+            `<div class="blurb-container"><div class="blurb-title">WHAT LIES BEYOND THE AIR WE BREATHE?</div><div class="blurb-text">John was a simple stone mason, building a quiet home for his family on a rugged mountain ridge. But a late-night traveler brings a cold, terrifying perspective to his hearth.</div><div class="blurb-text">When the veil of human perception is peeled back, what remains is not a sanctuary under the sky, but an unforgiving void of absolute mathematics and shifting shapes. Once you glimpse the noumenon, can you ever truly feel at home inside the box again?</div></div><div class="back-footer"><div class="publisher-info"><strong>VOIDWEAVER PRESS</strong><br>Fiction / Philosophical Horror</div><div class="barcode"><div class="barcode-lines"></div><div class="barcode-text">978-0-1234-5678-9</div></div></div>`
         ];
 
-        const book = document.getElementById('book');
-        const bookScaler = document.getElementById('book-scaler');
-        const zoneLeft = document.getElementById('zone-left');
-        const zoneRight = document.getElementById('zone-right');
-        const btnPrev = document.getElementById('btn-prev');
-        const btnNext = document.getElementById('btn-next');
-        const exitScreen = document.getElementById('exit-screen');
-        const reopenBtn = document.getElementById('reopen-btn');
-        const navArrows = document.getElementById('nav-arrows');
+        const book=document.getElementById('book'),bookScaler=document.getElementById('book-scaler'),zoneLeft=document.getElementById('zone-left'),zoneRight=document.getElementById('zone-right'),btnPrev=document.getElementById('btn-prev'),btnNext=document.getElementById('btn-next'),exitScreen=document.getElementById('exit-screen'),reopenBtn=document.getElementById('reopen-btn'),navArrows=document.getElementById('nav-arrows');
+        let isMobileDevice=!1,currentSheetIndex=0,sheetsMap=new Map,totalSheets=0;
 
-        let isMobileDevice = false;
-        let currentSheetIndex = 0; 
-        let sheetsMap = new Map();
-        let totalSheets = 0;
-
-        function renderBookStructure() {
-            const clickLayer = document.querySelector('.click-layer');
-            
-            book.innerHTML = '';
-            book.appendChild(clickLayer);
-            sheetsMap.clear();
-
-            const bookmarkHTML = `
-                <div class="bookmark-anchor">
-                    <div class="bookmark-ribbon" id="bookmark-exit" title="Exit Book">
-                        <span class="bookmark-text">EXIT</span>
-                    </div>
-                </div>
-            `;
-
-            // Add bookmark to book element so it moves with the book
-            book.insertAdjacentHTML('beforeend', bookmarkHTML);
-
-            if (isMobileDevice) {
-                totalSheets = dynamicPages.length;
-
-                dynamicPages.forEach((contentHtml, idx) => {
-                    const pageEl = document.createElement('div');
-                    pageEl.className = 'page';
-                    pageEl.dataset.index = idx;
-
-                    const isCover = idx === 0;
-                    const isBack = idx === totalSheets - 1;
-                    const frontClass = (isCover || isBack) ? 'front hardcover' : 'front';
-
-                    let pageLabel = '';
-                    if (!isCover && !isBack) {
-                        pageLabel = `Page ${idx}`;
-                    }
-
-                    pageEl.innerHTML = `
-                        <div class="${frontClass}">
-                            <div class="content">${contentHtml}</div>
-                            <div class="page-number">${pageLabel}</div>
-                        </div>
-                        <div class="back ${isBack ? 'hardcover' : ''}"></div>
-                    `;
-
-                    pageEl.style.zIndex = totalSheets - idx;
-                    book.appendChild(pageEl);
-                    sheetsMap.set(idx, pageEl);
+        function renderBookStructure(){
+            const e=document.querySelector('.click-layer');
+            book.innerHTML='',book.appendChild(e),sheetsMap.clear();
+            book.insertAdjacentHTML('beforeend',`<div class="bookmark-anchor"><div class="bookmark-ribbon" id="bookmark-exit" title="Exit Book"><span class="bookmark-text">EXIT</span></div></div>`);
+            if(isMobileDevice){
+                totalSheets=dynamicPages.length;
+                dynamicPages.forEach((e,t)=>{
+                    const n=document.createElement('div');
+                    n.className='page',n.dataset.index=t;
+                    const o=0===t,s=t===totalSheets-1,c=o||s?'front hardcover':'front';
+                    let r=!o&&!s?`Page ${t}`:'';
+                    n.innerHTML=`<div class="${c}"><div class="content">${e}</div><div class="page-number">${r}</div></div><div class="back ${s?'hardcover':''}"></div>`;
+                    n.style.zIndex=totalSheets-t,book.appendChild(n),sheetsMap.set(t,n);
                 });
-
-            } else {
-                totalSheets = Math.ceil(dynamicPages.length / 2);
-
-                for (let i = 0; i < totalSheets; i++) {
-                    const pageEl = document.createElement('div');
-                    pageEl.className = 'page';
-                    pageEl.dataset.index = i;
-
-                    const frontPageIndex = i * 2;
-                    const backPageIndex = i * 2 + 1;
-
-                    const isFrontCover = i === 0;
-                    const isBackCover = i === totalSheets - 1;
-
-                    // Detect which side holds the actual back cover blurb (Index 8)
-                    const isFrontBackCover = frontPageIndex === dynamicPages.length - 1;
-                    const isBackBackCover = backPageIndex === dynamicPages.length - 1;
-
-                    const frontClass = isFrontCover || isFrontBackCover ? 'front hardcover' : 'front';
-                    const backClass = isBackCover || isBackBackCover ? 'back hardcover' : 'back';
-
-                    const frontContent = dynamicPages[frontPageIndex] || '';
-                    const backContent = dynamicPages[backPageIndex] || '';
-
-                    const frontNum = (frontPageIndex > 0 && frontPageIndex < dynamicPages.length - 1) ? frontPageIndex : '';
-                    const backNum = (backPageIndex > 0 && backPageIndex < dynamicPages.length - 1) ? backPageIndex : '';
-
-                    pageEl.innerHTML = `
-                        <div class="${frontClass}">
-                            <div class="content">${frontContent}</div>
-                            <div class="page-number" style="text-align:right;">${frontNum}</div>
-                        </div>
-                        <div class="${backClass}">
-                            <div class="content">${backContent}</div>
-                            <div class="page-number" style="text-align:left;">${backNum}</div>
-                        </div>
-                    `;
-
-                    pageEl.style.zIndex = totalSheets - i;
-                    book.appendChild(pageEl);
-                    sheetsMap.set(i, pageEl);
+            }else{
+                totalSheets=Math.ceil(dynamicPages.length/2);
+                for(let e=0;e<totalSheets;e++){
+                    const t=document.createElement('div');
+                    t.className='page',t.dataset.index=e;
+                    const n=2*e,o=2*e+1,s=0===e,c=e===totalSheets-1,r=n===dynamicPages.length-1,a=o===dynamicPages.length-1,i=s||r?'front hardcover':'front',l=c||a?'back hardcover':'back',d=dynamicPages[n]||'',u=dynamicPages[o]||'',m=n>0&&n<dynamicPages.length-1?n:'',g=o>0&&o<dynamicPages.length-1?o:'';
+                    t.innerHTML=`<div class="${i}"><div class="content">${d}</div><div class="page-number" style="text-align:right;">${m}</div></div><div class="${l}"><div class="content">${u}</div><div class="page-number" style="text-align:left;">${g}</div></div>`;
+                    t.style.zIndex=totalSheets-e,book.appendChild(t),sheetsMap.set(e,t);
                 }
             }
-
-            if (currentSheetIndex >= totalSheets) {
-                currentSheetIndex = totalSheets - 1;
-            }
-            
-            attachBookmarkListener();
-            updateBookState();
+            currentSheetIndex>=totalSheets&&(currentSheetIndex=totalSheets-1),attachBookmarkListener(),updateBookState();
         }
 
-        function attachBookmarkListener() {
-            const bookmarkExit = document.getElementById('bookmark-exit');
-            if (bookmarkExit) {
-                console.log('Bookmark found, attaching listener');
-                
-                // Remove any existing listeners to prevent duplicates
-                const newBookmarkExit = bookmarkExit.cloneNode(true);
-                bookmarkExit.parentNode.replaceChild(newBookmarkExit, bookmarkExit);
-                
-                newBookmarkExit.addEventListener('click', (e) => {
-                    console.log('Bookmark clicked');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    exitBook();
-                });
-                
-                // Also handle touch events for mobile
-                newBookmarkExit.addEventListener('touchend', (e) => {
-                    console.log('Bookmark touched');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    exitBook();
-                });
-                
-                // Also handle mousedown to prevent any other interactions
-                newBookmarkExit.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                });
-            } else {
-                console.log('Bookmark not found');
+        function attachBookmarkListener(){
+            const e=document.getElementById('bookmark-exit');
+            if(e){
+                const t=e.cloneNode(!0);
+                e.parentNode.replaceChild(t,e);
+                t.addEventListener('click',e=>{e.preventDefault(),e.stopPropagation(),e.stopImmediatePropagation(),exitBook()});
+                t.addEventListener('touchend',e=>{e.preventDefault(),e.stopPropagation(),e.stopImmediatePropagation(),exitBook()});
+                t.addEventListener('mousedown',e=>{e.preventDefault(),e.stopPropagation(),e.stopImmediatePropagation()});
             }
         }
 
-        function rescaleBook() {
-            const SINGLE_PAGE_WIDTH = 1240;
-            const DOUBLE_SPREAD_WIDTH = 1240 * 2;
-            const BASE_HEIGHT = 1754;
-
-            const windowW = window.innerWidth;
-            const windowH = window.innerHeight;
-            
-            const wasMobile = isMobileDevice;
-            isMobileDevice = windowW < 850;
-
-            if (wasMobile !== isMobileDevice) {
-                renderBookStructure();
-            }
-
-            let scale;
-
-            if (isMobileDevice) {
-                document.body.classList.add('is-mobile');
-                const scaleX = (windowW * 0.92) / SINGLE_PAGE_WIDTH;
-                const scaleY = (windowH * 0.85) / BASE_HEIGHT;
-                scale = Math.min(scaleX, scaleY);
-            } else {
-                document.body.classList.remove('is-mobile');
-                const scaleX = (windowW * 0.85) / DOUBLE_SPREAD_WIDTH;
-                const scaleY = (windowH * 0.85) / BASE_HEIGHT;
-                scale = Math.min(scaleX, scaleY);
-            }
-
-            bookScaler.style.transform = `scale(${scale})`;
-            updateBookState();
+        function rescaleBook(){
+            const e=window.innerWidth,t=window.innerHeight,n=isMobileDevice;
+            isMobileDevice=e<850,n!==isMobileDevice&&renderBookStructure();
+            let o;
+            isMobileDevice?(document.body.classList.add('is-mobile'),o=Math.min(.92*e/1240,.85*t/1754)):(document.body.classList.remove('is-mobile'),o=Math.min(.85*e/2480,.85*t/1754));
+            bookScaler.style.transform=`scale(${o})`,updateBookState();
         }
 
-        function updateBookState() {
-            book.classList.remove('closed-front', 'open-spread', 'closed-back');
-
-            if (!isMobileDevice) {
-                if (currentSheetIndex === 0) {
-                    book.classList.add('closed-front');
-                } else if (currentSheetIndex === totalSheets - 1) {
-                    book.classList.add('closed-back');
-                } else {
-                    book.classList.add('open-spread');
-                }
+        function updateBookState(){
+            if(book.classList.remove('closed-front','open-spread','closed-back'),!isMobileDevice){
+                0===currentSheetIndex?book.classList.add('closed-front'):currentSheetIndex===totalSheets-1?book.classList.add('closed-back'):book.classList.add('open-spread');
             }
-
-            for (let i = 0; i < totalSheets; i++) {
-                const sheet = sheetsMap.get(i);
-                if (!sheet) continue;
-                if (i < currentSheetIndex) {
-                    sheet.classList.add('flipped');
-                    sheet.style.zIndex = i + 1;
-                } else {
-                    sheet.classList.remove('flipped');
-                    sheet.style.zIndex = totalSheets - i;
-                }
+            for(let e=0;e<totalSheets;e++){
+                const t=sheetsMap.get(e);
+                t&&(e<currentSheetIndex?(t.classList.add('flipped'),t.style.zIndex=e+1):(t.classList.remove('flipped'),t.style.zIndex=totalSheets-e));
             }
-
-            btnPrev.classList.toggle('disabled', currentSheetIndex === 0);
-            btnNext.classList.toggle('disabled', currentSheetIndex >= totalSheets - 1);
+            btnPrev.classList.toggle('disabled',0===currentSheetIndex),btnNext.classList.toggle('disabled',currentSheetIndex>=totalSheets-1);
         }
 
-        function flipNext() {
-            if (currentSheetIndex < totalSheets - 1) {
-                currentSheetIndex++;
-                updateBookState();
-            }
+        function flipNext(){currentSheetIndex<totalSheets-1&&(currentSheetIndex++,updateBookState())}
+        function flipPrev(){currentSheetIndex>0&&(currentSheetIndex--,updateBookState())}
+
+        function exitBook(){
+            if(window.parent&&window.parent!==window)try{window.parent.postMessage('exit-infinite-book','*');return}catch(e){}
+            bookScaler.style.opacity='0',navArrows.style.opacity='0',setTimeout(()=>{exitScreen.classList.add('active')},300);
         }
 
-        function flipPrev() {
-            if (currentSheetIndex > 0) {
-                currentSheetIndex--;
-                updateBookState();
-            }
+        function reopenBook(){
+            exitScreen.classList.remove('active'),setTimeout(()=>{bookScaler.style.opacity='1',navArrows.style.opacity='1'},200);
         }
 
-        function exitBook() {
-            // If this book is embedded inside the main site (an iframe),
-            // tell the parent page to close the overlay and go back to the
-            // site instead of showing this page's own standalone exit screen.
-            if (window.parent && window.parent !== window) {
-                try {
-                    window.parent.postMessage('exit-infinite-book', '*');
-                    return;
-                } catch (e) {
-                    // fall through to standalone behavior if postMessage fails
-                }
-            }
-            bookScaler.style.opacity = '0';
-            navArrows.style.opacity = '0';
-            setTimeout(() => {
-                exitScreen.classList.add('active');
-            }, 300);
-        }
-
-        function reopenBook() {
-            exitScreen.classList.remove('active');
-            setTimeout(() => {
-                bookScaler.style.opacity = '1';
-                navArrows.style.opacity = '1';
-            }, 200);
-        }
-
-        reopenBtn.addEventListener('click', reopenBook);
-
-        window.addEventListener('resize', rescaleBook);
-        window.addEventListener('orientationchange', () => setTimeout(rescaleBook, 100));
-
-        zoneRight.addEventListener('click', flipNext);
-        zoneLeft.addEventListener('click', flipPrev);
-        btnNext.addEventListener('click', flipNext);
-        btnPrev.addEventListener('click', flipPrev);
-
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') flipNext();
-            if (e.key === 'ArrowLeft') flipPrev();
-            if (e.key === 'Escape') exitBook();
-        });
+        reopenBtn.addEventListener('click',reopenBook);
+        window.addEventListener('resize',rescaleBook);
+        window.addEventListener('orientationchange',()=>setTimeout(rescaleBook,100));
+        zoneRight.addEventListener('click',flipNext);
+        zoneLeft.addEventListener('click',flipPrev);
+        btnNext.addEventListener('click',flipNext);
+        btnPrev.addEventListener('click',flipPrev);
+        window.addEventListener('keydown',e=>{"ArrowRight"===e.key&&flipNext(),"ArrowLeft"===e.key&&flipPrev(),"Escape"===e.key&&exitBook()});
 
         renderBookStructure();
         rescaleBook();
