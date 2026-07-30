@@ -5,20 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>THE GOD ⟂ NOUMENON</title>
     <style>
-        *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;padding:0;background-color:#0b0b0c;overflow:hidden;font-family:'Calibri','Arial',sans-serif}body{display:flex;justify-content:center;align-items:center;perspective:3000px}
+        *{box-sizing:border-box;touch-action:manipulation}
+        html,body{width:100%;height:100%;margin:0;padding:0;background-color:#0b0b0c;overflow:hidden;font-family:'Calibri','Arial',sans-serif}
+        body{display:flex;justify-content:center;align-items:center;perspective:3000px}
+        
         .book-scaler{position:relative;width:1240px;height:1754px;display:flex;justify-content:center;align-items:center;transform-origin:center center;transition:transform .2s ease,opacity .5s ease}
         .book{position:relative;width:1240px;height:1754px;transition:transform .7s cubic-bezier(.645,.045,.355,1);transform-style:preserve-3d}
         .book.closed-front{transform:translateX(0)}.book.open-spread{transform:translateX(50%)}.book.closed-back{transform:translateX(100%)}
+        
         body.is-mobile .book{transform:translateX(0)!important}
+        
         .page{position:absolute;width:100%;height:100%;top:0;left:0;transform-origin:left center;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.645,.045,.355,1);user-select:none;-webkit-user-select:none}
         .click-layer{position:absolute;top:0;left:-100%;width:200%;height:100%;display:flex;z-index:8000;pointer-events:none}
         body.is-mobile .click-layer{left:0;width:100%}
         .zone-left,.zone-right{width:50%;height:100%;cursor:pointer;-webkit-tap-highlight-color:transparent;pointer-events:auto}
+        
         .front,.back{position:absolute;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:80px;border-radius:0;border:none;overflow:visible}
         .front{background:#fcf6eb;color:#1c1a17;box-shadow:inset -20px 0 40px rgba(0,0,0,.05),0 8px 20px rgba(0,0,0,.2)}
         .back{background:#faefdf;color:#1c1a17;transform:rotateY(180deg);box-shadow:inset 20px 0 40px rgba(0,0,0,.05),0 8px 20px rgba(0,0,0,.2)}
         .front.hardcover{background:linear-gradient(135deg,#161513 0%,#24221f 100%);color:#e5d1b3;box-shadow:inset -30px 0 60px rgba(0,0,0,.6),0 20px 50px rgba(0,0,0,.5)}
         .back.hardcover{background:linear-gradient(135deg,#24221f 0%,#161513 100%);color:#e5d1b3;box-shadow:inset 30px 0 60px rgba(0,0,0,.6),0 20px 50px rgba(0,0,0,.5)}
+        
+        /* Mobile Specific Overrides */
+        body.is-mobile .front, body.is-mobile .back { padding: 80px; }
+        body.is-mobile .page { transition: opacity 0.4s ease, transform 0.4s ease; }
+        body.is-mobile .page.flipped { transform: none !important; opacity: 0; pointer-events: none; }
+
         .content{font-size:24px;line-height:1.65;text-align:justify;height:100%;width:100%;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:none}
         .content::-webkit-scrollbar{display:none}
         .title-container{margin:auto 0;text-align:center;width:100%}
@@ -39,10 +51,7 @@
         .content p{margin:0 0 22px 0;text-indent:40px}
         .page-number{font-size:1.4rem;font-weight:700;color:#8c8273;border-top:2px solid rgba(0,0,0,.06);padding-top:12px;margin-top:16px;width:100%;flex-shrink:0;text-align:right}
         .page.flipped{transform:rotateY(-180deg)}
-        .nav-arrows{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:20px;z-index:10000;transition:opacity .5s ease}
-        .arrow-btn{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#e5d1b3;font-size:22px;display:flex;justify-content:center;align-items:center;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .2s ease;user-select:none;-webkit-tap-highlight-color:transparent}
-        .arrow-btn:active{transform:scale(.92);background:rgba(255,255,255,.25)}
-        .arrow-btn.disabled{opacity:.3;pointer-events:none}
+
         .bookmark-anchor{position:absolute;top:0;right:0;width:60px;height:200px;z-index:99999;pointer-events:auto}
         .bookmark-ribbon{position:absolute;top:0;right:0;width:60px;height:200px;background:linear-gradient(135deg,#b81d1d 0%,#7a1010 100%);border-radius:0 0 4px 4px;box-shadow:-4px 10px 18px rgba(0,0,0,.6);cursor:pointer;transition:transform .3s cubic-bezier(.175,.885,.32,1.275),filter .2s ease;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:30px;transform-origin:top center;pointer-events:auto;z-index:99999}
         .bookmark-ribbon::after{content:'';position:absolute;bottom:0;left:0;width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:20px solid #24221f}
@@ -66,10 +75,6 @@
             </div>
         </div>
     </div>
-    <div class="nav-arrows" id="nav-arrows">
-        <div class="arrow-btn" id="btn-prev" title="Previous Page">&#10094;</div>
-        <div class="arrow-btn" id="btn-next" title="Next Page">&#10095;</div>
-    </div>
     <div class="exit-screen" id="exit-screen">
         <div class="exit-title">THE GOD ⟂ NOUMENON</div>
         <div class="exit-subtitle">You have exited the book.</div>
@@ -88,7 +93,7 @@
             `<div class="blurb-container"><div class="blurb-title">WHAT LIES BEYOND THE AIR WE BREATHE?</div><div class="blurb-text">John was a simple stone mason, building a quiet home for his family on a rugged mountain ridge. But a late-night traveler brings a cold, terrifying perspective to his hearth.</div><div class="blurb-text">When the veil of human perception is peeled back, what remains is not a sanctuary under the sky, but an unforgiving void of absolute mathematics and shifting shapes. Once you glimpse the noumenon, can you ever truly feel at home inside the box again?</div></div><div class="back-footer"><div class="publisher-info"><strong>VOIDWEAVER PRESS</strong><br>Fiction / Philosophical Horror</div><div class="barcode"><div class="barcode-lines"></div><div class="barcode-text">978-0-1234-5678-9</div></div></div>`
         ];
 
-        const book=document.getElementById('book'),bookScaler=document.getElementById('book-scaler'),zoneLeft=document.getElementById('zone-left'),zoneRight=document.getElementById('zone-right'),btnPrev=document.getElementById('btn-prev'),btnNext=document.getElementById('btn-next'),exitScreen=document.getElementById('exit-screen'),reopenBtn=document.getElementById('reopen-btn'),navArrows=document.getElementById('nav-arrows');
+        const book=document.getElementById('book'),bookScaler=document.getElementById('book-scaler'),zoneLeft=document.getElementById('zone-left'),zoneRight=document.getElementById('zone-right'),exitScreen=document.getElementById('exit-screen'),reopenBtn=document.getElementById('reopen-btn');
         let isMobileDevice=!1,currentSheetIndex=0,sheetsMap=new Map,totalSheets=0;
 
         function renderBookStructure(){
@@ -125,7 +130,6 @@
                 e.parentNode.replaceChild(t,e);
                 t.addEventListener('click',e=>{e.preventDefault(),e.stopPropagation(),e.stopImmediatePropagation(),exitBook()});
                 t.addEventListener('touchend',e=>{e.preventDefault(),e.stopPropagation(),e.stopImmediatePropagation(),exitBook()});
-                t.addEventListener('mousedown',e=>{e.preventDefault(),e.stopPropagation(),e.stopImmediatePropagation()});
             }
         }
 
@@ -133,7 +137,7 @@
             const e=window.innerWidth,t=window.innerHeight,n=isMobileDevice;
             isMobileDevice=e<850,n!==isMobileDevice&&renderBookStructure();
             let o;
-            isMobileDevice?(document.body.classList.add('is-mobile'),o=Math.min(.92*e/1240,.85*t/1754)):(document.body.classList.remove('is-mobile'),o=Math.min(.85*e/2480,.85*t/1754));
+            isMobileDevice?(document.body.classList.add('is-mobile'),o=Math.min(.95*e/1240,.90*t/1754)):(document.body.classList.remove('is-mobile'),o=Math.min(.85*e/2480,.85*t/1754));
             bookScaler.style.transform=`scale(${o})`,updateBookState();
         }
 
@@ -145,7 +149,6 @@
                 const t=sheetsMap.get(e);
                 t&&(e<currentSheetIndex?(t.classList.add('flipped'),t.style.zIndex=e+1):(t.classList.remove('flipped'),t.style.zIndex=totalSheets-e));
             }
-            btnPrev.classList.toggle('disabled',0===currentSheetIndex),btnNext.classList.toggle('disabled',currentSheetIndex>=totalSheets-1);
         }
 
         function flipNext(){currentSheetIndex<totalSheets-1&&(currentSheetIndex++,updateBookState())}
@@ -153,26 +156,34 @@
 
         function exitBook(){
             if(window.parent&&window.parent!==window){
-                try{
-                    window.parent.postMessage('exit-infinite-book','*');
-                }catch(e){}
+                try{window.parent.postMessage('exit-infinite-book','*');}catch(e){}
             }
-            bookScaler.style.opacity='0',navArrows.style.opacity='0',setTimeout(()=>{exitScreen.classList.add('active')},300);
+            bookScaler.style.opacity='0',setTimeout(()=>{exitScreen.classList.add('active')},300);
         }
 
         function reopenBook(){
-            exitScreen.classList.remove('active'),setTimeout(()=>{bookScaler.style.opacity='1',navArrows.style.opacity='1'},200);
+            exitScreen.classList.remove('active'),setTimeout(()=>{bookScaler.style.opacity='1'},200);
         }
+
+        // Mobile Touch Swipe Handlers
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        window.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+        window.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) flipNext();
+            if (touchEndX - touchStartX > 50) flipPrev();
+        }, {passive: true});
 
         reopenBtn.addEventListener('click',reopenBook);
         window.addEventListener('resize',rescaleBook);
         window.addEventListener('orientationchange',()=>setTimeout(rescaleBook,100));
         zoneRight.addEventListener('click',flipNext);
         zoneLeft.addEventListener('click',flipPrev);
-        btnNext.addEventListener('click',flipNext);
-        btnPrev.addEventListener('click',flipPrev);
         window.addEventListener('keydown',e=>{"ArrowRight"===e.key&&flipNext(),"ArrowLeft"===e.key&&flipPrev(),"Escape"===e.key&&exitBook()});
-
+        
+        // Initial build call
         renderBookStructure();
         rescaleBook();
     </script>

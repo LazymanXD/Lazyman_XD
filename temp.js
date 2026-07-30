@@ -4219,6 +4219,11 @@ function openInfiniteBook() {
   requestAnimationFrame(() => overlay.classList.add("is-visible"));
   bookOverlayOpen = true;
   if (roadmapToggleBtn) roadmapToggleBtn.style.display = "none";
+  
+  // Hide desktop (title and buttons)
+  const desktop = document.getElementById("desktop");
+  if (desktop) desktop.style.display = "none";
+  
   playSound("open", 0);
 }
 
@@ -4234,6 +4239,11 @@ function closeInfiniteBook() {
   if (roadmapToggleBtn) {
     roadmapToggleBtn.style.display = lastOpenedPage === "home" ? "" : "none";
   }
+  
+  // Show desktop (title and buttons) again
+  const desktop = document.getElementById("desktop");
+  if (desktop) desktop.style.display = "";
+  
   playSound("close", 0);
 }
 
@@ -4242,6 +4252,10 @@ window.addEventListener("message", (event) => {
     closeInfiniteBook();
   }
 });
+
+// Export functions for global access
+window.openInfiniteBook = openInfiniteBook;
+window.closeInfiniteBook = closeInfiniteBook;
 
 function openWorkCardFullscreen(card, src, title) {
   const rect = card.getBoundingClientRect();
