@@ -357,6 +357,7 @@ function updateBookState() {
         }
     }
 
+    // Direct DOM updates for maximum performance
     for (let i = 0; i < totalSheets; i++) {
         const sheet = sheetsMap.get(i);
         if (!sheet) continue;
