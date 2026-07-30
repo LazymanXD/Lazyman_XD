@@ -41,6 +41,18 @@ function initializeElements() {
   btnNext.addEventListener('click', flipNext);
   btnPrev.addEventListener('click', flipPrev);
   reopenBtn.addEventListener('click', reopenBook);
+
+  // btn-prev/btn-next are role="button" divs (not real <button> elements),
+  // so Enter/Space activation has to be wired up manually for keyboard
+  // and screen-reader users.
+  const activateOnKey = (fn) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fn();
+    }
+  };
+  btnNext.addEventListener('keydown', activateOnKey(flipNext));
+  btnPrev.addEventListener('keydown', activateOnKey(flipPrev));
 }
 
 function renderBookStructure() {
