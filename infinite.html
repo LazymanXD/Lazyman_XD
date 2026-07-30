@@ -62,6 +62,95 @@
             transform: translateX(0) !important;
         }
 
+        /* Mobile performance optimizations */
+        body.is-mobile .content {
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        body.is-mobile .title-large {
+            font-size: 2.5rem;
+        }
+
+        body.is-mobile .drop-n {
+            font-size: 5rem;
+        }
+
+        body.is-mobile .title-sub-text {
+            font-size: 1.8rem;
+        }
+
+        body.is-mobile .tagline {
+            font-size: 1rem;
+        }
+
+        body.is-mobile .credits {
+            font-size: 1rem;
+        }
+
+        body.is-mobile .blurb-title {
+            font-size: 1.5rem;
+        }
+
+        body.is-mobile .blurb-text {
+            font-size: 1.1rem;
+        }
+
+        body.is-mobile .front, body.is-mobile .back {
+            padding: 40px;
+        }
+
+        /* Simplified animations for mobile */
+        body.is-mobile .bookmark-ribbon {
+            transition: transform 0.15s ease;
+        }
+
+        body.is-mobile .arrow-btn {
+            transition: all 0.1s ease;
+        }
+
+        /* Reduce shadow complexity on mobile */
+        body.is-mobile .front, body.is-mobile .back {
+            box-shadow: inset -20px 0 40px rgba(0,0,0,0.05), 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        body.is-mobile .front.hardcover, body.is-mobile .back.hardcover {
+            box-shadow: inset -30px 0 60px rgba(0,0,0,0.6), 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        body.is-mobile .bookmark-ribbon {
+            box-shadow: -4px 10px 18px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Disable backdrop filter on mobile for better performance */
+        body.is-mobile .arrow-btn {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Optimize touch handling on mobile */
+        body.is-mobile .zone-left, body.is-mobile .zone-right {
+            touch-action: manipulation;
+        }
+
+        body.is-mobile .arrow-btn {
+            touch-action: manipulation;
+        }
+
+        body.is-mobile .bookmark-ribbon {
+            touch-action: manipulation;
+        }
+
+        /* Keep flip effect smooth on mobile */
+        body.is-mobile .page {
+            transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+
+        body.is-mobile .book {
+            transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+
         .page {
             position: absolute;
             width: 100%;
@@ -112,6 +201,7 @@
             border-radius: 0;
             border: none;
             overflow: visible;
+            transform: translateZ(0);
         }
 
         .front {
@@ -294,6 +384,11 @@
             transition: opacity 0.5s ease;
         }
 
+        /* Mobile-specific arrow positioning to avoid phone navigation bar */
+        body.is-mobile .nav-arrows {
+            bottom: calc(60px + env(safe-area-inset-bottom));
+        }
+
         .arrow-btn {
             width: 50px;
             height: 50px;
@@ -311,6 +406,13 @@
             transition: all 0.2s ease;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Larger arrow buttons on mobile */
+        body.is-mobile .arrow-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 26px;
         }
 
         .arrow-btn:active {
@@ -471,6 +573,13 @@
     </div>
 
     <script>
+        // Mobile performance optimization - defer non-critical rendering
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => {
+                document.body.classList.add('idle-loaded');
+            });
+        }
+        
         const dynamicPages = [
             // COVER / TITLE (Index 0)
             `<div class="title-container">
@@ -801,6 +910,16 @@
             updateBookState();
         }
 
+        // Throttle resize events for better performance
+        let resizeTimeout;
+        const throttledRescale = () => {
+            if (resizeTimeout) return;
+            resizeTimeout = setTimeout(() => {
+                rescaleBook();
+                resizeTimeout = null;
+            }, 100);
+        };
+
         function updateBookState() {
             book.classList.remove('closed-front', 'open-spread', 'closed-back');
 
@@ -873,7 +992,7 @@
 
         reopenBtn.addEventListener('click', reopenBook);
 
-        window.addEventListener('resize', rescaleBook);
+        window.addEventListener('resize', throttledRescale);
         window.addEventListener('orientationchange', () => setTimeout(rescaleBook, 100));
 
         zoneRight.addEventListener('click', flipNext);
