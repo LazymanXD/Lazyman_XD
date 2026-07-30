@@ -4203,18 +4203,11 @@ function isLocalFileProtocol() {
 // button: clicking it inside the iframe posts a message back to this page,
 // which closes the overlay and returns to the main site.
 let bookOverlayOpen = false;
-let infiniteBookOverlayEl = null;
-let infiniteBookWarmupStarted = false;
 
-// Builds the book's overlay + iframe once, ahead of time, while the
-// browser is idle -- so by the time the person actually taps the book
-// button, the iframe/CSS/JS/cover image are already loaded and decoded.
-// This replaces the old behavior of creating a brand new iframe (and
-// therefore a brand new page load) every single time the book was opened,
-// which was the main cause of the book feeling slow to open on mobile.
-function warmupInfiniteBook() {
-  if (infiniteBookOverlayEl || infiniteBookWarmupStarted) return;
-  infiniteBookWarmupStarted = true;
+function openInfiniteBook() {
+  if (document.getElementById("infiniteBookOverlay")) return;
+  if (workCardsShowing) hideWorkCards();
+  if (mangaCardsShowing) hideMangaCards();
 
   const overlay = document.createElement("div");
   overlay.id = "infiniteBookOverlay";
@@ -4222,56 +4215,26 @@ function warmupInfiniteBook() {
   overlay.innerHTML =
     '<iframe id="infiniteBookFrame" class="infinite-book-frame" src="infinite.html" title="Book"></iframe>';
   document.body.appendChild(overlay);
-  infiniteBookOverlayEl = overlay;
-}
-
-// Kick off the warmup once the page has settled, so it never competes
-// with the initial page load itself.
-if ("requestIdleCallback" in window) {
-  requestIdleCallback(warmupInfiniteBook, { timeout: 4000 });
-} else {
-  setTimeout(warmupInfiniteBook, 2000);
-}
-
-function openInfiniteBook() {
-  // Safety net: if idle time never fired yet (very slow device, or the
-  // button was tapped within a second of page load), build it right now
-  // instead of leaving the user stuck with nothing.
-  warmupInfiniteBook();
-
-  const overlay = infiniteBookOverlayEl;
-  if (workCardsShowing) hideWorkCards();
-  if (mangaCardsShowing) hideMangaCards();
 
   requestAnimationFrame(() => overlay.classList.add("is-visible"));
   bookOverlayOpen = true;
   if (roadmapToggleBtn) roadmapToggleBtn.style.display = "none";
   playSound("open", 0);
-
-  // Reset to the cover every time it's reopened, since the iframe/book
-  // now persists across opens instead of being rebuilt from scratch.
-  const frame = document.getElementById("infiniteBookFrame");
-  if (frame && frame.contentWindow && frame.contentWindow.resetBookToStart) {
-    frame.contentWindow.resetBookToStart();
-  }
 }
 
 function closeInfiniteBook() {
-  const overlay = infiniteBookOverlayEl;
+  const overlay = document.getElementById("infiniteBookOverlay");
   if (!overlay) {
     bookOverlayOpen = false;
     return;
   }
   overlay.classList.remove("is-visible");
+  setTimeout(() => overlay.remove(), 300);
   bookOverlayOpen = false;
   if (roadmapToggleBtn) {
     roadmapToggleBtn.style.display = lastOpenedPage === "home" ? "" : "none";
   }
   playSound("close", 0);
-  // Note: the overlay is intentionally NOT removed from the DOM anymore.
-  // It just fades out (existing .infinite-book-overlay CSS already hides
-  // it with opacity + pointer-events, not display:none), staying warm
-  // and ready for the next time it's opened.
 }
 
 window.addEventListener("message", (event) => {
