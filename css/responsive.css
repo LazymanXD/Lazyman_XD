@@ -1,0 +1,522 @@
+/**
+ * Responsive CSS Module
+ * All media queries for responsive design
+ */
+
+/* Mobile - Make diary bigger on phone */
+@media (max-width: 768px) {
+    .diary-page {
+        padding: 30px 20px;
+        font-size: 16px;
+        line-height: 1.8;
+    }
+    .diary-title {
+        font-size: 32px !important;
+        margin-bottom: 20px !important;
+    }
+    .diary-entry {
+        margin-bottom: 25px;
+        padding: 15px;
+    }
+    .diary-entry-title {
+        font-size: 20px !important;
+    }
+    .diary-entry-content {
+        font-size: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .diary-page {
+        padding: 20px 15px;
+        font-size: 18px;
+        line-height: 2;
+    }
+    .diary-title {
+        font-size: 28px !important;
+        margin-bottom: 25px !important;
+    }
+    .diary-entry {
+        margin-bottom: 30px;
+        padding: 18px;
+    }
+    .diary-entry-title {
+        font-size: 22px !important;
+    }
+    .diary-entry-content {
+        font-size: 16px !important;
+    }
+}
+
+/* Wiki responsive */
+@media (max-width: 768px) {
+    .wiki-container {
+        grid-template-columns: 1fr;
+    }
+
+    .wiki-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wiki-character-grid,
+    .wiki-trivia-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Manga Reader Tablet Responsive */
+@media (max-width: 1024px) {
+    .manga-reader-sidebar {
+        width: 30%;
+        min-width: 250px;
+        padding: 15px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8f8f5 100%);
+        overflow: hidden;
+    }
+
+    .manga-reader-title {
+        font-size: 16px;
+        color: #222;
+    }
+
+    .manga-reader-synopsis {
+        font-size: 12px;
+        color: #555;
+    }
+
+    .manga-reader-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 18px;
+    }
+
+    .manga-panel img {
+        height: 220px;
+    }
+
+    .manga-nav-arrow {
+        width: 35px;
+        height: 55px;
+        font-size: 45px;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .manga-nav-arrow:hover {
+        color: #ffd700;
+    }
+
+    .manga-section-toggle {
+        width: 100%;
+        padding: 10px 18px;
+        font-size: 12px;
+    }
+}
+
+/* Manga Reader Mobile Responsive */
+@media (max-width: 768px) {
+    .manga-reader-container {
+        flex-direction: column;
+    }
+
+    .manga-reader-sidebar {
+        width: 100%;
+        min-width: auto;
+        max-width: 100%;
+        border-right: none;
+        border-bottom: 2px solid rgba(255, 215, 0, 0.5);
+        padding: 12px 14px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        gap: 10px 14px;
+        background: linear-gradient(180deg, #ffffff 0%, #f5f5f0 100%);
+        overflow: hidden;
+        box-sizing: border-box;
+        align-items: start;
+    }
+
+    .manga-reader-exit {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        flex-shrink: 0;
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .manga-reader-cover {
+        width: 90px;
+        height: 120px;
+        margin: 0;
+        flex-shrink: 0;
+        border-radius: 8px;
+        grid-column: 1;
+        grid-row: 2;
+        overflow: hidden;
+    }
+
+    .manga-reader-cover img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .manga-reader-info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+        overflow: hidden;
+        grid-column: 2;
+        grid-row: 2;
+        justify-content: flex-start;
+        padding-top: 2px;
+    }
+
+    .manga-reader-title {
+        font-size: 13px;
+        margin: 0;
+        text-align: left;
+        color: #222;
+        line-height: 1.35;
+        font-weight: bold;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .manga-reader-synopsis {
+        font-size: 8px;
+        color: #666;
+        margin: 0;
+        text-align: left;
+        line-height: 1.45;
+        max-height: 68px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+        line-clamp: 5;
+        -webkit-box-orient: vertical;
+    }
+
+    .manga-section-toggle {
+        width: fit-content;
+        max-width: calc(100% - 24px);
+        padding: 8px 12px;
+        font-size: 10px;
+        margin: 6px 0 0;
+        grid-column: 1 / -1;
+        grid-row: 3;
+        justify-self: end;
+        transform: translateX(-8px) !important;
+        box-sizing: border-box;
+        white-space: nowrap;
+    }
+
+    .manga-section-toggle:active {
+        transform: none !important;
+        opacity: 0.9;
+    }
+
+    .manga-reader-main {
+        padding: 15px;
+        background: transparent;
+    }
+
+    .manga-reader-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 15px 0;
+    }
+
+    .manga-panel {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .manga-panel img {
+        width: 100%;
+        height: auto;
+        max-height: none;
+        object-fit: contain;
+        aspect-ratio: auto;
+    }
+
+    .manga-viewer-header {
+        height: 50px;
+        padding: 0 15px;
+    }
+
+    .manga-viewer-title {
+        font-size: 12px;
+    }
+
+    .manga-viewer-counter {
+        font-size: 11px;
+    }
+
+    .manga-viewer-close {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+
+    .manga-viewer-content {
+        padding: 10px;
+    }
+
+    .manga-nav-arrow {
+        width: 30px;
+        height: 50px;
+        font-size: 35px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .manga-nav-prev {
+        left: 5px;
+    }
+
+    .manga-nav-next {
+        right: 5px;
+    }
+
+    .manga-viewer-image-container img {
+        max-height: 70vh;
+    }
+
+    .manga-section-tabs {
+        padding: 8px 15px;
+        gap: 6px;
+    }
+
+    .section-tab {
+        padding: 6px 12px;
+        font-size: 9px;
+    }
+
+    .manga-section-dots {
+        gap: 8px;
+        padding: 15px 0 20px;
+    }
+
+    .section-dot {
+        width: 28px;
+        height: 28px;
+    }
+
+    .dot-number {
+        font-size: 10px;
+    }
+}
+
+/* Manga Reader Small Mobile */
+@media (max-width: 480px) {
+    .manga-reader-sidebar {
+        padding: 10px;
+    }
+
+    .manga-reader-cover {
+        width: 84px;
+        height: 112px;
+    }
+
+    .manga-reader-title {
+        font-size: 12px;
+    }
+
+    .manga-reader-synopsis {
+        font-size: 8px;
+        line-height: 1.4;
+        max-height: 56px;
+        -webkit-line-clamp: 4;
+        line-clamp: 4;
+    }
+
+    .manga-reader-page-count {
+        font-size: 11px;
+    }
+
+    .manga-reader-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 12px 0;
+    }
+
+    .manga-section-toggle {
+        font-size: 9px;
+        padding: 7px 10px;
+        transform: translateX(-6px) !important;
+    }
+
+    .manga-panel {
+        width: 100%;
+        max-width: min(260px, 100%);
+        margin: 0 auto;
+    }
+
+    .manga-panel img {
+        width: 100%;
+        height: auto;
+        max-height: none;
+        object-fit: contain;
+        aspect-ratio: auto;
+    }
+}
+
+/* Mobile Performance Optimizations */
+@media (pointer: coarse), (max-width: 768px) {
+    /* Disable backdrop-filter blur (extremely expensive on mobile GPUs) */
+    .artwork-overlay,
+    .artwork-viewer,
+    .manga-creation-tab,
+    .manga-modal-overlay,
+    .middle-tab {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* background-attachment:fixed causes rendering bugs on mobile browsers */
+    .bg-layer,
+    .bg-layer-0,
+    .bg-layer-shine,
+    .bg-layer-foreground,
+    .bg-layer-frontyard,
+    .bg-layer-frontest {
+        background-attachment: scroll !important;
+    }
+
+    /* Ensure the wallpaper container is wide enough on mobile */
+    .wallpaper {
+        width: 140vw !important;
+        margin-left: -20vw !important;
+    }
+
+    /* Keep title visible on small screens */
+    #homeContentOutside {
+        transform: translate(-50%, -55%) !important;
+    }
+
+    /* AI orb: full glow + pulse exactly like PC */
+    .ai-orb,
+    .ai-core,
+    .ai-avatar-img {
+        box-shadow: 0 0 30px rgba(255, 180, 0, 0.6) !important;
+        animation: orbPulseMobile 3s ease-in-out infinite !important;
+    }
+
+    /* Keep all effects: filter, shadows, will-change */
+    .bg-layer-shine,
+    .bg-layer-foreground,
+    .bg-layer-frontyard {
+        will-change: transform !important;
+    }
+
+    /* Keep GPU-friendly transitions (transform + opacity only) */
+    .nav-btn,
+    .roadmap-toggle-btn,
+    .win-btn,
+    .middle-tab {
+        transition:
+            transform 0.2s ease,
+            opacity 0.2s ease !important;
+    }
+
+    /* Particles: JS already reduces count to 40 and skips glow on mobile */
+    #particle-canvas {
+        opacity: 1;
+    }
+
+    /* Title: MATCH PC GLOW EXACTLY */
+    .middle-tab-title {
+        animation: amberGlowPulseMobile 3s ease-in-out infinite !important;
+        opacity: 1 !important;
+        font-family: "Press Start 2P", cursive !important;
+    }
+
+    /* AI orb rings: transform:rotate is 100% GPU-friendly */
+    .ai-orb::before {
+        animation: jarvisRing1 2s linear infinite !important;
+    }
+    .ai-orb::after {
+        animation: jarvisRing2 2s linear infinite !important;
+    }
+
+    /* Wave bars: same speed as PC for better visual energy */
+    .ai-wave-bar {
+        animation-name: waveBar !important;
+        animation-duration: 0.4s !important;
+        animation-iteration-count: infinite !important;
+        animation-timing-function: ease-in-out !important;
+        box-shadow: 0 0 10px rgba(255, 200, 0, 0.9) !important;
+        background: rgba(255, 220, 0, 1) !important;
+    }
+
+    /* Roadmap: GPU-friendly scale pulse instead of box-shadow animation */
+    .roadmap-toggle-btn {
+        animation: roadmapGlowMobile 2s ease-in-out infinite !important;
+        box-shadow: 0 0 12px rgba(255, 215, 0, 0.35) !important;
+    }
+
+    /* Middle open button: static glow + simple scale animation */
+    .middle-open-btn img {
+        filter: brightness(1.6) saturate(1.4)
+            drop-shadow(0 0 15px rgba(255, 215, 0, 0.8)) !important;
+        animation: iconGlowMobile 1.6s infinite ease-in-out !important;
+    }
+
+    /* Floating dots: already GPU-friendly (transform + opacity) */
+    .dot1 {
+        animation: dotFloat 2s ease-in-out infinite 0s !important;
+    }
+    .dot2 {
+        animation: dotFloat 2s ease-in-out infinite 0.3s !important;
+    }
+    .dot3 {
+        animation: dotFloat 2s ease-in-out infinite 0.6s !important;
+    }
+
+    /* Loading dots: already GPU-friendly */
+    .wiki-loading-dot,
+    .manga-viewer-loader-dot {
+        animation: dotPulse 1.5s infinite ease-in-out !important;
+    }
+
+    /* Nav button hover: GPU-friendly transform only */
+    .nav-btn:hover {
+        filter: none !important;
+        transform: translateY(-2px) scale(1.02) !important;
+    }
+
+    /* Disable expensive transition:all on common interactive elements */
+    .artwork-item,
+    .manga-panel,
+    .work-card,
+    .wiki-manga-card,
+    .wiki-character-card,
+    .wiki-location-item,
+    .wiki-story-list li,
+    .wiki-trivia-item,
+    .wiki-guidelines-list li,
+    .wiki-references-list li,
+    .wiki-category-links a,
+    .chapter-nav-btn,
+    .manga-nav-btn,
+    .manga-selection-btn,
+    .manga-modal-btn,
+    .manga-editor-close,
+    .editor-btn,
+    .chapter-btn,
+    .page-btn,
+    .chapter-card-btn,
+    .artwork-delete-btn,
+    .fandom-page-tabs .tab,
+    .category-tag {
+        transition: none !important;
+    }
+}
