@@ -1,0 +1,149 @@
+/**
+ * Layout CSS Module
+ * Wallpaper, background layers, desktop, loading screen, and main layout structures
+ */
+
+.wallpaper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 120vw;
+  height: 100vh;
+  z-index: -1;
+  margin-left: -10vw;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg-layer-0 { background-image: url("./background-back.webp"); z-index: 0; }
+.bg-layer-shine { 
+  background-image: url("./shine-1.webp"); 
+  z-index: 0.6; 
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0);
+}
+.bg-layer-foreground { 
+  background-image: url("./FORGROUND.webp"); 
+  z-index: 0.7; 
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0);
+}
+.bg-layer-frontyard { 
+  z-index: 0.75; 
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+#particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: auto;
+  z-index: 0.5;
+}
+
+.bg-layer-frontest { 
+  display: none;
+}
+
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 2s ease-in-out;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.desktop {
+  padding: 20px;
+  color: white;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.desktop.loaded {
+  opacity: 1;
+}
+
+/* Loading Screen - Dark Reveal Effect */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* CSS fallback: auto-hide loading screen after 5s even if JS is blocked */
+@keyframes autoHideLoading {
+  0%, 90% { opacity: 1; }
+  100% { opacity: 0; pointer-events: none; }
+}
+.loading-screen {
+  animation: autoHideLoading 5s ease-in-out forwards;
+}
+.loading-screen.hidden {
+  animation: none;
+}
+
+.desktop {
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.desktop.loaded {
+  opacity: 1;
+}
