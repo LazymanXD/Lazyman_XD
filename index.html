@@ -232,8 +232,15 @@
 </div>
 </div>
 </div>
-<div class="loading-screen" id="loadingScreen"></div>
+<div class="loading-screen" id="loadingScreen" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:999999;opacity:1;display:flex;align-items:center;justify-content:center;">
+<div class="loading-spinner" style="width:80px;height:80px;border-radius:50%;border:3px solid rgba(255,215,0,0.6);box-shadow:0 0 30px rgba(255,215,0,0.5),0 0 60px rgba(255,215,0,0.3);animation:loadingSpin 3s linear infinite,loadingPulse 2s ease-in-out infinite;overflow:hidden;">
+<img src="./assets/profile website.webp" alt="Loading" style="width:100%;height:100%;object-fit:cover;display:block;">
+</div>
+</div>
 <div class="desktop" id="desktop">
+<button class="roadmap-toggle-btn" id="roadmapToggleBtn" type="button" aria-label="Open settings drawer">
+<img src="./assets/profile website.webp" alt="Settings Toggle">
+</button>
 <div class="middle-tab" id="middleTab">
 <div class="middle-tab-header" onmousedown="dragStart(event, middleTab)" style="display:none">
 <div class="middle-tab-header-title"></div>

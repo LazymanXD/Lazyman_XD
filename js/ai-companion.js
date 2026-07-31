@@ -3,17 +3,8 @@
  * Handles AI companion orb, speech bubble, and interactive responses
  */
 
-let aiCompanionActive = false;
-let aiTypingTimeout = null;
-let aiBubbleHideTimeout = null;
-let aiTypingSoundTimeout = null;
-let aiIdleSmallTalkTimeout = null;
-let aiIdleSpeakAbortToken = 0;
-let aiUsedIdleScripts = new Set();
+let aiCompanionActive = false, aiTypingTimeout = null, aiBubbleHideTimeout = null, aiTypingSoundTimeout = null, aiIdleSmallTalkTimeout = null, aiIdleSpeakAbortToken = 0, aiUsedIdleScripts = new Set();
 
-/**
- * Five-line idle monologues when the user hasn't pressed a topic button (~5s quiet)
- */
 const AI_IDLE_SMALL_TALK_SCRIPTS = [
   ['Alright... what was I saying again...', "No, wait, that doesn't sound right.", 'It made more sense a second ago.', "Whatever. I'll just go with it.", "It's not like anyone's correcting me."],
   ['I keep losing my train of thought lately.', "It's like it's there, then it just... gone.", "Maybe I'm overthinking it.", 'Yeah, I do that a lot.', 'Still, not the worst habit to have.'],
@@ -33,36 +24,20 @@ const AI_IDLE_SMALL_TALK_SCRIPTS = [
   ["I'll keep talking for a bit.", 'No real reason to stop.', "This moment hasn't ended yet.", "So I'll stay in it.", 'At least a little longer.']
 ];
 
-/**
- * Clear idle small talk timer
- */
 function clearAiIdleSmallTalkTimer() {
-  if (aiIdleSmallTalkTimeout) {
-    clearTimeout(aiIdleSmallTalkTimeout);
-    aiIdleSmallTalkTimeout = null;
-  }
+  if (aiIdleSmallTalkTimeout) { clearTimeout(aiIdleSmallTalkTimeout); aiIdleSmallTalkTimeout = null; }
 }
 
-/**
- * Abort idle monologue
- */
 function abortAiIdleMonologue() {
   aiIdleSpeakAbortToken += 1;
 }
 
-/**
- * Stop pending idle timer and cancel any in-progress idle line chain
- */
 function clearAiIdleSmallTalk() {
   clearAiIdleSmallTalkTimer();
   abortAiIdleMonologue();
   aiUsedIdleScripts.clear();
 }
 
-/**
- * Schedule idle small talk
- * @param {number} delayMs - Delay in milliseconds
- */
 function scheduleAiIdleSmallTalk(delayMs) {
   clearAiIdleSmallTalkTimer();
   if (!aiCompanionActive) return;
@@ -72,11 +47,6 @@ function scheduleAiIdleSmallTalk(delayMs) {
   }, delayMs);
 }
 
-/**
- * Speak idle script lines sequentially
- * @param {Array} lines - Array of text lines
- * @param {number} index - Current line index
- */
 function speakIdleScriptLines(lines, index) {
   if (!aiCompanionActive) return;
   if (!lines || !Array.isArray(lines) || index >= lines.length) {
@@ -92,9 +62,6 @@ function speakIdleScriptLines(lines, index) {
   });
 }
 
-/**
- * Run idle small talk
- */
 function runAiIdleSmallTalk() {
   if (!aiCompanionActive) return;
   if (aiTypingTimeout) {
@@ -102,16 +69,12 @@ function runAiIdleSmallTalk() {
     return;
   }
 
-  // Get available scripts (not used yet)
   const availableIndices = AI_IDLE_SMALL_TALK_SCRIPTS.map((_, i) => i).filter(i => !aiUsedIdleScripts.has(i));
-
-  // If all scripts used, reset the tracking
   if (availableIndices.length === 0) {
     aiUsedIdleScripts.clear();
     availableIndices.push(...AI_IDLE_SMALL_TALK_SCRIPTS.map((_, i) => i));
   }
 
-  // Pick random available script
   const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
   aiUsedIdleScripts.add(randomIndex);
 
@@ -123,34 +86,20 @@ function runAiIdleSmallTalk() {
   }
 }
 
-/**
- * Start AI typing sound
- */
 function startAITypingSound() {
   stopAITypingSound();
   const playTypingTick = () => {
     if (!aiCompanionActive) return;
-    if (typeof playSound === 'function') {
-      playSound('typing', 0);
-    }
+    if (typeof playSound === 'function') playSound('typing', 0);
     aiTypingSoundTimeout = setTimeout(playTypingTick, 80 + Math.floor(Math.random() * 70));
   };
   playTypingTick();
 }
 
-/**
- * Stop AI typing sound
- */
 function stopAITypingSound() {
-  if (aiTypingSoundTimeout) {
-    clearTimeout(aiTypingSoundTimeout);
-    aiTypingSoundTimeout = null;
-  }
+  if (aiTypingSoundTimeout) { clearTimeout(aiTypingSoundTimeout); aiTypingSoundTimeout = null; }
 }
 
-/**
- * Open AI companion
- */
 function openAICompanion() {
   clearAiIdleSmallTalk();
   const companion = document.getElementById('aiCompanion');
@@ -158,39 +107,26 @@ function openAICompanion() {
   const optionsContainer = document.getElementById('aiOptions');
   const navButtons = document.querySelector('.nav-buttons');
 
-  // Show companion in center
   companion.classList.add('active', 'center');
   companion.classList.remove('top-left');
   orb.classList.remove('speaking');
   aiCompanionActive = true;
-
-  // Hide nav buttons
   if (navButtons) navButtons.classList.add('hidden');
-
   if (typeof playSound === 'function') playSound('open', 0);
-
-  // Hide options initially
   if (optionsContainer) optionsContainer.classList.remove('show');
 
-  // After greeting, move to top-left
   setTimeout(() => {
-    aiSpeak("Hi! Lazyman_XD here. What can I do for you?", () => {
-      scheduleAiIdleSmallTalk(10000);
-    });
+    aiSpeak("Hi! Lazyman_XD here. What can I do for you?", () => scheduleAiIdleSmallTalk(10000));
   }, 500);
 
-  // Move to top-left after speaking and show options
   setTimeout(() => {
-      if (!aiCompanionActive) return;
+    if (!aiCompanionActive) return;
     companion.classList.remove('center');
     companion.classList.add('top-left');
     if (optionsContainer) optionsContainer.classList.add('show');
   }, 3500);
 }
 
-/**
- * Close AI companion
- */
 function closeAICompanion() {
   clearAiIdleSmallTalk();
   const companion = document.getElementById('aiCompanion');
@@ -201,43 +137,22 @@ function closeAICompanion() {
   companion.classList.remove('active', 'center', 'top-left');
   speechBubble.classList.remove('show');
   if (optionsContainer) optionsContainer.classList.remove('show');
-  if (aiTypingTimeout) {
-    clearTimeout(aiTypingTimeout);
-    aiTypingTimeout = null;
-  }
-  if (aiBubbleHideTimeout) {
-    clearTimeout(aiBubbleHideTimeout);
-    aiBubbleHideTimeout = null;
-  }
+  if (aiTypingTimeout) { clearTimeout(aiTypingTimeout); aiTypingTimeout = null; }
+  if (aiBubbleHideTimeout) { clearTimeout(aiBubbleHideTimeout); aiBubbleHideTimeout = null; }
   stopAITypingSound();
   aiCompanionActive = false;
-
-  // Show nav buttons again
   if (navButtons) navButtons.classList.remove('hidden');
-
   if (typeof playSound === 'function') playSound('close', 0);
 }
 
-/**
- * AI speaks text with typing effect
- * @param {string} text - Text to speak
- * @param {Function} callback - Callback after speaking
- */
 function aiSpeak(text, callback) {
   const speechBubble = document.getElementById('aiSpeechBubble');
   const speechText = document.getElementById('aiSpeechText');
   const typingCursor = document.getElementById('aiTypingCursor');
   const orb = document.getElementById('aiOrb');
 
-  // Clear previous text
-  if (aiTypingTimeout) {
-    clearTimeout(aiTypingTimeout);
-    aiTypingTimeout = null;
-  }
-  if (aiBubbleHideTimeout) {
-    clearTimeout(aiBubbleHideTimeout);
-    aiBubbleHideTimeout = null;
-  }
+  if (aiTypingTimeout) { clearTimeout(aiTypingTimeout); aiTypingTimeout = null; }
+  if (aiBubbleHideTimeout) { clearTimeout(aiBubbleHideTimeout); aiBubbleHideTimeout = null; }
   stopAITypingSound();
   speechText.textContent = '';
   typingCursor.style.display = 'inline-block';
@@ -245,7 +160,6 @@ function aiSpeak(text, callback) {
   orb.classList.add('speaking');
   startAITypingSound();
 
-  // Typing effect
   let i = 0;
   function typeChar() {
     if (i < text.length) {
@@ -253,7 +167,6 @@ function aiSpeak(text, callback) {
       i++;
       aiTypingTimeout = setTimeout(typeChar, 50);
     } else {
-      // Done typing
       aiTypingTimeout = null;
       typingCursor.style.display = 'none';
       orb.classList.remove('speaking');
@@ -262,93 +175,47 @@ function aiSpeak(text, callback) {
         speechBubble.classList.remove('show');
         aiBubbleHideTimeout = null;
       }, 3000);
-      // Execute callback if provided
-      if (callback && typeof callback === 'function') {
-        setTimeout(callback, 500);
-      }
-      // Always schedule idle smalltalk if AI is still active
-      if (aiCompanionActive) {
-        scheduleAiIdleSmallTalk(10000);
-      }
+      if (callback && typeof callback === 'function') setTimeout(callback, 500);
+      if (aiCompanionActive) scheduleAiIdleSmallTalk(10000);
     }
   }
   typeChar();
 }
 
-/**
- * Show commission pricing dialog
- */
 function showCommissionPricing() {
-  // Hide AI options temporarily
   const optionsContainer = document.getElementById('aiOptions');
   if (optionsContainer) optionsContainer.classList.remove('show');
 
-  // Create pricing dialog
   const pricingDialog = document.createElement('div');
   pricingDialog.id = 'commissionPricingDialog';
-  pricingDialog.style.cssText = `
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(10, 20, 30, 0.98);
-    border: 2px solid rgba(255, 215, 0, 0.5);
-    border-radius: 15px;
-    padding: 25px;
-    max-width: 400px;
-    width: 90%;
-    z-index: 10001;
-    box-shadow: 0 10px 40px rgba(255, 180, 0, 0.4);
-  `;
+  pricingDialog.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,20,30,0.98);border:2px solid rgba(255,215,0,0.5);border-radius:15px;padding:25px;max-width:400px;width:90%;z-index:10001;box-shadow:0 10px 40px rgba(255,180,0,0.4)';
 
   pricingDialog.innerHTML = `
-    <h3 style="color: #ffd700; font-size: 14px; margin-bottom: 15px; text-align: center;">Commission Pricing</h3>
-    <div style="color: #ffffff; font-size: 10px; line-height: 1.8;">
+    <h3 style="color:#ffd700;font-size:14px;margin-bottom:15px;text-align:center;">Commission Pricing</h3>
+    <div style="color:#ffffff;font-size:10px;line-height:1.8;">
       <p><strong>Sketch:</strong> $25 - $50</p>
       <p><strong>Line Art:</strong> $50 - $100</p>
       <p><strong>Full Color:</strong> $100 - $250</p>
       <p><strong>Character Design:</strong> $150 - $300</p>
       <p><strong>Complex Scene:</strong> $250+</p>
       <br>
-      <p style="color: #aaa; font-size: 9px;">Prices vary based on complexity and details. Contact me for a custom quote!</p>
+      <p style="color:#aaa;font-size:9px;">Prices vary based on complexity and details. Contact me for a custom quote!</p>
     </div>
-    <button onclick="closeCommissionPricing()" style="
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      background: rgba(255, 200, 0, 0.2);
-      border: 1px solid rgba(255, 215, 0, 0.5);
-      border-radius: 8px;
-      color: #ffffff;
-      font-family: 'Press Start 2P', cursive;
-      font-size: 10px;
-      cursor: pointer;
-    ">Got it!</button>
+    <button onclick="closeCommissionPricing()" style="margin-top:20px;width:100%;padding:12px;background:rgba(255,200,0,0.2);border:1px solid rgba(255,215,0,0.5);border-radius:8px;color:#ffffff;font-family:'Press Start 2P',cursive;font-size:10px;cursor:pointer;">Got it!</button>
   `;
 
   document.body.appendChild(pricingDialog);
   if (typeof playSound === 'function') playSound('tabClick', 0);
 }
 
-/**
- * Close commission pricing dialog
- */
 function closeCommissionPricing() {
   const dialog = document.getElementById('commissionPricingDialog');
   if (dialog) dialog.remove();
-
-  // Show AI options again
   const optionsContainer = document.getElementById('aiOptions');
   if (optionsContainer) optionsContainer.classList.add('show');
-  if (aiCompanionActive) {
-    scheduleAiIdleSmallTalk(10000);
-  }
+  if (aiCompanionActive) scheduleAiIdleSmallTalk(10000);
 }
 
-/**
- * Ask AI a question
- * @param {string} topic - Topic to ask about
- */
 function askAI(topic) {
   if (typeof playSound === 'function') playSound('click', 0);
   clearAiIdleSmallTalk();
@@ -356,15 +223,10 @@ function askAI(topic) {
   const roadmapOverlay = document.getElementById('roadmapOverlay');
 
   if (topic === 'roadmap') {
-    aiSpeak(
-      "I made a roadmap to organize my work so I don't try to do everything at once. I don't expect these projects to be finished in a day or a week - it may take years depending on my mood and pace. I'll keep sharing updates here on my website and on my Reddit.",
-      function() {
-        if (roadmapOverlay && typeof toggleRoadmapOverlay === 'function' && !roadmapOverlay.classList.contains('show')) {
-          toggleRoadmapOverlay();
-        }
-        scheduleAiIdleSmallTalk(10000);
-      }
-    );
+    aiSpeak("I made a roadmap to organize my work so I don't try to do everything at once. I don't expect these projects to be finished in a day or a week - it may take years depending on my mood and pace. I'll keep sharing updates here on my website and on my Reddit.", () => {
+      if (roadmapOverlay && typeof toggleRoadmapOverlay === 'function' && !roadmapOverlay.classList.contains('show')) toggleRoadmapOverlay();
+      scheduleAiIdleSmallTalk(10000);
+    });
     return;
   }
 
@@ -380,28 +242,13 @@ function askAI(topic) {
 
   const response = responses[topic] || "Hmm, let me think about that...";
 
-  // Define callbacks for specific topics
   let callback = null;
   if (topic === 'commissions') {
-    callback = function() {
-      aiSpeak("Here's my pricing info:", function() {
-        showCommissionPricing();
-        scheduleAiIdleSmallTalk(10000);
-      });
-    };
+    callback = () => aiSpeak("Here's my pricing info:", () => { showCommissionPricing(); scheduleAiIdleSmallTalk(10000); });
   } else if (topic === 'artworks') {
-    callback = function() {
-      // Close AI and show work page
-      closeAICompanion();
-      setTimeout(() => {
-        if (typeof showPage === 'function') showPage('work');
-      }, 300);
-    };
+    callback = () => { closeAICompanion(); setTimeout(() => { if (typeof showPage === 'function') showPage('work'); }, 300); };
   } else {
-    // For all other topics, schedule idle small talk after responding
-    callback = function() {
-      scheduleAiIdleSmallTalk(10000);
-    };
+    callback = () => scheduleAiIdleSmallTalk(10000);
   }
 
   aiSpeak(response, callback);

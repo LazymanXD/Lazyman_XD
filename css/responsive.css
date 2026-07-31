@@ -3,51 +3,6 @@
  * All media queries for responsive design
  */
 
-/* Mobile - Make diary bigger on phone */
-@media (max-width: 768px) {
-    .diary-page {
-        padding: 30px 20px;
-        font-size: 16px;
-        line-height: 1.8;
-    }
-    .diary-title {
-        font-size: 32px !important;
-        margin-bottom: 20px !important;
-    }
-    .diary-entry {
-        margin-bottom: 25px;
-        padding: 15px;
-    }
-    .diary-entry-title {
-        font-size: 20px !important;
-    }
-    .diary-entry-content {
-        font-size: 15px !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .diary-page {
-        padding: 20px 15px;
-        font-size: 18px;
-        line-height: 2;
-    }
-    .diary-title {
-        font-size: 28px !important;
-        margin-bottom: 25px !important;
-    }
-    .diary-entry {
-        margin-bottom: 30px;
-        padding: 18px;
-    }
-    .diary-entry-title {
-        font-size: 22px !important;
-    }
-    .diary-entry-content {
-        font-size: 16px !important;
-    }
-}
-
 /* Wiki responsive */
 @media (max-width: 768px) {
     .wiki-container {

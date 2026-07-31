@@ -223,73 +223,43 @@ function showPage(pageKey) {
 function attachNavListeners() {
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.onclick = function() {
-      if (typeof playSound === 'function') {
-        playSound('tabClick', 0);
-      }
       const pageKey = this.dataset.page;
+      if (typeof playSound === 'function') playSound('tabClick', 0);
 
-      // Handle work button specially
-      if (pageKey === "work") {
-        if (typeof showWorkCards === 'function' && typeof hideWorkCards === 'function') {
-          if (workCardsShowing) {
-            hideWorkCards(this);
-            return;
-          }
-
-          if (typeof hideMangaCards === 'function') hideMangaCards();
-          if (typeof closeInfiniteBook === 'function') closeInfiniteBook();
-
-          if (workCardsShowTimeoutId !== null) {
-            clearTimeout(workCardsShowTimeoutId);
-            workCardsShowTimeoutId = null;
-          }
-          workCardsShowTimeoutId = setTimeout(() => {
-            workCardsShowTimeoutId = null;
-            showWorkCards(this);
-          }, 500);
-        }
-        return;
-      }
-
-      // Handle manga button
-      if (pageKey === "manga") {
-        if (typeof showMangaCards === 'function' && typeof hideMangaCards === 'function') {
-          const mangaIcon = this.querySelector('img');
-          if (mangaIcon) {
-            mangaIcon.classList.remove('manga-btn-spin');
-            void mangaIcon.offsetWidth;
-            mangaIcon.classList.add('manga-btn-spin');
-          }
-          if (mangaCardsShowing) {
-            hideMangaCards(this);
-            return;
-          }
-          if (typeof hideWorkCards === 'function') hideWorkCards();
-          if (typeof closeInfiniteBook === 'function') closeInfiniteBook();
-          if (mangaCardsShowTimeoutId !== null) {
-            clearTimeout(mangaCardsShowTimeoutId);
-            mangaCardsShowTimeoutId = null;
-          }
-          mangaCardsShowTimeoutId = setTimeout(() => {
-            mangaCardsShowTimeoutId = null;
-            showMangaCards(this);
-          }, 350);
-        }
-        return;
-      }
-
-      // Handle books button: open the infinite book overlay
-      if (pageKey === "books") {
-        if (typeof hideWorkCards === 'function') hideWorkCards();
-        if (typeof hideMangaCards === 'function') hideMangaCards();
-        if (typeof openInfiniteBook === 'function') openInfiniteBook();
-        return;
-      }
-
-      // For other buttons, hide cards if showing
+      // Hide all floating cards
       if (typeof hideWorkCards === 'function') hideWorkCards();
       if (typeof hideMangaCards === 'function') hideMangaCards();
       if (typeof closeInfiniteBook === 'function') closeInfiniteBook();
+
+      // Clear any pending timeouts
+      if (workCardsShowTimeoutId !== null) { clearTimeout(workCardsShowTimeoutId); workCardsShowTimeoutId = null; }
+      if (mangaCardsShowTimeoutId !== null) { clearTimeout(mangaCardsShowTimeoutId); mangaCardsShowTimeoutId = null; }
+
+      // Handle special button behaviors
+      if (pageKey === "work") {
+        if (typeof showWorkCards === 'function' && !workCardsShowing) {
+          workCardsShowTimeoutId = setTimeout(() => { workCardsShowTimeoutId = null; showWorkCards(this); }, 500);
+        }
+        return;
+      }
+
+      if (pageKey === "manga") {
+        const mangaIcon = this.querySelector('img');
+        if (mangaIcon) {
+          mangaIcon.classList.remove('manga-btn-spin');
+          void mangaIcon.offsetWidth;
+          mangaIcon.classList.add('manga-btn-spin');
+        }
+        if (typeof showMangaCards === 'function' && !mangaCardsShowing) {
+          mangaCardsShowTimeoutId = setTimeout(() => { mangaCardsShowTimeoutId = null; showMangaCards(this); }, 350);
+        }
+        return;
+      }
+
+      if (pageKey === "books") {
+        if (typeof openInfiniteBook === 'function') openInfiniteBook();
+        return;
+      }
 
       proceedWithPageOpen(pageKey);
     };

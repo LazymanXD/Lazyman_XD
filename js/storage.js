@@ -55,29 +55,7 @@ function saveData() {
   localStorage.setItem('websiteData', JSON.stringify(data));
 }
 
-/**
- * Load diary data from localStorage
- */
-function loadDiaryData() {
-  if (typeof diaryData === 'undefined') return;
-  
-  const saved = localStorage.getItem('diaryData');
-  if (saved) {
-    diaryData = JSON.parse(saved);
-  }
-}
-
-/**
- * Save diary data to localStorage
- */
-function saveDiaryData() {
-  if (typeof diaryData === 'undefined') return;
-  
-  localStorage.setItem('diaryData', JSON.stringify(diaryData));
-}
-
 // Initialize saved data on load
 window.addEventListener('DOMContentLoaded', () => {
   loadSavedData();
-  loadDiaryData();
 });

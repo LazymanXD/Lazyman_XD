@@ -22,67 +22,46 @@ const artworkData = [
   {src: "./illustrations/mike.webp", title: "Mike"}
 ];
 
-let workCardsShowing = false;
-let workCardElements = [];
-let workCardsShowTimeoutId = null;
-let lastWorkCardsButton = null;
+let workCardsShowing = false, workCardElements = [], workCardsShowTimeoutId = null, lastWorkCardsButton = null;
 
-/**
- * Show work cards in a grid layout
- * @param {HTMLElement} button - Button that triggered the action
- */
+function getGridConfig(w) {
+  if (w <= 480) return { cardSize: 80, spacingX: 90, spacingY: 100, cardsPerRow: 3 };
+  if (w <= 768) return { cardSize: 100, spacingX: 115, spacingY: 125, cardsPerRow: 4 };
+  return { cardSize: 120, spacingX: 140, spacingY: 150, cardsPerRow: 5 };
+}
+
 window.__showWorkCardsImpl = function showWorkCards(button) {
   lastWorkCardsButton = button;
   workCardElements.forEach(el => el.remove());
   workCardElements = [];
   workCardsShowing = false;
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
   
-  const buttonRect = button.getBoundingClientRect();
-  const buttonCenterX = buttonRect.left + buttonRect.width / 2;
-  const buttonTopY = buttonRect.top;
-  
-  let cardSize, spacingX, spacingY, cardsPerRow;
+  const { cardSize, spacingX, spacingY, cardsPerRow } = getGridConfig(window.innerWidth);
   const totalCards = artworkData.length;
-  
-  if (viewportWidth <= 480) {
-    cardSize = 80;
-    spacingX = 90;
-    spacingY = 100;
-    cardsPerRow = 3;
-  } else if (viewportWidth <= 768) {
-    cardSize = 100;
-    spacingX = 115;
-    spacingY = 125;
-    cardsPerRow = 4;
-  } else {
-    cardSize = 120;
-    spacingX = 140;
-    spacingY = 150;
-    cardsPerRow = 5;
-  }
-  
   const totalRows = Math.ceil(totalCards / cardsPerRow);
   const gridWidth = Math.min(cardsPerRow, totalCards) * spacingX;
   const gridHeight = totalRows * spacingY;
-  const centerX = viewportWidth / 2;
-  const centerY = viewportHeight / 2;
   
-  const buttonBuffer = 100;
-  let gridTopY = centerY - (gridHeight / 2);
-  let gridLeftX = centerX - (gridWidth / 2);
+  const buttonRect = button.getBoundingClientRect();
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+  const buttonCenterX = buttonRect.left + buttonRect.width / 2;
+  const buttonTopY = buttonRect.top;
   
-  if (gridTopY + gridHeight > buttonTopY - buttonBuffer && 
-      gridLeftX < buttonCenterX + buttonBuffer && 
-      gridLeftX + gridWidth > buttonCenterX - buttonBuffer) {
-    gridTopY = buttonTopY - gridHeight - buttonBuffer;
+  let gridTopY = centerY - gridHeight / 2;
+  let gridLeftX = centerX - gridWidth / 2;
+  
+  if (gridTopY + gridHeight > buttonTopY - 100 && 
+      gridLeftX < buttonCenterX + 100 && 
+      gridLeftX + gridWidth > buttonCenterX - 100) {
+    gridTopY = buttonTopY - gridHeight - 100;
   }
   
-  gridTopY = Math.max(20, Math.min(gridTopY, viewportHeight - gridHeight - 20));
-  gridLeftX = Math.max(20, Math.min(gridLeftX, viewportWidth - gridWidth - 20));
+  gridTopY = Math.max(20, Math.min(gridTopY, window.innerHeight - gridHeight - 20));
+  gridLeftX = Math.max(20, Math.min(gridLeftX, window.innerWidth - gridWidth - 20));
   
-  workCardElements = [];
+  const startX = buttonRect.left + buttonRect.width / 2;
+  const startY = buttonRect.top + buttonRect.height / 2;
   
   artworkData.forEach((artwork, index) => {
     const card = document.createElement('div');
@@ -93,47 +72,28 @@ window.__showWorkCardsImpl = function showWorkCards(button) {
     
     const row = Math.floor(index / cardsPerRow);
     const col = index % cardsPerRow;
-    const cardsInThisRow = Math.min(cardsPerRow, totalCards - (row * cardsPerRow));
+    const cardsInThisRow = Math.min(cardsPerRow, totalCards - row * cardsPerRow);
     const rowWidth = cardsInThisRow * spacingX;
-    const rowStartX = gridLeftX + (gridWidth - rowWidth) / 2 + (spacingX / 2);
+    const rowStartX = gridLeftX + (gridWidth - rowWidth) / 2 + spacingX / 2;
     
-    const cardX = rowStartX + (col * spacingX);
-    const cardY = gridTopY + (row * spacingY) + (spacingY / 2);
+    const cardX = rowStartX + col * spacingX;
+    const cardY = gridTopY + row * spacingY + spacingY / 2;
+    const rotate = index % 2 === 0 ? -3 : 3;
     
-    const startX = buttonRect.left + buttonRect.width / 2;
-    const startY_btn = buttonRect.top + buttonRect.height / 2;
+    card.style.cssText = `position:fixed;left:${startX}px;top:${startY}px;width:${cardSize}px;height:${cardSize}px;transform:translate(-50%,-50%) scale(0.1) rotate(0deg);opacity:0;z-index:3000;cursor:pointer;transition:all 0.3s ease;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.6);pointer-events:auto;border:2px solid transparent`;
     
-    card.style.cssText = `
-      position: fixed;
-      left: ${startX}px;
-      top: ${startY_btn}px;
-      width: ${cardSize}px;
-      height: ${cardSize}px;
-      transform: translate(-50%, -50%) scale(0.1) rotate(0deg);
-      opacity: 0;
-      z-index: 3000;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-      pointer-events: auto;
-      border: 2px solid transparent;
-    `;
-    
-    card.onmouseenter = function() {
-      this.style.transform = this.style.transform.replace('scale(1)', 'scale(1.15)');
-      this.style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.4)';
-      this.style.borderColor = 'rgba(255, 215, 0, 0.8)';
-      this.style.zIndex = '3001';
+    card.onmouseenter = () => {
+      card.style.transform = card.style.transform.replace('scale(1)', 'scale(1.15)');
+      card.style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.4)';
+      card.style.borderColor = 'rgba(255, 215, 0, 0.8)';
+      card.style.zIndex = '3001';
     };
     
-    card.onmouseleave = function() {
-      const currentTransform = this.style.transform;
-      this.style.transform = currentTransform.replace('scale(1.15)', 'scale(1)');
-      this.style.boxShadow = '0 8px 32px rgba(0,0,0,0.6)';
-      this.style.borderColor = 'transparent';
-      this.style.zIndex = '3000';
+    card.onmouseleave = () => {
+      card.style.transform = card.style.transform.replace('scale(1.15)', 'scale(1)');
+      card.style.boxShadow = '0 8px 32px rgba(0,0,0,0.6)';
+      card.style.borderColor = 'transparent';
+      card.style.zIndex = '3000';
     };
     
     const img = document.createElement('img');
@@ -141,15 +101,9 @@ window.__showWorkCardsImpl = function showWorkCards(button) {
     img.alt = artwork.title;
     img.loading = 'eager';
     img.decoding = 'async';
-    img.style.cssText = `
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    `;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
     
     card.appendChild(img);
-    
     card.onclick = (e) => {
       e.stopPropagation();
       if (typeof playSound === 'function') playSound('tabClick', 0);
@@ -160,68 +114,46 @@ window.__showWorkCardsImpl = function showWorkCards(button) {
     workCardElements.push(card);
     
     setTimeout(() => {
-      const rotate = (index % 2 === 0 ? -3 : 3);
       card.style.left = `${cardX}px`;
       card.style.top = `${cardY}px`;
-      card.style.transform = `translate(-50%, -50%) scale(1) rotate(${rotate}deg)`;
+      card.style.transform = `translate(-50%,-50%) scale(1) rotate(${rotate}deg)`;
       card.style.opacity = '1';
-    }, 50 + (index * 80));
+    }, 50 + index * 80);
   });
   
   workCardsShowing = true;
 };
 
-/**
- * Hide work cards with animation
- * @param {HTMLElement} button - Button that triggered the action
- */
 window.__hideWorkCardsImpl = function hideWorkCards(button) {
   if (workCardsShowTimeoutId !== null) {
     clearTimeout(workCardsShowTimeoutId);
     workCardsShowTimeoutId = null;
   }
-
   if (workCardElements.length === 0) {
     workCardsShowing = false;
     return;
   }
   
-  let targetX, targetY;
-  
-  if (button) {
-    const buttonRect = button.getBoundingClientRect();
-    targetX = buttonRect.left + buttonRect.width / 2;
-    targetY = buttonRect.top + buttonRect.height / 2;
-  } else {
-    targetX = window.innerWidth / 2;
-    targetY = window.innerHeight / 2;
-  }
+  const targetX = button ? button.getBoundingClientRect().left + button.getBoundingClientRect().width / 2 : window.innerWidth / 2;
+  const targetY = button ? button.getBoundingClientRect().top + button.getBoundingClientRect().height / 2 : window.innerHeight / 2;
   
   workCardElements.forEach((card, index) => {
     setTimeout(() => {
-      card.style.transform = `translate(-50%, -50%) scale(0.1) rotate(0deg)`;
+      card.style.transform = 'translate(-50%,-50%) scale(0.1) rotate(0deg)';
       card.style.left = `${targetX}px`;
       card.style.top = `${targetY}px`;
       card.style.opacity = '0';
     }, index * 50);
     
     setTimeout(() => {
-      if (card.parentNode) {
-        card.remove();
-      }
-    }, 600 + (index * 50));
+      if (card.parentNode) card.remove();
+    }, 600 + index * 50);
   });
   
   workCardElements = [];
   workCardsShowing = false;
 };
 
-/**
- * Open artwork in fullscreen viewer
- * @param {HTMLElement} card - Card element
- * @param {string} src - Image source
- * @param {string} title - Artwork title
- */
 function openWorkCardFullscreen(card, src, title) {
   const rect = card.getBoundingClientRect();
   card.dataset.returnX = rect.left;
@@ -230,48 +162,16 @@ function openWorkCardFullscreen(card, src, title) {
   
   const viewer = document.createElement('div');
   viewer.id = 'workCardViewer';
-  viewer.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.95);
-    z-index: 5000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: zoom-out;
-  `;
+  viewer.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);z-index:5000;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
   
   const img = document.createElement('img');
   img.src = src;
   img.alt = title;
-  img.style.cssText = `
-    max-width: 90vw;
-    max-height: 90vh;
-    object-fit: contain;
-    border-radius: 8px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-  `;
+  img.style.cssText = 'max-width:90vw;max-height:90vh;object-fit:contain;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,0.8)';
   
   const closeBtn = document.createElement('button');
   closeBtn.innerHTML = '✕';
-  closeBtn.style.cssText = `
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 30px;
-    cursor: pointer;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `;
+  closeBtn.style.cssText = 'position:absolute;top:20px;right:20px;background:transparent;border:none;color:white;font-size:30px;cursor:pointer;width:50px;height:50px;display:flex;align-items:center;justify-content:center';
   
   viewer.appendChild(img);
   viewer.appendChild(closeBtn);
@@ -283,9 +183,7 @@ function openWorkCardFullscreen(card, src, title) {
   };
   
   closeBtn.onclick = closeViewer;
-  viewer.onclick = (e) => {
-    if (e.target === viewer) closeViewer();
-  };
+  viewer.onclick = (e) => { if (e.target === viewer) closeViewer(); };
   
   const escapeHandler = (e) => {
     if (e.key === 'Escape') {
@@ -296,4 +194,3 @@ function openWorkCardFullscreen(card, src, title) {
   document.addEventListener('keydown', escapeHandler);
 }
 
-// Artwork images are loaded when the work shelf is opened.
