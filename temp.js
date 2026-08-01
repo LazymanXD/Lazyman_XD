@@ -2345,6 +2345,17 @@ const mangaImagePool = {
   witchesEndIllust24: "./2/illustrations/manga (1)_027.webp",
   witchesEndIllust25: "./2/illustrations/manga (1)_028.webp",
   witchesEndIllust26: "./2/illustrations/manga (1)_030.webp",
+  // Ms. Silhouette images from folder 4
+  msSilhouetteCover: "./4/PAGE_001.webp",
+  msSilhouette1: "./4/Ms silhouette_002.webp",
+  msSilhouette2: "./4/Ms silhouette_003.webp",
+  msSilhouette3: "./4/Ms silhouette_004.webp",
+  msSilhouette4: "./4/Ms silhouette_005.webp",
+  msSilhouette5: "./4/Ms silhouette_006.webp",
+  msSilhouette6: "./4/Ms silhouette_007.webp",
+  msSilhouette7: "./4/Ms silhouette_008.webp",
+  msSilhouette8: "./4/Ms silhouette_009.webp",
+  msSilhouette9: "./4/Ms silhouette_010.webp",
 };
 
 const mangaGalleryData = [
@@ -2481,6 +2492,29 @@ const mangaGalleryData = [
     illustrations: [],
     isConcept: true,
   },
+  {
+    coverKey: "msSilhouette",
+    src: mangaImagePool.msSilhouetteCover,
+    title: "Ms. Silhouette",
+    synopsis:
+      "Fired, broke, and drowning in debt, Mary Silhouette takes in a stray black cat—only to discover it's the living key to the CEO's throne of a sky-piercing megacorporation.",
+    customBackground:
+      "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+    customSidebarBackground:
+      "linear-gradient(180deg, #1a1a2e 0%, #16213e 100%)",
+    pageKeys: [
+      "msSilhouette1",
+      "msSilhouette2",
+      "msSilhouette3",
+      "msSilhouette4",
+      "msSilhouette5",
+      "msSilhouette6",
+      "msSilhouette7",
+      "msSilhouette8",
+      "msSilhouette9",
+    ],
+    illustrations: [],
+  },
 ];
 
 // Helper function to get actual pages array from keys
@@ -2549,6 +2583,12 @@ window.__showWorkCardsImpl = function showWorkCards(button) {
   workCardElements.forEach((el) => el.remove());
   workCardElements = [];
   workCardsShowing = false;
+  
+  // Hide settings drawer and all roadmap buttons
+  closeSettingsDrawer();
+  const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+  allRoadmapBtns.forEach(btn => btn.style.display = 'none');
+  
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
 
@@ -2697,6 +2737,10 @@ window.__hideWorkCardsImpl = function hideWorkCards(button) {
 
   workCardElements = [];
   workCardsShowing = false;
+  
+  // Show all roadmap buttons again
+  const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+  allRoadmapBtns.forEach(btn => btn.style.display = '');
 };
 
 function showMangaCards(button) {
@@ -2704,6 +2748,11 @@ function showMangaCards(button) {
   mangaCardElements.forEach((el) => el.remove());
   mangaCardElements = [];
   mangaCardsShowing = false;
+  
+  // Hide settings drawer and all roadmap buttons
+  closeSettingsDrawer();
+  const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+  allRoadmapBtns.forEach(btn => btn.style.display = 'none');
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   const buttonRect = button.getBoundingClientRect();
@@ -2736,7 +2785,7 @@ function showMangaCards(button) {
     cardHeight = 220;
     spacingX = 185;
     spacingY = 250;
-    cardsPerRow = 3;
+    cardsPerRow = 4;
   }
 
   const totalRows = Math.ceil(totalCards / cardsPerRow);
@@ -2956,6 +3005,10 @@ function hideMangaCards(button, skipToggleRemoval = false) {
 
   mangaCardElements = [];
   mangaCardsShowing = false;
+  
+  // Show all roadmap buttons again
+  const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+  allRoadmapBtns.forEach(btn => btn.style.display = '');
 }
 
 // Concept Manga Toggle Functions
@@ -3062,6 +3115,11 @@ function createMangaPanel(src, index, sectionIdx, altPrefix = "Page") {
 function openMangaReader(manga) {
   // Hide manga cards
   hideMangaCards();
+
+  // Hide settings drawer and all roadmap buttons
+  closeSettingsDrawer();
+  const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+  allRoadmapBtns.forEach(btn => btn.style.display = 'none');
 
   // Set current manga for toggle function
   currentManga = manga;
@@ -3266,9 +3324,6 @@ function openMangaReader(manga) {
     });
   }
 
-  // Hide roadmap button
-  if (roadmapToggleBtn) roadmapToggleBtn.style.display = "none";
-
   // Play sound
   playSound("open", 0);
 
@@ -3288,8 +3343,9 @@ function closeMangaReader() {
     currentMangaReader = null;
   }
 
-  // Show roadmap button
-  if (roadmapToggleBtn) roadmapToggleBtn.style.display = "";
+  // Show all roadmap buttons
+  const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+  allRoadmapBtns.forEach(btn => btn.style.display = '');
 
   // Show manga cards again
   const mangaBtn = document.querySelector('.nav-btn[data-page="manga"]');
@@ -3315,6 +3371,11 @@ function toggleMangaSection() {
       currentMangaSection = "illustration";
       btn.textContent = "To Manga";
 
+      // Ensure settings button stays hidden
+      const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+      allRoadmapBtns.forEach(btn => btn.style.display = 'none');
+      closeSettingsDrawer();
+
       // Load illustrations
       const grid = document.getElementById("mangaReaderGrid");
       grid.innerHTML = "";
@@ -3338,6 +3399,11 @@ function toggleMangaSection() {
     // Switch back to manga
     currentMangaSection = "manga";
     btn.textContent = "To Illustration";
+
+    // Ensure settings button stays hidden
+    const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+    allRoadmapBtns.forEach(btn => btn.style.display = 'none');
+    closeSettingsDrawer();
 
     // Load manga pages
     const pages =
@@ -3724,6 +3790,11 @@ function openWorkCardFullscreen(card, src, title) {
   card.dataset.returnY = rect.top;
   card.dataset.returnTransform = card.style.transform;
 
+  // Hide settings drawer and all roadmap buttons
+  closeSettingsDrawer();
+  const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+  allRoadmapBtns.forEach(btn => btn.style.display = 'none');
+
   // Find current index
   const currentIndex = artworkData.findIndex(artwork => artwork.src === src);
   let currentIdx = currentIndex >= 0 ? currentIndex : 0;
@@ -3766,6 +3837,10 @@ function openWorkCardFullscreen(card, src, title) {
   const closeViewer = () => {
     viewer.remove();
     playSound("tabClick", 0);
+    
+    // Show all roadmap buttons again
+    const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+    allRoadmapBtns.forEach(btn => btn.style.display = '');
   };
 
   closeBtn.onclick = closeViewer;
@@ -4719,6 +4794,11 @@ function openAICompanion() {
   const optionsContainer = document.getElementById("aiOptions");
   const navButtons = document.querySelector(".nav-buttons");
 
+  // Hide settings drawer and all roadmap buttons
+  closeSettingsDrawer();
+  const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+  allRoadmapBtns.forEach(btn => btn.style.display = 'none');
+
   // Show companion in center
   companion.classList.add("active", "center");
   companion.classList.remove("top-left", "top-right");
@@ -4772,6 +4852,10 @@ function closeAICompanion() {
 
   // Show nav buttons again
   if (navButtons) navButtons.classList.remove("hidden");
+
+  // Show all roadmap buttons again
+  const allRoadmapBtns = document.querySelectorAll('.roadmap-toggle-btn');
+  allRoadmapBtns.forEach(btn => btn.style.display = '');
 
   playSound("close", 0);
 }

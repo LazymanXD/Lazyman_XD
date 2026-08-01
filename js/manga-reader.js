@@ -66,6 +66,17 @@ const mangaImagePool = {
   witchesEndIllust24: "./2/illustrations/manga (1)_027.webp",
   witchesEndIllust25: "./2/illustrations/manga (1)_028.webp",
   witchesEndIllust26: "./2/illustrations/manga (1)_030.webp",
+  msSilhouetteCover: "./4/PAGE_001.webp",
+  msSilhouette1: "./4/Ms silhouette_002.webp",
+  msSilhouette2: "./4/Ms silhouette_003.webp",
+  msSilhouette3: "./4/Ms silhouette_004.webp",
+  msSilhouette4: "./4/Ms silhouette_005.webp",
+  msSilhouette5: "./4/Ms silhouette_006.webp",
+  msSilhouette6: "./4/Ms silhouette_007.webp",
+  msSilhouette7: "./4/Ms silhouette_008.webp",
+  msSilhouette8: "./4/Ms silhouette_009.webp",
+  msSilhouette9: "./4/Ms silhouette_010.webp",
+  msSilhouetteTest: "./4/PAGE_001.webp",
 };
 
 const mangaGalleryData = [
@@ -100,6 +111,16 @@ const mangaGalleryData = [
     comingSoon: true,
     pageKeys: [],
   },
+  {
+    coverKey: "msSilhouette",
+    src: mangaImagePool.msSilhouetteCover,
+    title: "Ms. Silhouette",
+    synopsis: "Fired, broke, and drowning in debt, Mary Silhouette takes in a stray black cat—only to discover it's the living key to the CEO's throne of a sky-piercing megacorporation.",
+    customBackground: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+    customSidebarBackground: "linear-gradient(180deg, #1a1a2e 0%, #16213e 100%)",
+    pageKeys: ["msSilhouette1", "msSilhouette2", "msSilhouette3", "msSilhouette4", "msSilhouette5", "msSilhouette6", "msSilhouette7", "msSilhouette8", "msSilhouette9"],
+    illustrations: [],
+  },
 ];
 
 let mangaCardsShowing = false, mangaCardElements = [], mangaCardsShowTimeoutId = null, lastMangaCardsButton = null, currentMangaReader = null, currentMangaPages = [], currentMangaPageIndex = 0, currentMangaTitle = "", currentMangaSections = null, currentMangaSectionIndex = 0, currentMangaSection = "manga", currentManga = null, mangaNavDebounceTimer = null, currentMangaKeyHandler = null;
@@ -114,8 +135,8 @@ function getMangaPages(manga, sectionIndex = 0) {
 
 function getMangaGridConfig(w) {
   if (w <= 480) return { cardWidth: 95, cardHeight: 150, spacingX: 120, spacingY: 175, cardsPerRow: 2 };
-  if (w <= 768) return { cardWidth: 125, cardHeight: 190, spacingX: 155, spacingY: 220, cardsPerRow: 3 };
-  return { cardWidth: 145, cardHeight: 220, spacingX: 185, spacingY: 250, cardsPerRow: 3 };
+  if (w <= 768) return { cardWidth: 125, cardHeight: 190, spacingX: 155, spacingY: 220, cardsPerRow: 2 };
+  return { cardWidth: 145, cardHeight: 220, spacingX: 185, spacingY: 250, cardsPerRow: 4 };
 }
 
 function showMangaCards(button) {
@@ -124,11 +145,16 @@ function showMangaCards(button) {
   mangaCardElements = [];
   mangaCardsShowing = false;
   
+  console.log('=== DEBUG: Total manga cards in gallery:', mangaGalleryData.length);
+  console.log('=== DEBUG: Manga gallery data:', JSON.stringify(mangaGalleryData.map(m => ({ title: m.title, src: m.src }))));
+  
   const { cardWidth, cardHeight, spacingX, spacingY, cardsPerRow } = getMangaGridConfig(window.innerWidth);
   const totalCards = mangaGalleryData.length;
   const totalRows = Math.ceil(totalCards / cardsPerRow);
   const gridWidth = Math.min(cardsPerRow, totalCards) * spacingX;
   const gridHeight = totalRows * spacingY;
+  
+  console.log('=== DEBUG: Grid config:', { cardWidth, cardHeight, spacingX, spacingY, cardsPerRow, totalCards, totalRows, gridWidth, gridHeight });
   
   const buttonRect = button.getBoundingClientRect();
   const centerX = window.innerWidth / 2;
@@ -150,10 +176,13 @@ function showMangaCards(button) {
   const startY = buttonRect.top + buttonRect.height / 2;
   
   mangaGalleryData.forEach((manga, index) => {
+    console.log(`Creating card ${index}: ${manga.title}, src: ${manga.src}, comingSoon: ${manga.comingSoon}`);
+    
     const card = document.createElement("div");
-    card.className = "work-card";
+    card.className = "manga-card";
     card.dataset.src = manga.src;
     card.dataset.title = manga.title;
+    card.id = `manga-card-${index}`;
     
     const row = Math.floor(index / cardsPerRow);
     const col = index % cardsPerRow;
@@ -163,7 +192,9 @@ function showMangaCards(button) {
     const cardX = rowStartX + col * spacingX;
     const cardY = gridTopY + row * spacingY + spacingY / 2;
     
-    card.style.cssText = `position:fixed;left:${startX}px;top:${startY}px;width:${cardWidth}px;height:${cardHeight}px;transform:translate(-50%,-50%) scale(0.1) rotate(0deg);opacity:0;z-index:3000;cursor:pointer;transition:all 0.3s ease;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.6);pointer-events:auto;border:2px solid rgba(255, 215, 0, 0.3)`;
+    console.log(`Card ${index} (${manga.title}) position: row=${row}, col=${col}, cardX=${cardX}, cardY=${cardY}, cardsInThisRow=${cardsInThisRow}`);
+    
+    card.style.cssText = `position:fixed;left:${startX}px;top:${startY}px;width:${cardWidth}px;height:${cardHeight}px;transform:translate(-50%,-50%) scale(0.1) rotate(0deg);opacity:0;z-index:3000;cursor:pointer;transition:all 0.3s ease;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.6);pointer-events:auto;border:2px solid rgba(255, 215, 0, 0.3);background:#1a1a2e;`;
     
     card.onmouseenter = () => {
       card.style.transform = card.style.transform.replace("scale(1)", "scale(1.1)");
@@ -185,7 +216,19 @@ function showMangaCards(button) {
     img.loading = "eager";
     img.decoding = "async";
     img.style.cssText = "width:100%;height:100%;object-fit:contain;display:block;background:#0e0e16";
+    img.onerror = () => {
+      console.error(`=== ERROR: Failed to load image for ${manga.title}: ${manga.src}`);
+      card.style.background = '#ff0000';
+      // Keep the card visible even if image fails
+      card.style.opacity = '1';
+    };
+    img.onload = () => console.log(`=== SUCCESS: Loaded image for ${manga.title}`);
     card.appendChild(img);
+    
+    const titleOverlay = document.createElement("div");
+    titleOverlay.textContent = manga.title;
+    titleOverlay.style.cssText = "position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;padding:5px;font-size:12px;text-align:center;z-index:10";
+    card.appendChild(titleOverlay);
     
     if (manga.comingSoon) {
       const overlay = document.createElement("div");
@@ -214,15 +257,23 @@ function showMangaCards(button) {
     
     document.body.appendChild(card);
     mangaCardElements.push(card);
+    console.log(`=== DEBUG: Card ${index} (${manga.title}) appended to DOM. Total manga cards in DOM: ${document.querySelectorAll('.manga-card').length}`);
     
     setTimeout(() => {
       card.style.left = `${cardX}px`;
       card.style.top = `${cardY}px`;
       card.style.transform = "translate(-50%,-50%) scale(1)";
       card.style.opacity = "1";
+      console.log(`=== DEBUG: Card ${index} (${manga.title}) animated to position: ${cardX}, ${cardY}`);
+      
+      // Add position debugging
+      const rect = card.getBoundingClientRect();
+      console.log(`=== DEBUG: Card ${index} final position:`, { left: rect.left, top: rect.top, width: rect.width, height: rect.height, visible: rect.width > 0 && rect.height > 0 });
     }, 60 + index * 90);
   });
   
+  console.log(`=== DEBUG: Finished creating ${mangaCardElements.length} manga cards`);
+  console.log(`=== DEBUG: All card IDs:`, mangaCardElements.map(el => el.id));
   mangaCardsShowing = true;
 }
 
