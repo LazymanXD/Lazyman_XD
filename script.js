@@ -2356,6 +2356,13 @@ const mangaImagePool = {
   msSilhouette7: "./4/Ms silhouette_008.webp",
   msSilhouette8: "./4/Ms silhouette_009.webp",
   msSilhouette9: "./4/Ms silhouette_010.webp",
+  msSilhouette10: "./4/Ms silhouette_011.webp",
+  msSilhouette11: "./4/Ms silhouette_012.webp",
+  msSilhouette12: "./4/Ms silhouette_013.webp",
+  msSilhouette13: "./4/Ms silhouette_014.webp",
+  msSilhouette14: "./4/Ms silhouette_015.webp",
+  msSilhouette15: "./4/Ms silhouette_016.webp",
+  msSilhouette16: "./4/Ms silhouette_017.webp",
 };
 
 const mangaGalleryData = [
@@ -2512,6 +2519,13 @@ const mangaGalleryData = [
       "msSilhouette7",
       "msSilhouette8",
       "msSilhouette9",
+      "msSilhouette10",
+      "msSilhouette11",
+      "msSilhouette12",
+      "msSilhouette13",
+      "msSilhouette14",
+      "msSilhouette15",
+      "msSilhouette16",
     ],
     illustrations: [],
   },
