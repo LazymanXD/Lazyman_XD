@@ -634,7 +634,7 @@ body {
     gap: 18px;
     overflow: hidden;
 }
-body.update-panel-open #roadmapToggleBtn {
+body.update-panel-open .roadmap-toggle-btn {
     opacity: 0;
     pointer-events: none;
     transform: translateY(-6px) scale(0.9);
@@ -5284,7 +5284,7 @@ a {
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-    body.update-panel-open #roadmapToggleBtn {
+    body.update-panel-open .roadmap-toggle-btn {
         opacity: 0;
         pointer-events: none;
         transform: translateY(-6px) scale(0.9);
@@ -5547,7 +5547,7 @@ a {
 
 /* Small Mobile */
 @media (max-width: 480px) {
-    body.update-panel-open #roadmapToggleBtn {
+    body.update-panel-open .roadmap-toggle-btn {
         opacity: 0;
         pointer-events: none;
     }

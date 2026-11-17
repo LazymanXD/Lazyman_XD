@@ -6,10 +6,9 @@ const tabContent = document.getElementById("tabContent");
 // Two buttons share this role in different layout states (pre-load view and
 // in-desktop view). They used to share one duplicate id, which meant
 // getElementById only ever found the first one and the second never
-// responded to clicks. Now both are controlled together.
-const roadmapToggleBtns = document.querySelectorAll(
-  "#roadmapToggleBtn, #roadmapToggleBtnDesktop",
-);
+// responded to clicks. Both carry the .roadmap-toggle-btn class, so select
+// by class to control them together.
+const roadmapToggleBtns = document.querySelectorAll(".roadmap-toggle-btn");
 const roadmapOverlay = document.getElementById("roadmapOverlay");
 
 const BASE_SOUND_VOLUME = 0.18;
@@ -74,16 +73,6 @@ const sounds = {
 };
 
 let audioUnlocked = false;
-let qaSoundIndex = 0;
-const qaSoundKeys = ["qaClick1", "qaClick2", "qaClick3", "qaClick4"];
-
-function isQAPage() {
-  const currentContent = tabContent.innerHTML;
-  return (
-    currentContent.includes("qa-container") ||
-    currentContent.includes("qa-top-nav")
-  );
-}
 
 function unlockAudio() {
   if (audioUnlocked) return;
@@ -96,10 +85,6 @@ function unlockAudio() {
 }
 
 function playSound(soundKey, delay = 0) {
-  if (!soundKey && isQAPage()) {
-    soundKey = qaSoundKeys[qaSoundIndex];
-    qaSoundIndex = (qaSoundIndex + 1) % qaSoundKeys.length;
-  }
   const sound = sounds[soundKey];
   if (!sound) return;
 
@@ -755,11 +740,7 @@ function maximizeMiddleTab(e) {
   playSound("tabClick", 0);
 
   // Check if we're on the main/home page - if so, don't allow expansion
-  const currentContent = tabContent.innerHTML;
-  if (
-    currentContent.includes("middle-tab-title") ||
-    currentContent.includes("Lazyman_XD")
-  ) {
+  if (currentPageKey === "home") {
     // We're on the home page, don't allow expansion
     return;
   }
@@ -1715,7 +1696,12 @@ const pages = {
   },
 };
 
+// Explicit current-page state (replaces fragile tabContent.innerHTML sniffing)
+let currentPageKey = "home";
+
 function showPage(pageKey) {
+  currentPageKey = pageKey;
+
   // Show roadmap button on home, hide on other pages
   // (mobile and desktop currently use the same rule)
   roadmapToggleBtns.forEach((btn) => {
@@ -4114,7 +4100,7 @@ function addArtwork() {
       saveData(); // Save to localStorage
 
       // Refresh the work page if it's currently displayed to ensure new images work
-      if (tabContent.innerHTML.includes("My Work")) {
+      if (currentPageKey === "work") {
         showPage("work");
       }
 
@@ -4149,7 +4135,7 @@ function removeArtwork() {
     saveData(); // Save to localStorage
 
     // Refresh the work page if it's currently displayed
-    if (tabContent.innerHTML.includes("My Work")) {
+    if (currentPageKey === "work") {
       showPage("work");
     }
 
