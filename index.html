@@ -7494,12 +7494,30 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         }, 1400);
       }
 
+      let chessThinkingDots = false;
+      function chessSetThinkingDots(show) {
+        const t = knightBubble ? knightBubble.querySelector(".ck-text") : null;
+        if (show) {
+          if (!t) return;
+          knightBubble.classList.remove("hidden");
+          knightBubble.classList.add("ck-chess-talk");
+          t.textContent = "...";
+          chessThinkingDots = true;
+          placeKnightBubble();
+          return;
+        }
+        if (!chessThinkingDots) return;
+        chessThinkingDots = false;
+        if (t && t.textContent.trim() === "...") knightBubble.classList.add("hidden");
+      }
+
       function chessMaybeKnightTurn() {
         chessEnsureGame();
         const gs = state.chessGame;
         if (!gs || gs.over || !cgGame || chessAiBusy || chessAnim) return;
         if (cgGame.turn === gs.player) return;
         chessAiBusy = true;
+        chessSetThinkingDots(true);
         chessAiTimer = setTimeout(() => {
           chessAiTimer = null;
           const gameRef = state.chessGame;
@@ -7546,11 +7564,13 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
           gs.over = st.over;
           gs.result = { over: st.over, winner: st.winner || null };
           chessClearSelection();
+          chessSetThinkingDots(false);
           saveScene();
           renderNode(gs.auto ? "67PA" : (gs.spectator ? "67SE" : "67E"));
           return;
         }
-        if (gs.auto) { chessAutoStep(); return; }
+        if (cgGame.turn === gs.player) chessSetThinkingDots(false);
+        if (gs.auto) { chessAutoCommentary(); chessAutoStep(); return; }
         if (Math.random() < 0.5) {
           if (gs.spectator && Math.random() < 0.5) ninaSpectatorQuip(true);
           else knightGameQuip(true);
@@ -7651,6 +7671,7 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         };
         cgGame = null;
         chessClearSelection();
+        chessThinkingDots = false;
         if (ninaQuipTimer) { clearTimeout(ninaQuipTimer); ninaQuipTimer = null; }
         if (knightQuipTimer) { clearTimeout(knightQuipTimer); knightQuipTimer = null; }
         chessFillMissing();
@@ -7695,6 +7716,7 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         if (ninaQuipTimer) { clearTimeout(ninaQuipTimer); ninaQuipTimer = null; }
         if (knightQuipTimer) { clearTimeout(knightQuipTimer); knightQuipTimer = null; }
         chessClearSelection();
+        chessThinkingDots = false;
         chessEnsureGame();
         state.chessGame.positions[chessPositionKey()] = 1;
         chessParkAtBoardTop();
@@ -7715,6 +7737,7 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         state.chessGame = null;
         state.chessPieces = chessInitialPieces();
         chessClearSelection();
+        chessThinkingDots = false;
         renderChess();
         chessParkAtBoardBottom();
         saveScene();
@@ -7787,6 +7810,7 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         if (ninaQuipTimer) { clearTimeout(ninaQuipTimer); ninaQuipTimer = null; }
         if (knightQuipTimer) { clearTimeout(knightQuipTimer); knightQuipTimer = null; }
         chessClearSelection();
+        chessThinkingDots = false;
         chessEnsureGame();
         state.chessGame.positions[chessPositionKey()] = 1;
         if (knightSide === "b") {
@@ -7833,6 +7857,56 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
             else chessAfterMove();
           });
         }, 1000 + Math.random() * 600);
+      }
+
+      const NINA_AUTO_QUIPS = [
+        "Did you just move backwards? Bold strategy.",
+        "The knight in shining armor... get it? Because you're a knight? ...I'll see myself out.",
+        "You're actually kind of good at this. Don't let it go to your head.",
+        "That was your queen? Tragic.",
+        "I call that move 'questionable.'",
+        "Wow, a knight that can play chess. Riveting.",
+        "You're thinking too loud—I can hear the gears.",
+        "Checkmate in three? More like checkmate in 'oh no.'",
+        "I let you have that pawn. You're welcome.",
+        "You're cute when you concentrate. Too bad you lose."
+      ];
+      const KNIGHT_AUTO_QUIPS = [
+        "A stray sprite giving me chess lessons? Tch.",
+        "Your opening was... edible.",
+        "You move like a screensaver.",
+        "Not bad for something held together with tape.",
+        "Careful, sprite—one wrong move and you're off the board.",
+        "I've played worse. Once. With a deck of cards.",
+        "You're lucky I'm going easy on you. ...I'm not.",
+        "That pawn move had ambition. It lacked execution.",
+        "Keep talking. Focus is a choice.",
+        "You beat me? ...I'll allow it. Once."
+      ];
+      let chessAutoCommentTimer = null;
+
+      function chessAutoCommentary() {
+        const gs = state.chessGame;
+        if (!gs || !gs.auto || gs.over) return;
+        if (Math.random() > 0.45) return;
+        const knightSpeaks = Math.random() < 0.5;
+        const bubble = knightSpeaks ? knightBubble : ninaBubble;
+        const textEl = knightSpeaks ? knightText : ninaText;
+        const lines = knightSpeaks ? KNIGHT_AUTO_QUIPS : NINA_AUTO_QUIPS;
+        if (!bubble || !textEl) return;
+        textEl.textContent = lines[Math.floor(Math.random() * lines.length)];
+        bubble.classList.remove("hidden");
+        if (knightSpeaks) {
+          bubble.classList.add("ck-chess-talk");
+          requestAnimationFrame(placeKnightBubble);
+        } else {
+          placeNinaBubble();
+        }
+        if (chessAutoCommentTimer) clearTimeout(chessAutoCommentTimer);
+        chessAutoCommentTimer = setTimeout(() => {
+          chessAutoCommentTimer = null;
+          if (state.currentNodeId === "67PG") bubble.classList.add("hidden");
+        }, 2800);
       }
 
       function chessAutoResult() {
