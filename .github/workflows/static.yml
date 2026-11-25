@@ -37,6 +37,10 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: '.'
+      # deploy-pages queries the artifact API immediately; give it a moment
+      # to index the just-uploaded artifact or it reports "Found 0 artifact(s)"
+      - name: Wait for artifact indexing
+        run: sleep 15
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
