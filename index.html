@@ -10,6 +10,27 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="image" href="./assets/background-2560.jpg" />
   <link rel="preload" as="image" href="./assets/dust1.webp" />
+  <!-- Card deck images: preload so they appear instantly, like the background -->
+  <link rel="preload" as="image" href="./illustrations/1.webp" />
+  <link rel="preload" as="image" href="./illustrations/2.webp" />
+  <link rel="preload" as="image" href="./illustrations/3.webp" />
+  <link rel="preload" as="image" href="./illustrations/4.webp" />
+  <link rel="preload" as="image" href="./illustrations/5.webp" />
+  <link rel="preload" as="image" href="./illustrations/6.webp" />
+  <link rel="preload" as="image" href="./illustrations/7.webp" />
+  <link rel="preload" as="image" href="./illustrations/8.webp" />
+  <link rel="preload" as="image" href="./illustrations/9.webp" />
+  <link rel="preload" as="image" href="./illustrations/10.webp" />
+  <link rel="preload" as="image" href="./illustrations/11.webp" />
+  <link rel="preload" as="image" href="./illustrations/12.webp" />
+  <link rel="preload" as="image" href="./illustrations/13.webp" />
+  <link rel="preload" as="image" href="./illustrations/14.webp" />
+  <link rel="preload" as="image" href="./illustrations/15.webp" />
+  <link rel="preload" as="image" href="./illustrations/16.webp" />
+  <link rel="preload" as="image" href="./illustrations/dave.webp" />
+  <link rel="preload" as="image" href="./illustrations/linda.webp" />
+  <link rel="preload" as="image" href="./illustrations/mike.webp" />
+  <link rel="preload" as="image" href="./illustrations/susan.webp" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Staatliches&family=Caveat:wght@500;600;700&family=Nosifer&family=Metal+Mania&family=Pirata+One&family=Permanent+Marker&family=Cinzel:wght@700;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <style>
     * {
@@ -498,13 +519,21 @@
       display: none;
     }
 
-    /* Mobile: move book switcher below the book */
+    /* Mobile: place book switcher on the dock row, in button 1's slot */
     @media (max-width: 640px) {
       #feat-book .book-switch {
-        left: 50%;
-        top: calc(100% + 12px);
+        position: fixed;
+        left: calc(50% - 112px - clamp(16px, 5vw, 32px));
+        top: auto;
+        bottom: calc(14px + max(18px, env(safe-area-inset-bottom)) / 2);
         transform: translateX(-50%);
         flex-direction: row;
+      }
+      #feat-book .book-switch-btn::after {
+        left: 50%;
+        top: auto;
+        bottom: calc(100% + 6px);
+        transform: translateX(-50%);
       }
     }
 
@@ -2578,14 +2607,24 @@
       pointer-events: none;
     }
 
-    .dock-wrapper.dock-peek:hover .dock {
-      transform: translateY(0);
-      opacity: 1;
-      pointer-events: auto;
+    /* Touchscreens keep :hover stuck after a tap, which would pin the dock
+       open forever — only reveal the peeked dock on real hover devices */
+    @media (hover: hover) and (pointer: fine) {
+      .dock-wrapper.dock-peek:hover .dock {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
     }
 
     /* Exclusive isolation pattern: when a button is open, hide all other dock-btn elements */
     .dock.exclusive-mode .dock-btn:not(.is-open):not(.nav-btn) {
+      display: none !important;
+    }
+
+    /* Deck page arrows belong to the deck only — hide them while any other
+       feature is open so they can't leak into e.g. the book dock row */
+    .dock.exclusive-mode:not(:has(#deckToggleBtn.is-open)) .dock-btn.nav-btn {
       display: none !important;
     }
 
@@ -3856,16 +3895,23 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         pageBody.style.fontSize = "";
         const range = document.createRange();
         range.selectNodeContents(pageBody);
-        let size = parseFloat(getComputedStyle(pageBody).fontSize) || 16;
         const minSize = 8;
         const availH = pageBody.clientHeight - 8;
         const availW = pageBody.clientWidth - 8;
-        while (size > minSize) {
+        const fits = () => {
           const rect = range.getBoundingClientRect();
-          if (rect.height <= availH && rect.width <= availW) break;
-          size -= 0.5;
-          pageBody.style.fontSize = size + "px";
+          return rect.height <= availH && rect.width <= availW;
+        };
+        let hi = parseFloat(getComputedStyle(pageBody).fontSize) || 16;
+        pageBody.style.fontSize = hi + "px";
+        if (fits()) { range.detach(); return; }
+        let lo = minSize;
+        while (hi - lo > 0.5) {
+          const mid = (lo + hi) / 2;
+          pageBody.style.fontSize = mid + "px";
+          if (fits()) lo = mid; else hi = mid;
         }
+        pageBody.style.fontSize = lo + "px";
         range.detach();
       }
 
