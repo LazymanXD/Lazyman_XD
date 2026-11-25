@@ -9041,20 +9041,60 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
 
         // Anchor a bubble to its speaker: above first, then left/right/below.
         // Skips any spot blocked by the other sprite or an already-placed bubble.
+        // On tight screens, scans a grid for any free spot, then picks the
+        // least-overlapping position as a last resort so it never covers a sprite.
         function placeBubble(el, bw, bh, s, obstacles) {
+          const clampX = (v) => Math.max(8, Math.min(v, pw - bw - 8));
+          const clampY = (v) => Math.max(8, Math.min(v, ph - bh - 8));
           const spots = [
             [s.x + s.w + 12, s.y + s.h / 2 - bh / 2],
             [s.x - bw - 12, s.y + s.h / 2 - bh / 2],
             [s.x + s.w / 2 - bw / 2, s.y - bh - 12],
             [s.x + s.w / 2 - bw / 2, s.y + s.h + 12]
           ];
-          let fx = spots[0][0], fy = spots[0][1];
+          let fx = null, fy = null;
           for (const [cx, cy] of spots) {
-            const x = Math.max(8, Math.min(cx, pw - bw - 8));
-            const y = Math.max(8, Math.min(cy, ph - bh - 8));
+            const x = clampX(cx), y = clampY(cy);
             if (!obstacles.some((o) => overlaps(x, y, bw, bh, o))) {
               fx = x; fy = y;
               break;
+            }
+          }
+          if (fx === null) {
+            // Search only a zone around the speaker so the bubble stays near
+            // its sprite instead of jumping anywhere on the panel
+            const zone = {
+              x0: Math.max(0, s.x - 140),
+              y0: Math.max(0, s.y - 140),
+              x1: Math.min(pw, s.x + s.w + 140),
+              y1: Math.min(ph, s.y + s.h + 140)
+            };
+            const zx = (i, n) => zone.x0 + (zone.x1 - zone.x0) * (i + 0.5) / n;
+            const zy = (j, m) => zone.y0 + (zone.y1 - zone.y0) * (j + 0.5) / m;
+            for (let gy = 0; gy < 6 && fx === null; gy++) {
+              for (let gx = 0; gx < 8 && fx === null; gx++) {
+                const x = clampX(zx(gx, 8) - bw / 2);
+                const y = clampY(zy(gy, 6) - bh / 2);
+                if (!obstacles.some((o) => overlaps(x, y, bw, bh, o))) {
+                  fx = x; fy = y;
+                }
+              }
+            }
+            if (fx === null) {
+              // Last resort inside the same zone: least overlap wins
+              let bestScore = Infinity;
+              for (let gy = 0; gy < 6; gy++) {
+                for (let gx = 0; gx < 8; gx++) {
+                  const x = clampX(zx(gx, 8) - bw / 2);
+                  const y = clampY(zy(gy, 6) - bh / 2);
+                  const score = obstacles.reduce((acc, o) => {
+                    const ox = Math.max(0, Math.min(x + bw, o.x + o.w) - Math.max(x, o.x));
+                    const oy = Math.max(0, Math.min(y + bh, o.y + o.h) - Math.max(y, o.y));
+                    return acc + ox * oy;
+                  }, 0);
+                  if (score < bestScore) { bestScore = score; fx = x; fy = y; }
+                }
+              }
             }
           }
           fx = Math.max(8, Math.min(fx, pw - bw - 8));
