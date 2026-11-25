@@ -10417,6 +10417,20 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
             ninaY = workspace.clientHeight / 2 - 40;
             updateNinaPosition();
 
+            // Post-scene: sprites own the stage (roaming main/manga/dock) —
+            // ambient Nina stays silent and just drifts, no progression talk
+            let ck = null;
+            try { ck = JSON.parse(localStorage.getItem("ckSceneState") || "null"); } catch (e) {}
+            if (ck && (ck.spritesOut || ck.spritesInManga || ck.knightAtBtn3 || ck.sceneDone)) {
+                const drift = () => {
+                    const rx = Math.random() * (workspace.clientWidth - 200) + 100;
+                    const ry = Math.random() * (workspace.clientHeight - 200) + 100;
+                    moveToPosition(rx, ry, () => setTimeout(drift, 6000 + Math.random() * 6000));
+                };
+                drift();
+                return;
+            }
+
             if (ninaProgress >= 6) { beginFreeRoamingAndResearch(false); return; }
             if (ninaProgress === 5) { startResearchPhase(); return; }
             if (ninaProgress === 4) { secondWonderPhase(); return; }
