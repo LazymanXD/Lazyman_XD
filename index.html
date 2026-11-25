@@ -1809,6 +1809,18 @@
       cursor: pointer;
       z-index: 10;
       transition: opacity 0.25s ease, transform 0.25s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .ck-choices,
+    .ck-choice,
+    .ck-overlay-bubble,
+    .nl-bubble,
+    .nl-text,
+    .nl-opt {
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .ck-bubble.hidden {
@@ -6629,10 +6641,13 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         const sceneRect = scene ? scene.getBoundingClientRect() : dialogueLayer.getBoundingClientRect();
         const sw = miniSpriteEl.offsetWidth || 128;
         const sh = miniSpriteEl.offsetHeight || 140;
+        const isMobile = window.innerWidth <= 640;
+        const gap = isMobile ? 20 : 8;
+        const bottomPad = isMobile ? 2 : 8;
         let left = boardRect.left - sceneRect.left + boardRect.width / 2 - sw / 2;
-        let top = boardRect.bottom - sceneRect.top + 8 - sh;
+        let top = boardRect.bottom - sceneRect.top + gap - sh;
         left = Math.max(8, Math.min(sceneRect.width - sw - 8, left));
-        top = Math.max(8, Math.min(sceneRect.height - sh - 8, top));
+        top = Math.max(8, Math.min(sceneRect.height - sh - bottomPad, top));
         if (!isFinite(left) || !isFinite(top)) return;
         miniSpriteEl.style.left = `${left / sceneRect.width * 100}%`;
         miniSpriteEl.style.top = `${top / sceneRect.height * 100}%`;
@@ -7730,10 +7745,13 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         const sceneRect = scene ? scene.getBoundingClientRect() : dialogueLayer.getBoundingClientRect();
         const sw = ninaSpriteEl.offsetWidth || 110;
         const sh = ninaSpriteEl.offsetHeight || 130;
+        const isMobile = window.innerWidth <= 640;
+        const gap = isMobile ? 20 : 8;
+        const bottomPad = isMobile ? 2 : 8;
         let left = boardRect.left - sceneRect.left + boardRect.width / 2 - sw / 2;
-        let top = boardRect.bottom - sceneRect.top + 8 - sh;
+        let top = boardRect.bottom - sceneRect.top + gap - sh;
         left = Math.max(8, Math.min(sceneRect.width - sw - 8, left));
-        top = Math.max(8, Math.min(sceneRect.height - sh - 8, top));
+        top = Math.max(8, Math.min(sceneRect.height - sh - bottomPad, top));
         if (!isFinite(left) || !isFinite(top)) return;
         ninaSpriteEl.style.left = `${left / sceneRect.width * 100}%`;
         ninaSpriteEl.style.top = `${top / sceneRect.height * 100}%`;
@@ -10156,10 +10174,10 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
             state = 'ROAMING_FREE';
             saveProgress(6);
             triggerDialogue("Well, there's no point standing around here. Why don't we explore this hall a little?", 3, () => {
-                beginFreeRoamingAndResearch();
+                beginFreeRoamingAndResearch(true);
             });
         }
-        function beginFreeRoamingAndResearch() {
+        function beginFreeRoamingAndResearch(firstRoam) {
             state = 'ROAMING_FREE';
             const researchDialogues = [
                 "Those massive letters 'LAZYMAN_XD' just hang there in the light... I have never seen runes like that.",
@@ -10187,7 +10205,9 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
             function showRoamPrompt() {
                 let roamDone = false;
                 try { roamDone = localStorage.getItem("ninaRoamDone") === "1"; } catch (e) {}
-                if (roamDone) { idleDrift(); return; }
+                // Grand tour line is first-roam-only — later roaming rounds
+                // (sprites out in main/manga) just idle drift instead
+                if (roamDone || !firstRoam) { idleDrift(); return; }
                 try { localStorage.setItem("ninaRoamDone", "1"); } catch (e) {}
                 triggerDialogue("Well, that's the grand tour. Now it's your turn—roam around, look at anything that catches your eye, and ask someone here, if there is someone in this weird place.", 4, () => {
                     showOptionalDialogues(roamChoices, (choice) => {
@@ -10320,7 +10340,7 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
             ninaY = workspace.clientHeight / 2 - 40;
             updateNinaPosition();
 
-            if (ninaProgress >= 6) { beginFreeRoamingAndResearch(); return; }
+            if (ninaProgress >= 6) { beginFreeRoamingAndResearch(false); return; }
             if (ninaProgress === 5) { startResearchPhase(); return; }
             if (ninaProgress === 4) { secondWonderPhase(); return; }
             if (ninaProgress === 3) { wonderWhereSheIs(); return; }
