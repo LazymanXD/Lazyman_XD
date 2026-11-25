@@ -10309,6 +10309,9 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
                 });
             }
 
+            // Research + roam prompt are first-roam-only content. On later
+            // resumes (sprites roaming main/manga) Nina just idles around.
+            if (!firstRoam) { idleDrift(); return; }
             cycleResearch();
         }
 
