@@ -3619,6 +3619,7 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
       let currentIndex = 0;
       let isAnimating = false;
       let bookOpen = false;
+      const pageFontSizes = {};
 
       function renderDots() {
         dotsContainer.innerHTML = "";
@@ -3630,6 +3631,11 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
       }
 
       function fitPageText() {
+        const cacheKey = bookIdx + ":" + currentIndex;
+        if (cacheKey in pageFontSizes) {
+          pageBody.style.fontSize = pageFontSizes[cacheKey] + "px";
+          return;
+        }
         pageBody.style.fontSize = "";
         const range = document.createRange();
         range.selectNodeContents(pageBody);
@@ -3642,7 +3648,7 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         };
         let hi = parseFloat(getComputedStyle(pageBody).fontSize) || 16;
         pageBody.style.fontSize = hi + "px";
-        if (fits()) { range.detach(); return; }
+        if (fits()) { pageFontSizes[cacheKey] = hi; range.detach(); return; }
         let lo = minSize;
         while (hi - lo > 0.5) {
           const mid = (lo + hi) / 2;
@@ -3650,12 +3656,14 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
           if (fits()) lo = mid; else hi = mid;
         }
         pageBody.style.fontSize = lo + "px";
+        pageFontSizes[cacheKey] = lo;
         range.detach();
       }
 
       function layoutBookStage() {
         const r = bookPanel.getBoundingClientRect();
         if (!r.width || !r.height) return;
+        for (const k in pageFontSizes) delete pageFontSizes[k];
         const ratio = 800 / 1281;
         let h = Math.min(r.height * 0.94, 900);
         let w = h * ratio;
@@ -3672,7 +3680,10 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
       renderDots();
 
       if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(() => { if (bookOpen) fitPageText(); });
+        document.fonts.ready.then(() => {
+          for (const k in pageFontSizes) delete pageFontSizes[k];
+          if (bookOpen) fitPageText();
+        });
       }
 
       new ResizeObserver(() => {
