@@ -31,7 +31,7 @@
       width: 100%;
       height: 100%;
       background-color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -1823,6 +1823,13 @@
       flex-direction: column;
     }
 
+    @media (max-width: 640px) {
+      .ck-knight-bubble {
+        height: auto;
+        max-height: 220px;
+      }
+    }
+
     .ck-knight-bubble .ck-text {
       flex: 1 1 auto;
       min-height: 0;
@@ -1979,13 +1986,13 @@
     @media (max-width: 640px) {
       .ck-portrait {
         right: 3%;
-        width: 54vw;
-        max-width: 230px;
+        width: 68vw;
+        max-width: 300px;
       }
       .ck-choices {
         top: auto;
-        bottom: calc(8px + 245px);
-        width: 38%;
+        bottom: calc(8px + 235px);
+        width: 42%;
         left: 4%;
         right: auto;
         transform: none;
@@ -2010,8 +2017,8 @@
       }
       .ck-scene #nina .nl-body img { width: 80px; }
       .ck-chess { width: min(94vw, 68vh); top: 50%; }
-      .ck-mini-sprite { width: 90px; left: 54%; top: 36%; }
-      .ck-mini-body { width: 80px; height: 107px; }
+      .ck-mini-sprite { width: 110px; left: 54%; top: 36%; }
+      .ck-mini-body { width: 100px; height: 134px; }
       #mainSprites .ck-overlay-bubble,
       #featSprites .ck-overlay-bubble {
         width: min(170px, 52%);
@@ -8166,12 +8173,10 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
           });
           target.appendChild(btn);
         });
-        if (chessMode) {
-          requestAnimationFrame(() => {
-            placeKnightBubble();
-            placeNinaBubble();
-          });
-        }
+        requestAnimationFrame(() => {
+          placeKnightBubble();
+          placeNinaBubble();
+        });
         syncOverlayBubbles();
       }
 
@@ -8305,10 +8310,14 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         const ks = miniSpriteEl && !miniSpriteEl.classList.contains("hidden") ? miniSpriteEl.getBoundingClientRect() : null;
         const s2L = ks ? ks.left - pr.left : null, s2T = ks ? ks.top - pr.top : null;
         const s2R = ks ? s2L + ks.width : null, s2B = ks ? s2T + ks.height : null;
+        const ch = choicesContainer && choicesContainer.children.length > 0 ? choicesContainer.getBoundingClientRect() : null;
+        const chL = ch ? ch.left - pr.left : null, chT = ch ? ch.top - pr.top : null;
+        const chR = ch ? chL + ch.width : null, chB = ch ? chT + ch.height : null;
         const free = (l, t) =>
           !((l + bw > sL + 4) && (l < sR - 4) && (t + bh > sT + 4) && (t < sB - 4)) &&
           !(kb && (l + bw > kL + 4) && (l < kR - 4) && (t + bh > kT + 4) && (t < kB - 4)) &&
-          !(ks && (l + bw > s2L) && (l < s2R) && (t + bh > s2T) && (t < s2B));
+          !(ks && (l + bw > s2L + 4) && (l < s2R - 4) && (t + bh > s2T + 4) && (t < s2B - 4)) &&
+          !(ch && (l + bw > chL + 4) && (l < chR - 4) && (t + bh > chT + 4) && (t < chB - 4));
         let pick = null;
         for (const c of candidates) {
           const l = cL(c.left), t = cT(c.top);
@@ -8351,9 +8360,17 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         const nb = !ninaBubble.classList.contains("hidden") ? ninaBubble.getBoundingClientRect() : null;
         const nL = nb ? nb.left - pr.left : null, nT = nb ? nb.top - pr.top : null;
         const nR = nb ? nL + nb.width : null, nB = nb ? nT + nb.height : null;
+        const ns = ninaSpriteEl && !ninaSpriteEl.classList.contains("hidden") ? ninaSpriteEl.getBoundingClientRect() : null;
+        const nsL = ns ? ns.left - pr.left : null, nsT = ns ? ns.top - pr.top : null;
+        const nsR = ns ? nsL + ns.width : null, nsB = ns ? nsT + ns.height : null;
+        const ch = choicesContainer && choicesContainer.children.length > 0 ? choicesContainer.getBoundingClientRect() : null;
+        const chL = ch ? ch.left - pr.left : null, chT = ch ? ch.top - pr.top : null;
+        const chR = ch ? chL + ch.width : null, chB = ch ? chT + ch.height : null;
         const free = (l, t) =>
           !((l + bw > sL + 4) && (l < sR - 4) && (t + bh > sT + 4) && (t < sB - 4)) &&
-          !(nb && (l + bw > nL + 4) && (l < nR - 4) && (t + bh > nT + 4) && (t < nB - 4));
+          !(nb && (l + bw > nL + 4) && (l < nR - 4) && (t + bh > nT + 4) && (t < nB - 4)) &&
+          !(ns && (l + bw > nsL + 4) && (l < nsR - 4) && (t + bh > nsT + 4) && (t < nsB - 4)) &&
+          !(ch && (l + bw > chL + 4) && (l < chR - 4) && (t + bh > chT + 4) && (t < chB - 4));
         let pick = null;
         for (const c of candidates) {
           const l = cL(c.left), t = cT(c.top);
