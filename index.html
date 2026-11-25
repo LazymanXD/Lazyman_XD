@@ -519,15 +519,31 @@
       display: none;
     }
 
-    /* Mobile: place book switcher on the dock row, in button 1's slot */
+    /* Mobile: keep button 1 visible as the close button while the book is
+       open, and place the book switcher beside it on the dock row */
     @media (max-width: 640px) {
+      /* The dock strip is full-width and sits above the book switcher —
+         let taps pass through its empty areas so the switcher buttons work */
+      .dock-wrapper {
+        pointer-events: none;
+      }
+      .dock-wrapper .dock {
+        pointer-events: auto;
+      }
+      #dockWrapper.dock-peek #dockContainer {
+        transform: none;
+        opacity: 1;
+        pointer-events: auto;
+      }
       #feat-book .book-switch {
         position: fixed;
-        left: calc(50% - 112px - clamp(16px, 5vw, 32px));
+        left: 50%;
         top: auto;
         bottom: calc(14px + max(18px, env(safe-area-inset-bottom)) / 2);
         transform: translateX(-50%);
         flex-direction: row;
+        justify-content: space-between;
+        width: 152px;
       }
       #feat-book .book-switch-btn::after {
         left: 50%;
@@ -540,22 +556,22 @@
     #feat-book .book-switch-btn {
       width: 40px;
       height: 40px;
-      border-radius: 50%;
+      border-radius: 12px;
       border: 1px solid #d4d4d8;
-      background: rgba(255, 255, 255, 0.92);
+      background: #ffffff;
       color: #111111;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
       transition: transform 0.15s ease, background-color 0.15s ease;
     }
 
     #feat-book .book-switch-btn:hover {
       transform: translateY(-2px);
-      background: #ffffff;
+      background: #f4f4f5;
     }
 
     #feat-book .book-switch-btn svg {
@@ -8451,22 +8467,32 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         const ch = choicesContainer && choicesContainer.children.length > 0 ? choicesContainer.getBoundingClientRect() : null;
         const chL = ch ? ch.left - pr.left : null, chT = ch ? ch.top - pr.top : null;
         const chR = ch ? chL + ch.width : null, chB = ch ? chT + ch.height : null;
+        const chessBox = document.getElementById("ckChess");
+        const bd = chessBox && chessBox.classList.contains("show") && chessCanvas
+          ? chessCanvas.getBoundingClientRect() : null;
+        const bL = bd ? bd.left - pr.left : null, bT = bd ? bd.top - pr.top : null;
+        const bR = bd ? bL + bd.width : null, bB = bd ? bT + bd.height : null;
         const free = (l, t) =>
           !((l + bw > sL + 4) && (l < sR - 4) && (t + bh > sT + 4) && (t < sB - 4)) &&
           !(kb && (l + bw > kL + 4) && (l < kR - 4) && (t + bh > kT + 4) && (t < kB - 4)) &&
           !(ks && (l + bw > s2L + 4) && (l < s2R - 4) && (t + bh > s2T + 4) && (t < s2B - 4)) &&
-          !(ch && (l + bw > chL + 4) && (l < chR - 4) && (t + bh > chT + 4) && (t < chB - 4));
+          !(ch && (l + bw > chL + 4) && (l < chR - 4) && (t + bh > chT + 4) && (t < chB - 4)) &&
+          !(bd && (l + bw > bL + 4) && (l < bR - 4) && (t + bh > bT + 4) && (t < bB - 4));
         let pick = null;
         for (const c of candidates) {
           const l = cL(c.left), t = cT(c.top);
           if (free(l, t)) { pick = { left: l, top: t }; break; }
         }
         if (!pick) {
-          for (let gy = 0; gy < 5 && !pick; gy++) {
-            for (let gx = 0; gx < 7 && !pick; gx++) {
+          const scx = sL + sr.width / 2, scy = sT + sr.height / 2;
+          let bestD = Infinity;
+          for (let gy = 0; gy < 5; gy++) {
+            for (let gx = 0; gx < 7; gx++) {
               const l = cL(pr.width * (gx + 0.5) / 7 - bw / 2);
               const t = cT(pr.height * (gy + 0.5) / 5 - bh / 2);
-              if (free(l, t)) pick = { left: l, top: t };
+              if (!free(l, t)) continue;
+              const d = (l + bw / 2 - scx) ** 2 + (t + bh / 2 - scy) ** 2;
+              if (d < bestD) { bestD = d; pick = { left: l, top: t }; }
             }
           }
         }
@@ -8504,22 +8530,32 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
         const ch = choicesContainer && choicesContainer.children.length > 0 ? choicesContainer.getBoundingClientRect() : null;
         const chL = ch ? ch.left - pr.left : null, chT = ch ? ch.top - pr.top : null;
         const chR = ch ? chL + ch.width : null, chB = ch ? chT + ch.height : null;
+        const chessBox = document.getElementById("ckChess");
+        const bd = chessBox && chessBox.classList.contains("show") && chessCanvas
+          ? chessCanvas.getBoundingClientRect() : null;
+        const bL = bd ? bd.left - pr.left : null, bT = bd ? bd.top - pr.top : null;
+        const bR = bd ? bL + bd.width : null, bB = bd ? bT + bd.height : null;
         const free = (l, t) =>
           !((l + bw > sL + 4) && (l < sR - 4) && (t + bh > sT + 4) && (t < sB - 4)) &&
           !(nb && (l + bw > nL + 4) && (l < nR - 4) && (t + bh > nT + 4) && (t < nB - 4)) &&
           !(ns && (l + bw > nsL + 4) && (l < nsR - 4) && (t + bh > nsT + 4) && (t < nsB - 4)) &&
-          !(ch && (l + bw > chL + 4) && (l < chR - 4) && (t + bh > chT + 4) && (t < chB - 4));
+          !(ch && (l + bw > chL + 4) && (l < chR - 4) && (t + bh > chT + 4) && (t < chB - 4)) &&
+          !(bd && (l + bw > bL + 4) && (l < bR - 4) && (t + bh > bT + 4) && (t < bB - 4));
         let pick = null;
         for (const c of candidates) {
           const l = cL(c.left), t = cT(c.top);
           if (free(l, t)) { pick = { left: l, top: t }; break; }
         }
         if (!pick) {
-          for (let gy = 0; gy < 5 && !pick; gy++) {
-            for (let gx = 0; gx < 7 && !pick; gx++) {
+          const scx = sL + sr.width / 2, scy = sT + sr.height / 2;
+          let bestD = Infinity;
+          for (let gy = 0; gy < 5; gy++) {
+            for (let gx = 0; gx < 7; gx++) {
               const l = cL(pr.width * (gx + 0.5) / 7 - bw / 2);
               const t = cT(pr.height * (gy + 0.5) / 5 - bh / 2);
-              if (free(l, t)) pick = { left: l, top: t };
+              if (!free(l, t)) continue;
+              const d = (l + bw / 2 - scx) ** 2 + (t + bh / 2 - scy) ** 2;
+              if (d < bestD) { bestD = d; pick = { left: l, top: t }; }
             }
           }
         }
