@@ -10434,6 +10434,15 @@ John's body went rigid again. Slowly, his gaze drifted away from her, turning to
 
         audioCtx = new Ctx();
 
+        // Resume AudioContext on first user gesture (fix autoplay policy)
+        const resumeAudio = () => {
+          if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+        };
+        document.addEventListener('click', resumeAudio, { once: true });
+        document.addEventListener('touchstart', resumeAudio, { once: true });
+
         const compressor = audioCtx.createDynamicsCompressor();
         compressor.threshold.value = -16;
         compressor.knee.value = 18;
